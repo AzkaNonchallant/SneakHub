@@ -26,6 +26,12 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-outline: var(--outline);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container: var(--surface-container);
+  --color-surface-variant: var(--surface-variant);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -68,6 +74,12 @@
   --input: #1b1b1b;
   --ring: #2b82f4;
   --digital-blue: #2b82f4;
+  --outline: #7e7576;
+  --primary-container: #1b1b1b;
+  --on-primary-container: #848484;
+  --surface-bright: #f9f9f9;
+  --surface-container: #eeeeee;
+  --surface-variant: #e2e2e2;
   --chart-1: #000000;
   --chart-2: #5d5f5f;
   --chart-3: #2b82f4;
@@ -128,4 +140,11 @@
   html {
     @apply font-sans;
   }
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
 }

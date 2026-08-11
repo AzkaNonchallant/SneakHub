@@ -27,11 +27,20 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
   --color-primary-container: var(--primary-container);
   --color-on-primary-container: var(--on-primary-container);
   --color-surface-bright: var(--surface-bright);
   --color-surface-container: var(--surface-container);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
   --color-surface-variant: var(--surface-variant);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-tertiary-container: var(--tertiary-container);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -39,6 +48,7 @@
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
@@ -65,6 +75,7 @@
   --primary-foreground: #ffffff;
   --secondary: #e2e2e2;
   --secondary-foreground: #1b1b1b;
+  --secondary-fixed-dim: #c6c6c7;
   --muted: #eeeeee;
   --muted-foreground: #4c4546;
   --accent: #eeeeee;
@@ -75,11 +86,20 @@
   --ring: #2b82f4;
   --digital-blue: #2b82f4;
   --outline: #7e7576;
+  --outline-variant: #cfc4c5;
   --primary-container: #1b1b1b;
   --on-primary-container: #848484;
   --surface-bright: #f9f9f9;
   --surface-container: #eeeeee;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f3f3;
+  --surface-container-high: #e8e8e8;
+  --surface-container-highest: #e2e2e2;
   --surface-variant: #e2e2e2;
+  --tertiary: #000000;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #2b82f4;
+  --tertiary-container: #001b3f;
   --chart-1: #000000;
   --chart-2: #5d5f5f;
   --chart-3: #2b82f4;
@@ -147,4 +167,13 @@
     linear-gradient(to right, var(--border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

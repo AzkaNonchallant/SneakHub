@@ -1,0 +1,69 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "SNEAKHUB" [ref=e6] [cursor=pointer]:
+          - /url: /home
+        - search [ref=e7]:
+          - textbox "Search brands, models, styles..." [ref=e11]
+      - navigation [ref=e12]:
+        - link "Smart Find" [ref=e13] [cursor=pointer]:
+          - /url: /search
+        - link "Shop" [ref=e14] [cursor=pointer]:
+          - /url: "#"
+        - link "Market Insights" [ref=e15] [cursor=pointer]:
+          - /url: "#"
+        - link "Seller Hub" [ref=e16] [cursor=pointer]:
+          - /url: /seller-profile
+      - generic [ref=e17]:
+        - button "Image search" [ref=e18] [cursor=pointer]
+        - button "Shopping cart" [ref=e19] [cursor=pointer]
+        - button "Account" [ref=e20] [cursor=pointer]
+  - generic [ref=e22]:
+    - generic [ref=e23]: Smart Find
+    - heading "Search The Market" [level=1] [ref=e24]
+    - paragraph [ref=e25]: Find sneakers by keyword, silhouette, or a photo of the pair you're after.
+    - search [ref=e26]:
+      - textbox "Search brands, models, colorways..." [active] [ref=e30]: nike
+      - generic [ref=e31]:
+        - button "Visual match search" [ref=e32]
+        - button "Search" [ref=e33]
+  - generic [ref=e35]:
+    - generic [ref=e37]:
+      - heading "Visual Match" [level=2] [ref=e42]
+      - paragraph [ref=e43]: Upload a photo or snap one with your camera — AI matches the silhouette, colorway, and brand.
+    - generic [ref=e44] [cursor=pointer]:
+      - button "file upload"
+      - paragraph [ref=e53]: Drag & drop your sneaker photo
+      - paragraph [ref=e54]: or tap to browse your files
+      - generic [ref=e55]:
+        - button "Open camera to take a photo" [ref=e56]
+        - generic [ref=e57]: Or use camera
+  - generic [ref=e59]:
+    - heading "1 Result For \"nike\"" [level=2] [ref=e61]
+    - generic [ref=e63] [cursor=pointer]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: "01"
+        - generic [ref=e66]:
+          - generic [ref=e67]: New
+          - generic [ref=e68]: +12%
+        - img "Nike Dunk Low Panda black and white colorway" [ref=e72]
+      - generic [ref=e73]:
+        - generic [ref=e74]: Nike
+        - heading "Dunk Low 'Panda'" [level=3] [ref=e75]
+        - generic [ref=e77]:
+          - generic [ref=e78]: Current Ask
+          - text: $185
+  - contentinfo [ref=e82]:
+    - generic [ref=e83]:
+      - generic [ref=e84]: SNEAKHUB
+      - navigation [ref=e85]:
+        - link "Terms of Service" [ref=e86] [cursor=pointer]:
+          - /url: "#"
+        - link "Privacy Policy" [ref=e87] [cursor=pointer]:
+          - /url: "#"
+        - link "Authentication Process" [ref=e88] [cursor=pointer]:
+          - /url: "#"
+        - link "Contact Support" [ref=e89] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e90]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.

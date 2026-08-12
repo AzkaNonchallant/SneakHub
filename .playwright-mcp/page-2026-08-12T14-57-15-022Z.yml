@@ -1,0 +1,342 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link "SNEAKHUB" [ref=e6] [cursor=pointer]:
+            - /url: /home
+          - search [ref=e7]:
+            - textbox "Search brands, models, styles..." [ref=e11]
+        - navigation [ref=e12]:
+          - link "Smart Find" [ref=e13] [cursor=pointer]:
+            - /url: /smart-find
+          - link "Shop" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=e15] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=e16] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=e17]:
+          - button "Image search" [ref=e18] [cursor=pointer]
+          - button "Shopping cart" [ref=e19] [cursor=pointer]
+          - button "Account" [ref=e20] [cursor=pointer]
+    - main [ref=e21]:
+      - complementary [ref=e22]:
+        - generic [ref=e23]:
+          - heading "Find Your Perfect Match" [level=1] [ref=e24]
+          - paragraph [ref=e25]: Dial in your specifications.
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: Budget Range
+            - generic [ref=e29]:
+              - slider "Minimum budget": "100"
+              - slider "Maximum budget": "1150"
+            - generic [ref=e32]:
+              - generic [ref=e33]: $100
+              - generic [ref=e34]: $1150
+          - generic [ref=e35]:
+            - generic [ref=e36]: Size (US)
+            - combobox [ref=e37]:
+              - option "Any Size" [selected]
+              - option "8.0"
+              - option "8.5"
+              - option "9.0"
+              - option "9.5"
+              - option "10.0"
+          - generic [ref=e38]:
+            - generic [ref=e39]: Brand
+            - generic [ref=e40]:
+              - generic [ref=e41] [cursor=pointer]:
+                - checkbox "Nike" [ref=e42]
+                - text: Nike
+              - generic [ref=e43] [cursor=pointer]:
+                - checkbox "Adidas" [ref=e44]
+                - text: Adidas
+              - generic [ref=e45] [cursor=pointer]:
+                - checkbox "Jordan" [ref=e46]
+                - text: Jordan
+              - generic [ref=e47] [cursor=pointer]:
+                - checkbox "New Balance" [ref=e48]
+                - text: New Balance
+          - generic [ref=e49]:
+            - generic [ref=e50]: Condition
+            - generic [ref=e51]:
+              - generic [ref=e52] [cursor=pointer]:
+                - checkbox "Brand New" [ref=e53]
+                - text: Brand New
+              - generic [ref=e54] [cursor=pointer]:
+                - checkbox "Refurbished" [ref=e55]
+                - text: Refurbished
+              - generic [ref=e56] [cursor=pointer]:
+                - checkbox "Used - Excellent" [ref=e57]
+                - text: Used - Excellent
+              - generic [ref=e58] [cursor=pointer]:
+                - checkbox "9.0+ (Near Mint)" [ref=e59]
+                - text: 9.0+ (Near Mint)
+              - generic [ref=e60] [cursor=pointer]:
+                - checkbox "8.0+ (Very Good)" [ref=e61]
+                - text: 8.0+ (Very Good)
+          - generic [ref=e62]:
+            - generic [ref=e63]: Purpose
+            - generic [ref=e64]:
+              - button "Daily" [ref=e65]
+              - button "Sports" [ref=e66]
+              - button "Collection" [ref=e67]
+        - button "Apply Filters" [active] [ref=e68]
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: Showing top matches for your profile · Any Size
+          - generic [ref=e72]:
+            - generic [ref=e73]: "Sort By:"
+            - combobox [ref=e74] [cursor=pointer]:
+              - option "Match Score"
+              - 'option "Price: Low to High" [selected]'
+              - 'option "Price: High to Low"'
+        - generic [ref=e75]:
+          - article [ref=e361]:
+            - link "97% Match DS (Brand New) Adidas Samba OG White Black Adidas Samba OG 'White Black' Valuation Delta +1% Auth. Confidence 98% $110 Authenticated" [ref=e362] [cursor=pointer]:
+              - /url: /product/4
+              - generic [ref=e363]:
+                - generic [ref=e364]: 97% Match
+                - generic [ref=e365]: DS (Brand New)
+                - img "Adidas Samba OG White Black" [ref=e366]
+              - generic [ref=e367]:
+                - generic [ref=e369]:
+                  - paragraph [ref=e370]: Adidas
+                  - heading "Samba OG 'White Black'" [level=3] [ref=e371]
+                - generic [ref=e372]:
+                  - generic [ref=e373]:
+                    - generic [ref=e374]: Valuation Delta
+                    - generic [ref=e375]: +1%
+                  - generic [ref=e376]:
+                    - generic [ref=e377]: Auth. Confidence
+                    - generic [ref=e378]: 98%
+                - generic [ref=e379]:
+                  - paragraph [ref=e380]: $110
+                  - generic [ref=e381]: Authenticated
+          - article [ref=e385]:
+            - link "88% Match DS (Brand New) Adidas Yeezy Slide Onyx Adidas Yeezy Slide 'Onyx' Valuation Delta +16% Auth. Confidence 98% $125 Authenticated" [ref=e386] [cursor=pointer]:
+              - /url: /product/7
+              - generic [ref=e387]:
+                - generic [ref=e388]: 88% Match
+                - generic [ref=e389]: DS (Brand New)
+                - img "Adidas Yeezy Slide Onyx" [ref=e390]
+              - generic [ref=e391]:
+                - generic [ref=e393]:
+                  - paragraph [ref=e394]: Adidas
+                  - heading "Yeezy Slide 'Onyx'" [level=3] [ref=e395]
+                - generic [ref=e396]:
+                  - generic [ref=e397]:
+                    - generic [ref=e398]: Valuation Delta
+                    - generic [ref=e399]: +16%
+                  - generic [ref=e400]:
+                    - generic [ref=e401]: Auth. Confidence
+                    - generic [ref=e402]: 98%
+                - generic [ref=e403]:
+                  - paragraph [ref=e404]: $125
+                  - generic [ref=e405]: Authenticated
+          - article [ref=e409]:
+            - link "95% Match Used - Excellent New Balance 550 White Green New Balance 550 'White Green' Valuation Delta +5% Auth. Confidence 97% $130 Authenticated" [ref=e410] [cursor=pointer]:
+              - /url: /product/8
+              - generic [ref=e411]:
+                - generic [ref=e412]: 95% Match
+                - generic [ref=e413]: Used - Excellent
+                - img "New Balance 550 White Green" [ref=e414]
+              - generic [ref=e415]:
+                - generic [ref=e417]:
+                  - paragraph [ref=e418]: New Balance
+                  - heading "550 'White Green'" [level=3] [ref=e419]
+                - generic [ref=e420]:
+                  - generic [ref=e421]:
+                    - generic [ref=e422]: Valuation Delta
+                    - generic [ref=e423]: +5%
+                  - generic [ref=e424]:
+                    - generic [ref=e425]: Auth. Confidence
+                    - generic [ref=e426]: 97%
+                - generic [ref=e427]:
+                  - paragraph [ref=e428]: $130
+                  - generic [ref=e429]: Authenticated
+          - article [ref=e433]:
+            - link "87% Match Used - Excellent New Balance 550 White Green New Balance 550 'White Green' Valuation Delta +18% Auth. Confidence 99% $130 Authenticated" [ref=e434] [cursor=pointer]:
+              - /url: /product/9
+              - generic [ref=e435]:
+                - generic [ref=e436]: 87% Match
+                - generic [ref=e437]: Used - Excellent
+                - img "New Balance 550 White Green" [ref=e438]
+              - generic [ref=e439]:
+                - generic [ref=e441]:
+                  - paragraph [ref=e442]: New Balance
+                  - heading "550 'White Green'" [level=3] [ref=e443]
+                - generic [ref=e444]:
+                  - generic [ref=e445]:
+                    - generic [ref=e446]: Valuation Delta
+                    - generic [ref=e447]: +18%
+                  - generic [ref=e448]:
+                    - generic [ref=e449]: Auth. Confidence
+                    - generic [ref=e450]: 99%
+                - generic [ref=e451]:
+                  - paragraph [ref=e452]: $130
+                  - generic [ref=e453]: Authenticated
+          - article [ref=e457]:
+            - link "94% Match Used - Excellent On Running Cloudmonster Triple Black On Running Cloudmonster 'Triple Black' Valuation Delta +7% Auth. Confidence 98% $170 Authenticated" [ref=e458] [cursor=pointer]:
+              - /url: /product/10
+              - generic [ref=e459]:
+                - generic [ref=e460]: 94% Match
+                - generic [ref=e461]: Used - Excellent
+                - img "On Running Cloudmonster Triple Black" [ref=e462]
+              - generic [ref=e463]:
+                - generic [ref=e465]:
+                  - paragraph [ref=e466]: On Running
+                  - heading "Cloudmonster 'Triple Black'" [level=3] [ref=e467]
+                - generic [ref=e468]:
+                  - generic [ref=e469]:
+                    - generic [ref=e470]: Valuation Delta
+                    - generic [ref=e471]: +7%
+                  - generic [ref=e472]:
+                    - generic [ref=e473]: Auth. Confidence
+                    - generic [ref=e474]: 98%
+                - generic [ref=e475]:
+                  - paragraph [ref=e476]: $170
+                  - generic [ref=e477]: Authenticated
+          - article [ref=e196]:
+            - link "91% Match DS (Brand New) Nike Dunk Low Panda black and white colorway Nike Dunk Low 'Panda' Valuation Delta +10% Auth. Confidence 98% $185 Authenticated" [ref=e197] [cursor=pointer]:
+              - /url: /product/1
+              - generic [ref=e198]:
+                - generic [ref=e199]: 91% Match
+                - generic [ref=e200]: DS (Brand New)
+                - img "Nike Dunk Low Panda black and white colorway" [ref=e201]
+              - generic [ref=e202]:
+                - generic [ref=e204]:
+                  - paragraph [ref=e205]: Nike
+                  - heading "Dunk Low 'Panda'" [level=3] [ref=e206]
+                - generic [ref=e207]:
+                  - generic [ref=e208]:
+                    - generic [ref=e209]: Valuation Delta
+                    - generic [ref=e210]: +10%
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: Auth. Confidence
+                    - generic [ref=e213]: 98%
+                - generic [ref=e214]:
+                  - paragraph [ref=e215]: $185
+                  - generic [ref=e216]: Authenticated
+          - article [ref=e481]:
+            - link "89% Match DS (Brand New) Asics Gel-Kayano 14 Silver Blue Asics Gel-Kayano 14 'Silver Blue' Valuation Delta +14% Auth. Confidence 97% $190 Authenticated" [ref=e482] [cursor=pointer]:
+              - /url: /product/5
+              - generic [ref=e483]:
+                - generic [ref=e484]: 89% Match
+                - generic [ref=e485]: DS (Brand New)
+                - img "Asics Gel-Kayano 14 Silver Blue" [ref=e486]
+              - generic [ref=e487]:
+                - generic [ref=e489]:
+                  - paragraph [ref=e490]: Asics
+                  - heading "Gel-Kayano 14 'Silver Blue'" [level=3] [ref=e491]
+                - generic [ref=e492]:
+                  - generic [ref=e493]:
+                    - generic [ref=e494]: Valuation Delta
+                    - generic [ref=e495]: +14%
+                  - generic [ref=e496]:
+                    - generic [ref=e497]: Auth. Confidence
+                    - generic [ref=e498]: 97%
+                - generic [ref=e499]:
+                  - paragraph [ref=e500]: $190
+                  - generic [ref=e501]: Authenticated
+          - article [ref=e505]:
+            - link "86% Match Used - Excellent Salomon XT-6 Lunar Rock Salomon XT-6 'Lunar Rock' Valuation Delta +20% Auth. Confidence 97% $200 Authenticated" [ref=e506] [cursor=pointer]:
+              - /url: /product/11
+              - generic [ref=e507]:
+                - generic [ref=e508]: 86% Match
+                - generic [ref=e509]: Used - Excellent
+                - img "Salomon XT-6 Lunar Rock" [ref=e510]
+              - generic [ref=e511]:
+                - generic [ref=e513]:
+                  - paragraph [ref=e514]: Salomon
+                  - heading "XT-6 'Lunar Rock'" [level=3] [ref=e515]
+                - generic [ref=e516]:
+                  - generic [ref=e517]:
+                    - generic [ref=e518]: Valuation Delta
+                    - generic [ref=e519]: +20%
+                  - generic [ref=e520]:
+                    - generic [ref=e521]: Auth. Confidence
+                    - generic [ref=e522]: 97%
+                - generic [ref=e523]:
+                  - paragraph [ref=e524]: $200
+                  - generic [ref=e525]: Authenticated
+          - article [ref=e529]:
+            - link "90% Match DS (Brand New) New Balance 990v6 Grey New Balance 990v6 'Grey' Valuation Delta +12% Auth. Confidence 99% $220 Authenticated" [ref=e530] [cursor=pointer]:
+              - /url: /product/3
+              - generic [ref=e531]:
+                - generic [ref=e532]: 90% Match
+                - generic [ref=e533]: DS (Brand New)
+                - img "New Balance 990v6 Grey" [ref=e534]
+              - generic [ref=e535]:
+                - generic [ref=e537]:
+                  - paragraph [ref=e538]: New Balance
+                  - heading "990v6 'Grey'" [level=3] [ref=e539]
+                - generic [ref=e540]:
+                  - generic [ref=e541]:
+                    - generic [ref=e542]: Valuation Delta
+                    - generic [ref=e543]: +12%
+                  - generic [ref=e544]:
+                    - generic [ref=e545]: Auth. Confidence
+                    - generic [ref=e546]: 99%
+                - generic [ref=e547]:
+                  - paragraph [ref=e548]: $220
+                  - generic [ref=e549]: Authenticated
+          - article [ref=e553]:
+            - link "98% Match Refurbished 92/100 Air Jordan 1 High Chicago refurbished Jordan Air Jordan 1 High 'Chicago' Valuation Delta -1% Auth. Confidence 97% $450 Authenticated" [ref=e554] [cursor=pointer]:
+              - /url: /product/2
+              - generic [ref=e555]:
+                - generic [ref=e556]: 98% Match
+                - generic [ref=e557]: Refurbished 92/100
+                - img "Air Jordan 1 High Chicago refurbished" [ref=e558]
+              - generic [ref=e559]:
+                - generic [ref=e561]:
+                  - paragraph [ref=e562]: Jordan
+                  - heading "Air Jordan 1 High 'Chicago'" [level=3] [ref=e563]
+                - generic [ref=e564]:
+                  - generic [ref=e565]:
+                    - generic [ref=e566]: Valuation Delta
+                    - generic [ref=e567]: "-1%"
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: Auth. Confidence
+                    - generic [ref=e570]: 97%
+                - generic [ref=e571]:
+                  - paragraph [ref=e572]: $450
+                  - generic [ref=e573]: Authenticated
+          - article [ref=e577]:
+            - link "96% Match DS (Brand New) Travis Scott AJ1 Low Reverse Mocha Jordan AJ1 Low 'Travis Scott' Valuation Delta +3% Auth. Confidence 99% $1,150 Authenticated" [ref=e578] [cursor=pointer]:
+              - /url: /product/6
+              - generic [ref=e579]:
+                - generic [ref=e580]: 96% Match
+                - generic [ref=e581]: DS (Brand New)
+                - img "Travis Scott AJ1 Low Reverse Mocha" [ref=e582]
+              - generic [ref=e583]:
+                - generic [ref=e585]:
+                  - paragraph [ref=e586]: Jordan
+                  - heading "AJ1 Low 'Travis Scott'" [level=3] [ref=e587]
+                - generic [ref=e588]:
+                  - generic [ref=e589]:
+                    - generic [ref=e590]: Valuation Delta
+                    - generic [ref=e591]: +3%
+                  - generic [ref=e592]:
+                    - generic [ref=e593]: Auth. Confidence
+                    - generic [ref=e594]: 99%
+                - generic [ref=e595]:
+                  - paragraph [ref=e596]: $1,150
+                  - generic [ref=e597]: Authenticated
+        - button "Load More Results" [ref=e341]
+    - contentinfo [ref=e342]:
+      - generic [ref=e343]:
+        - generic [ref=e344]: SNEAKHUB
+        - navigation [ref=e345]:
+          - link "Terms of Service" [ref=e346] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=e347] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=e348] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=e349] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e350]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.
+  - button "Open Next.js Dev Tools" [ref=e356] [cursor=pointer]
+  - alert [ref=e360]

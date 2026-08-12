@@ -1,0 +1,96 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e258] [cursor=pointer]
+  - alert [ref=e262]
+  - generic [ref=e278]:
+    - banner [ref=e279]:
+      - generic [ref=e280]:
+        - generic [ref=e281]:
+          - link "SNEAKHUB" [ref=e282] [cursor=pointer]:
+            - /url: /home
+          - search [ref=e283]:
+            - textbox "Search brands, models, styles..." [ref=e287]
+            - button "Visual match search" [ref=e288]
+        - navigation [ref=e289]:
+          - link "Smart Find" [ref=e290] [cursor=pointer]:
+            - /url: /smart-find
+          - link "Shop" [ref=e291] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=e292] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=e293] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=e294]:
+          - button "Image search" [ref=e295] [cursor=pointer]
+          - button "Shopping cart" [ref=e296] [cursor=pointer]
+          - button "Account" [ref=e297] [cursor=pointer]
+    - main [ref=e298]:
+      - navigation [ref=e299]:
+        - link "Shop" [ref=e300] [cursor=pointer]:
+          - /url: /home
+        - link "Jordan" [ref=e303] [cursor=pointer]:
+          - /url: /home
+        - generic [ref=e306]: Air Jordan 1 High 'Chicago'
+      - generic [ref=e307]:
+        - generic [ref=e308]:
+          - generic [ref=e309]:
+            - generic [ref=e310]: "Condition: Refurbished 92/100"
+            - img "Air Jordan 1 High Chicago refurbished" [ref=e311]
+          - button "View image 1" [ref=e313] [cursor=pointer]
+        - generic [ref=e314]:
+          - generic [ref=e315]:
+            - heading "Air Jordan 1 High 'Chicago'" [level=1] [ref=e316]
+            - generic [ref=e317]:
+              - generic [ref=e318]: $450.00
+              - generic [ref=e319]: US 10.5
+          - generic [ref=e320]:
+            - button "Add to Cart" [ref=e321]
+            - button "Wishlist" [ref=e322]
+          - generic [ref=e323]:
+            - generic [ref=e324]:
+              - heading "Condition Breakdown" [level=3] [ref=e325]
+              - generic [ref=e326]:
+                - text: Overall
+                - generic [ref=e327]: Refurbished 92/100
+            - generic [ref=e328]:
+              - generic [ref=e330]:
+                - generic [ref=e331]: Upper
+                - generic [ref=e332]: 90/100
+              - generic [ref=e336]:
+                - generic [ref=e337]: Midsole
+                - generic [ref=e338]: 88/100
+              - generic [ref=e342]:
+                - generic [ref=e343]: Outsole
+                - generic [ref=e344]: 85/100
+              - generic [ref=e348]:
+                - generic [ref=e349]: Box
+                - generic [ref=e350]: 92/100
+          - generic [ref=e353]:
+            - generic [ref=e354]:
+              - heading "Price Insight" [level=3] [ref=e359]
+              - generic [ref=e360]: Below Market
+            - generic [ref=e361]:
+              - generic [ref=e364]: THIS LISTING
+              - generic [ref=e367]: "MARKET AVG: $495"
+            - paragraph [ref=e370]: Listed 9% below current average market value for similar condition.
+          - button "TR TechResell Verified Merchant 94/100 TRUST SCORE" [ref=e371] [cursor=pointer]:
+            - generic [ref=e372]:
+              - generic [ref=e373]: TR
+              - generic [ref=e374]:
+                - heading "TechResell" [level=3] [ref=e375]
+                - paragraph [ref=e376]: Verified Merchant
+            - generic [ref=e377]:
+              - generic [ref=e378]: 94/100
+              - generic [ref=e379]: TRUST SCORE
+    - contentinfo [ref=e382]:
+      - generic [ref=e383]:
+        - generic [ref=e384]: SNEAKHUB
+        - navigation [ref=e385]:
+          - link "Terms of Service" [ref=e386] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=e387] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=e388] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=e389] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e390]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.

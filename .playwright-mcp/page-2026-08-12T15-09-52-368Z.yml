@@ -1,0 +1,93 @@
+- generic [ref=f1e1]:
+  - button "Open Next.js Dev Tools" [ref=f1e259] [cursor=pointer]
+  - alert [ref=f1e263]: SEARCH THE MARKET
+  - generic [ref=f1e275]:
+    - banner [ref=f1e276]:
+      - generic [ref=f1e277]:
+        - generic [ref=f1e278]:
+          - link "SNEAKHUB" [ref=f1e279] [cursor=pointer]:
+            - /url: /home
+          - search [ref=f1e280]:
+            - textbox "Search brands, models, styles..." [ref=f1e284]
+            - button "Visual match search" [ref=f1e285]
+        - navigation [ref=f1e286]:
+          - link "Smart Find" [ref=f1e287] [cursor=pointer]:
+            - /url: /smart-find
+          - link "Shop" [ref=f1e288] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=f1e289] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=f1e290] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=f1e291]:
+          - button "Image search" [ref=f1e292] [cursor=pointer]
+          - button "Shopping cart" [ref=f1e293] [cursor=pointer]
+          - button "Account" [ref=f1e294] [cursor=pointer]
+    - generic [ref=f1e296]:
+      - generic [ref=f1e297]: Smart Find
+      - heading "Search The Market" [level=1] [ref=f1e298]
+      - paragraph [ref=f1e299]: Find sneakers by keyword, silhouette, or a photo of the pair you're after.
+      - search [ref=f1e300]:
+        - textbox "Search brands, models, colorways..." [active] [ref=f1e304]
+        - generic [ref=f1e305]:
+          - button "Visual match search" [ref=f1e306]
+          - button "Search" [ref=f1e307]
+    - generic [ref=f1e309]:
+      - generic [ref=f1e310]:
+        - generic [ref=f1e311]:
+          - heading "Visual Match" [level=2] [ref=f1e316]
+          - paragraph [ref=f1e317]: Upload a photo or snap one with your camera — AI matches the silhouette, colorway, and brand.
+        - button "Clear" [ref=f1e318]
+      - generic [ref=f1e323]:
+        - img "Selected sneaker for visual match" [ref=f1e324]
+        - generic [ref=f1e325]:
+          - generic [ref=f1e326]: Analyzing Silhouette
+          - paragraph [ref=f1e329]: Matching shape, colorway, and branding against the catalog…
+    - generic [ref=f1e331]:
+      - generic [ref=f1e332]:
+        - heading "Rekomendasi Untuk Kamu" [level=2] [ref=f1e333]
+        - generic [ref=f1e335]: Algorithm Generated
+      - generic [ref=f1e336]:
+        - generic [ref=f1e337] [cursor=pointer]:
+          - generic [ref=f1e338]:
+            - generic [ref=f1e339]: "01"
+            - img "New Balance 550 White Green" [ref=f1e340]
+          - generic [ref=f1e341]:
+            - generic [ref=f1e342]: New Balance
+            - heading "550 'White Green'" [level=3] [ref=f1e343]
+            - generic [ref=f1e345]:
+              - generic [ref=f1e346]: Current Ask
+              - text: $130
+        - generic [ref=f1e350] [cursor=pointer]:
+          - generic [ref=f1e351]:
+            - generic [ref=f1e352]: "02"
+            - img "On Running Cloudmonster Triple Black" [ref=f1e353]
+          - generic [ref=f1e354]:
+            - generic [ref=f1e355]: On Running
+            - heading "Cloudmonster 'Triple Black'" [level=3] [ref=f1e356]
+            - generic [ref=f1e358]:
+              - generic [ref=f1e359]: Current Ask
+              - text: $170
+        - generic [ref=f1e363] [cursor=pointer]:
+          - generic [ref=f1e364]:
+            - generic [ref=f1e365]: "03"
+            - img "Salomon XT-6 Lunar Rock" [ref=f1e366]
+          - generic [ref=f1e367]:
+            - generic [ref=f1e368]: Salomon
+            - heading "XT-6 'Lunar Rock'" [level=3] [ref=f1e369]
+            - generic [ref=f1e371]:
+              - generic [ref=f1e372]: Current Ask
+              - text: $200
+    - contentinfo [ref=f1e376]:
+      - generic [ref=f1e377]:
+        - generic [ref=f1e378]: SNEAKHUB
+        - navigation [ref=f1e379]:
+          - link "Terms of Service" [ref=f1e380] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=f1e381] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=f1e382] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=f1e383] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=f1e384]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.

@@ -1,0 +1,131 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link "SNEAKHUB" [ref=e6] [cursor=pointer]:
+            - /url: /home
+          - search [ref=e7]:
+            - textbox "Search brands, models, styles..." [ref=e11]
+        - navigation [ref=e12]:
+          - link "Smart Find" [ref=e13] [cursor=pointer]:
+            - /url: /smart-find
+          - link "Shop" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=e15] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=e16] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=e17]:
+          - button "Image search" [ref=e18] [cursor=pointer]
+          - button "Shopping cart" [ref=e19] [cursor=pointer]
+          - button "Account" [ref=e20] [cursor=pointer]
+    - main [ref=e21]:
+      - complementary [ref=e22]:
+        - generic [ref=e23]:
+          - heading "Find Your Perfect Match" [level=1] [ref=e24]
+          - paragraph [ref=e25]: Dial in your specifications.
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: Budget Range
+            - generic [ref=e29]:
+              - slider "Minimum budget": "100"
+              - slider "Maximum budget": "1150"
+            - generic [ref=e32]:
+              - generic [ref=e33]: $100
+              - generic [ref=e34]: $1150
+          - generic [ref=e35]:
+            - generic [ref=e36]: Size (US)
+            - combobox [ref=e37]:
+              - option "Any Size" [selected]
+              - option "8.0"
+              - option "8.5"
+              - option "9.0"
+              - option "9.5"
+              - option "10.0"
+          - generic [ref=e38]:
+            - generic [ref=e39]: Brand
+            - generic [ref=e40]:
+              - generic [ref=e41] [cursor=pointer]:
+                - checkbox "Nike" [active] [ref=e42]
+                - text: Nike
+              - generic [ref=e43] [cursor=pointer]:
+                - checkbox "Adidas" [ref=e44]
+                - text: Adidas
+              - generic [ref=e45] [cursor=pointer]:
+                - checkbox "Jordan" [ref=e46]
+                - text: Jordan
+              - generic [ref=e47] [cursor=pointer]:
+                - checkbox "New Balance" [ref=e48]
+                - text: New Balance
+          - generic [ref=e49]:
+            - generic [ref=e50]: Condition
+            - generic [ref=e51]:
+              - generic [ref=e52] [cursor=pointer]:
+                - checkbox "Brand New" [ref=e53]
+                - text: Brand New
+              - generic [ref=e54] [cursor=pointer]:
+                - checkbox "Refurbished" [ref=e55]
+                - text: Refurbished
+              - generic [ref=e56] [cursor=pointer]:
+                - checkbox "Used - Excellent" [ref=e57]
+                - text: Used - Excellent
+              - generic [ref=e58] [cursor=pointer]:
+                - checkbox "9.0+ (Near Mint)" [ref=e59]
+                - text: 9.0+ (Near Mint)
+              - generic [ref=e60] [cursor=pointer]:
+                - checkbox "8.0+ (Very Good)" [ref=e61]
+                - text: 8.0+ (Very Good)
+          - generic [ref=e62]:
+            - generic [ref=e63]: Purpose
+            - generic [ref=e64]:
+              - button "Daily" [ref=e65]
+              - button "Sports" [ref=e66]
+              - button "Collection" [ref=e67]
+        - button "Apply Filters" [ref=e68]
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: Showing top matches for your profile · Any Size
+          - generic [ref=e72]:
+            - generic [ref=e73]: "Sort By:"
+            - combobox [ref=e74] [cursor=pointer]:
+              - option "Match Score"
+              - 'option "Price: Low to High" [selected]'
+              - 'option "Price: High to Low"'
+        - article [ref=e196]:
+          - link "91% Match DS (Brand New) Nike Dunk Low Panda black and white colorway Nike Dunk Low 'Panda' Valuation Delta +10% Auth. Confidence 98% $185 Authenticated" [ref=e197] [cursor=pointer]:
+            - /url: /product/1
+            - generic [ref=e198]:
+              - generic [ref=e199]: 91% Match
+              - generic [ref=e200]: DS (Brand New)
+              - img "Nike Dunk Low Panda black and white colorway" [ref=e201]
+            - generic [ref=e202]:
+              - generic [ref=e204]:
+                - paragraph [ref=e205]: Nike
+                - heading "Dunk Low 'Panda'" [level=3] [ref=e206]
+              - generic [ref=e207]:
+                - generic [ref=e208]:
+                  - generic [ref=e209]: Valuation Delta
+                  - generic [ref=e210]: +10%
+                - generic [ref=e211]:
+                  - generic [ref=e212]: Auth. Confidence
+                  - generic [ref=e213]: 98%
+              - generic [ref=e214]:
+                - paragraph [ref=e215]: $185
+                - generic [ref=e216]: Authenticated
+        - button "Load More Results" [ref=e341]
+    - contentinfo [ref=e342]:
+      - generic [ref=e343]:
+        - generic [ref=e344]: SNEAKHUB
+        - navigation [ref=e345]:
+          - link "Terms of Service" [ref=e346] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=e347] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=e348] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=e349] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e350]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.
+  - button "Open Next.js Dev Tools" [ref=e356] [cursor=pointer]
+  - alert [ref=e360]

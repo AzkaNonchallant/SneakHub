@@ -208,6 +208,16 @@ export const wishlistItems: WishlistItem[] = [
   },
 ]
 
+const searchCatalog: Product[] = [...trendingProducts, ...bestSellers, ...personalizedProducts]
+
+export function searchProducts(q: string): Product[] {
+  const needle = q.trim().toLowerCase()
+  if (!needle) return []
+  return searchCatalog.filter((p) =>
+    `${p.brand} ${p.name} ${p.alt}`.toLowerCase().includes(needle),
+  )
+}
+
 export function parsePrice(price: string): number {
   return Number(price.replace(/[^0-9.]/g, ""))
 }

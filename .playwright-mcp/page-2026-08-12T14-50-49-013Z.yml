@@ -1,0 +1,84 @@
+- generic [ref=f3e1]:
+  - button "Open Next.js Dev Tools" [ref=f3e261] [cursor=pointer]
+  - alert [ref=f3e265]: SEARCH THE MARKET
+  - generic [ref=f3e266]:
+    - banner [ref=f3e267]:
+      - generic [ref=f3e268]:
+        - generic [ref=f3e269]:
+          - link "SNEAKHUB" [ref=f3e270] [cursor=pointer]:
+            - /url: /home
+          - search [ref=f3e271]:
+            - textbox "Search brands, models, styles..." [active] [ref=f3e275]
+        - navigation [ref=f3e276]:
+          - link "Smart Find" [ref=f3e277] [cursor=pointer]:
+            - /url: /search
+          - link "Shop" [ref=f3e278] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=f3e279] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=f3e280] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=f3e281]:
+          - button "Image search" [ref=f3e282] [cursor=pointer]
+          - button "Shopping cart" [ref=f3e283] [cursor=pointer]
+          - button "Account" [ref=f3e284] [cursor=pointer]
+    - generic [ref=f3e286]:
+      - generic [ref=f3e287]: Smart Find
+      - heading "Search The Market" [level=1] [ref=f3e288]
+      - paragraph [ref=f3e289]: Find sneakers by keyword, silhouette, or a photo of the pair you're after.
+      - search [ref=f3e290]:
+        - textbox "Search brands, models, colorways..." [ref=f3e294]: jordan
+        - generic [ref=f3e295]:
+          - button "Visual match search" [ref=f3e296]
+          - button "Search" [ref=f3e297]
+    - generic [ref=f3e299]:
+      - generic [ref=f3e301]:
+        - heading "Visual Match" [level=2] [ref=f3e306]
+        - paragraph [ref=f3e307]: Upload a photo or snap one with your camera — AI matches the silhouette, colorway, and brand.
+      - generic [ref=f3e308] [cursor=pointer]:
+        - button "file upload"
+        - paragraph [ref=f3e317]: Drag & drop your sneaker photo
+        - paragraph [ref=f3e318]: or tap to browse your files
+        - generic [ref=f3e319]:
+          - button "Open camera to take a photo" [ref=f3e320]
+          - generic [ref=f3e321]: Or use camera
+    - generic [ref=f3e323]:
+      - heading "2 Results For \"jordan\"" [level=2] [ref=f3e325]
+      - generic [ref=f3e326]:
+        - generic [ref=f3e327] [cursor=pointer]:
+          - generic [ref=f3e328]:
+            - generic [ref=f3e329]: "01"
+            - generic [ref=f3e330]:
+              - generic [ref=f3e331]: Refurbished 92/100
+              - generic [ref=f3e332]: +8%
+            - img "Air Jordan 1 High Chicago refurbished" [ref=f3e336]
+          - generic [ref=f3e337]:
+            - generic [ref=f3e338]: Jordan
+            - heading "Air Jordan 1 High 'Chicago'" [level=3] [ref=f3e339]
+            - generic [ref=f3e341]:
+              - generic [ref=f3e342]: Current Ask
+              - text: $450
+        - generic [ref=f3e346] [cursor=pointer]:
+          - generic [ref=f3e347]:
+            - generic [ref=f3e348]: "02"
+            - generic [ref=f3e349]: New
+            - img "Travis Scott AJ1 Low Reverse Mocha" [ref=f3e351]
+          - generic [ref=f3e352]:
+            - generic [ref=f3e353]: Jordan
+            - heading "AJ1 Low 'Travis Scott'" [level=3] [ref=f3e354]
+            - generic [ref=f3e356]:
+              - generic [ref=f3e357]: Current Ask
+              - text: $1,150
+    - contentinfo [ref=f3e361]:
+      - generic [ref=f3e362]:
+        - generic [ref=f3e363]: SNEAKHUB
+        - navigation [ref=f3e364]:
+          - link "Terms of Service" [ref=f3e365] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=f3e366] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=f3e367] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=f3e368] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=f3e369]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.

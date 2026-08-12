@@ -200,6 +200,8 @@ export default function HomePage() {
                 size="icon"
                 aria-label="Visual search"
                 className="size-12 rounded-none border border-primary bg-white text-primary shadow-[2px_2px_0px_0px_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-on-tertiary-container hover:text-white hover:shadow-none"
+                nativeButton={false}
+                render={<Link href="/search" />}
               >
                 <ScanSearch />
               </Button>

@@ -64,8 +64,14 @@ export function SiteHeader() {
           >
             <ShoppingCart />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Account" className="rounded-none" nativeButton={false}
-            >
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Account"
+            className="rounded-none"
+            nativeButton={false}
+            render={<Link href="/profile" />}
+          >
             <CircleUser />
           </Button>
         </div>

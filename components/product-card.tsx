@@ -1,11 +1,13 @@
 "use client"
 
 import { motion } from "motion/react"
+import { useRouter } from "next/navigation"
 import { ArrowUpRight, Plus, TrendingUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import type { Product } from "@/lib/products"
+import { parsePrice, type Product } from "@/lib/products"
 import { Button } from "@/components/ui/button"
+import { useCartStore } from "@/lib/cart-store"
 
 export function ProductCard({
   product,
@@ -18,14 +20,18 @@ export function ProductCard({
   index?: number
   className?: string
 }) {
+  const router = useRouter()
+  const addToCart = useCartStore((s) => s.add)
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.4, delay: index * 0.06 }}
+      onClick={() => router.push(`/product/${product.id}`)}
       className={cn(
-        "group flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0",
+        "group flex cursor-pointer flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0",
         number === undefined ? "w-72 shrink-0 snap-start" : "h-full w-auto",
         className,
       )}
@@ -79,6 +85,19 @@ export function ProductCard({
               type="button"
               size="icon"
               aria-label={`Add ${product.name} to cart`}
+              onClick={(e) => {
+                e.stopPropagation()
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  colorway: "",
+                  price: parsePrice(product.price),
+                  condition: product.badge ?? "NEW",
+                  size: "US 10.5",
+                  image: product.image,
+                  alt: product.alt,
+                })
+              }}
               className="size-10 rounded-none border border-primary bg-primary text-white shadow-none transition-all hover:bg-on-tertiary-container hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               <Plus className="size-4 transition-transform duration-200 group-hover:rotate-90" />

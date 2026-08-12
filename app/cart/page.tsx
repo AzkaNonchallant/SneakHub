@@ -1,15 +1,12 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Lock, Minus, Plus, ShieldCheck, X } from "lucide-react"
 import { motion } from "motion/react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
-import { cartItems as seedItems, type CartItem } from "@/lib/products"
-
-type CartLine = CartItem & { qty: number }
+import { useCartStore, type CartLine } from "@/lib/cart-store"
 
 function CartItemRow({
   item,
@@ -41,7 +38,9 @@ function CartItemRow({
           <div className="mb-2 flex items-start justify-between">
             <div>
               <h3 className="font-heading text-2xl leading-7 font-semibold tracking-tight text-primary uppercase">
-                {item.name}
+                <Link href={`/product/${item.id}`} className="hover:underline">
+                  {item.name}
+                </Link>
               </h3>
               <p className="text-sm font-medium text-muted-foreground">{item.colorway}</p>
             </div>
@@ -109,7 +108,9 @@ function CartItemRow({
 }
 
 export default function CartPage() {
-  const [items, setItems] = useState(seedItems.map((i) => ({ ...i, qty: 1 })))
+  const items = useCartStore((s) => s.items)
+  const remove = useCartStore((s) => s.remove)
+  const setQty = useCartStore((s) => s.setQty)
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
 
@@ -164,10 +165,8 @@ export default function CartPage() {
                 <CartItemRow
                   key={item.id}
                   item={item}
-                  onChange={(qty) =>
-                    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, qty } : i)))
-                  }
-                  onRemove={() => setItems((prev) => prev.filter((i) => i.id !== item.id))}
+                  onChange={(qty) => setQty(item.id, qty)}
+                  onRemove={() => remove(item.id)}
                 />
               ))}
             </div>
@@ -199,9 +198,11 @@ export default function CartPage() {
                     ${subtotal.toFixed(2)}
                   </span>
                 </div>
-                {/* ponytail: no checkout flow yet */}
+                {/* ponytail: checkout page exists — no payment backend yet */}
                 <Button
                   type="button"
+                  nativeButton={false}
+                  render={<Link href="/checkout" />}
                   className="mt-2 h-auto rounded-none border border-primary bg-primary py-4 text-xs leading-4 font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary"
                 >
                   Checkout

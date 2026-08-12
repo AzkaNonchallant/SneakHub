@@ -25,7 +25,7 @@ export type CartItem = {
 
 export const cartItems: CartItem[] = [
   {
-    id: 1,
+    id: 101,
     name: "Jordan 4 Retro",
     colorway: "'Military Black'",
     price: 345.0,
@@ -36,7 +36,7 @@ export const cartItems: CartItem[] = [
     alt: "Jordan 4 Retro Military Black",
   },
   {
-    id: 2,
+    id: 102,
     name: "Nike Dunk Low",
     colorway: "'Panda'",
     price: 185.0,
@@ -96,7 +96,7 @@ export const trendingProducts: Product[] = [
 
 export const bestSellers: Product[] = [
   {
-    id: 1,
+    id: 5,
     brand: "Asics",
     name: "Gel-Kayano 14 'Silver Blue'",
     price: "$190",
@@ -106,7 +106,7 @@ export const bestSellers: Product[] = [
     alt: "Asics Gel-Kayano 14 Silver Blue",
   },
   {
-    id: 2,
+    id: 6,
     brand: "Jordan",
     name: "AJ1 Low 'Travis Scott'",
     price: "$1,150",
@@ -116,7 +116,7 @@ export const bestSellers: Product[] = [
     alt: "Travis Scott AJ1 Low Reverse Mocha",
   },
   {
-    id: 4,
+    id: 7,
     brand: "Adidas",
     name: "Yeezy Slide 'Onyx'",
     price: "$125",
@@ -126,7 +126,7 @@ export const bestSellers: Product[] = [
     alt: "Adidas Yeezy Slide Onyx",
   },
   {
-    id: 5,
+    id: 8,
     brand: "New Balance",
     name: "550 'White Green'",
     price: "$130",
@@ -138,7 +138,7 @@ export const bestSellers: Product[] = [
 
 export const personalizedProducts: Product[] = [
   {
-    id: 1,
+    id: 9,
     brand: "New Balance",
     name: "550 'White Green'",
     price: "$130",
@@ -148,7 +148,7 @@ export const personalizedProducts: Product[] = [
     alt: "New Balance 550 White Green",
   },
   {
-    id: 2,
+    id: 10,
     brand: "On Running",
     name: "Cloudmonster 'Triple Black'",
     price: "$170",
@@ -158,7 +158,7 @@ export const personalizedProducts: Product[] = [
     alt: "On Running Cloudmonster Triple Black",
   },
   {
-    id: 3,
+    id: 11,
     brand: "Salomon",
     name: "XT-6 'Lunar Rock'",
     price: "$200",
@@ -168,3 +168,137 @@ export const personalizedProducts: Product[] = [
     alt: "Salomon XT-6 Lunar Rock",
   },
 ]
+
+export type WishlistItem = {
+  id: number
+  name: string
+  colorway: string
+  price: number
+  oldPrice?: number
+  tag: string
+  score: string
+  image: string
+  alt: string
+}
+
+// ponytail: static seed until there's a backend
+export const wishlistItems: WishlistItem[] = [
+  {
+    id: 201,
+    name: "Nike Air Max Plus",
+    colorway: "Volt/Black-White",
+    price: 2400,
+    oldPrice: 2800,
+    tag: "PRICE DROP",
+    score: "9.5/10",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuANI733IW1Io5NROI_V5T6L8Hsl62eUpAxlpRIT8DRUf_nsNM36HEp-S4cSUZqh33QzAVbDURa6tkvUvSoy9ttXMqru_PVYnZ-UavpRFBmgf7Wev2aCWbCWjsYhw9C52HEUBnnkYsP57DXr0MrJ7HmcTEREw57Du6sVfHoxwPOP9v1osrIVNPOYpdV53tAY5Gdzd39tCLBrjrPIRxq2Gs0X-qrUm6ufId5LMtd39LQj4W3Q24_JpARi",
+    alt: "Nike Air Max Plus Volt Black White",
+  },
+  {
+    id: 101,
+    name: "Jordan 4 Retro",
+    colorway: "Military Blue",
+    price: 4100,
+    tag: "BACK IN STOCK",
+    score: "DS / NEW",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuC0EJyvdbp9l_ZauNHHYdMaAAPXXpp3ltVjYeXsnhwO5K_LDC7OiM1d9tC_PPrt_hErCNLs4QG1ZWb-0bmv6YHOVcumdJ8upqd-qWkg72Wq4k3F4-TbI5DMFwvTQbyVsm5bgF98r_XTvxC9Pl9BvSHkA2Z1rIAx-dUh_C83JN40-qyf4k6yQyDJIniTUTR8ahCbfSdI676gnJsnE0gzqZn8ewwyHjjjBoZj39w9zc2l4nrABi6qqiOl",
+    alt: "Jordan 4 Retro Military Blue",
+  },
+]
+
+export function parsePrice(price: string): number {
+  return Number(price.replace(/[^0-9.]/g, ""))
+}
+
+export type ProductDetail = {
+  id: number
+  brand: string
+  name: string
+  colorway: string
+  price: number
+  condition: string
+  size: string
+  image: string
+  alt: string
+  gallery: string[]
+  breakdown: { label: string; score: number }[]
+  marketPrice: number
+  seller: { initial: string; name: string; role: string; trust: number }
+}
+
+// ponytail: full detail only for the mockup hero; everything else synthesized
+const productDetails: Record<number, Omit<ProductDetail, "id" | "brand" | "name" | "image" | "alt">> = {
+  101: {
+    colorway: "'Military Black'",
+    price: 345.0,
+    condition: "87/100",
+    size: "US 10.5",
+    gallery: [
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAhVhu7Lhl3r0vsogRewqi7u5xhATDnJ5Kmk0_PKut5XQtKLzvKDkc_lkdzmaDvfszycPg41E2nI-26fp4zC0YnAmnm-yNGdWeGYhunWt1aZnWVgHN0nhptspp39--BcwXlp4Am-a0CQ8kB0rU5-N1u4aX-9MoUV24FzPoBqg3IpeEPlC5bgCwRhfsWjBUzIGCOkPkvFhFc1XDzUfd7BUYVIG2U_w9fl65GRBzdwCJUNnbtbGQJfZfR",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCje6O_VWGEA2jXOL9ZdWjYVtQuzRaYtF-4MDGFk2G75Em8oKTL7GCRepQi8bI9k4SE46V7lQk-0NlldHPzrWkofODoCzNeFsDLd55PYoLYDFvnfdkDTg5EoaM3NBztC56tvfeaqTh0MnLA0FnBvq1MZEA4pYUZNW3kUCdy_TUugIXjbLMryLWm1hJDt4oM8ogojgcBeyl8o7u3UBDGkJFRJ_YfBG-BrZQhNyV8xjW0c5CsYnTyCEG9",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBKjNOo4PsNXewCrCax0IXXpO1MqXH6rtGF8ZoLAdOMZ0BWMfAc8J0YXPTK6e64Td1x22RTJG_nyegR3mgOibKRN2j3I8SU0XfBwBIJcrqGsFS0zhTXmcRtyJbEfhXZjsdAPwJvbzegZpZAT65C7GUCPnJRdBN9RQR9tGe0qHbe68lAP7g1xEkIbb59J7zuwzhnYqt3AgWAkMSKTLcajmkp7F4zTJIz3lsped9YKnesqmasoWQtkac-",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAxPpjxI3qTmzx39vldmH63qvBqIETNx9X3_BBXeaSvH8gJVGgvLmATlsrcWgFAm6peBvPrdy1EgpG-kiYQ4RJHukIQtUV9Cn-QI4wkmsfC9u3LgN9_Ubsq2ALCfILeuJG50i1rMBzxo5tNu4WS6U4ibpm4RZvAqfeyTrD_LakyVFb9amp7tZV_R27iJ4qz0axF33vC3rQpmy8v3Fzp0FFHOoWzBLaqmWIkendy6qrl9JOKAwvD_5oQ",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBihDHK0UDZX1oO9Wov3afLp5iW82AQvJc9VEtpUnA0pyv0wDPwEQroQ9He5zilQZ7Nl2g47zkSBiIVopFCYQ03iar8TzoemBUCX9PlE_VIPEU7CSr_LA4GeDODULuygK4kBUBZi9kVXLPBTItUXi4q3rjOkvScARRh4WsUpaME3Xrk4Os2sOx6y8U9NAiaccFTAzyEohFG6EJ9Bft8aAcx69hFYHHCfx_YSnX7yd9r5iVyBUYwPICt",
+    ],
+    breakdown: [
+      { label: "Upper", score: 90 },
+      { label: "Midsole", score: 85 },
+      { label: "Outsole", score: 82 },
+      { label: "Box", score: 95 },
+    ],
+    marketPrice: 385,
+    seller: { initial: "TR", name: "TechResell", role: "Verified Merchant", trust: 94 },
+  },
+}
+
+const allProducts: (Product | CartItem | WishlistItem)[] = [
+  ...cartItems,
+  ...trendingProducts,
+  ...bestSellers,
+  ...personalizedProducts,
+  ...wishlistItems,
+]
+
+// ponytail: synthesized detail for non-hero products, real data when there's a backend
+export function getProductDetail(id: number): ProductDetail | null {
+  const detail = productDetails[id]
+  if (detail) {
+    const base = allProducts.find((p) => p.id === id)
+    if (!base) return null
+    return {
+      id,
+      brand: "brand" in base ? base.brand : "",
+      name: base.name,
+      image: base.image,
+      alt: base.alt,
+      ...detail,
+    }
+  }
+
+  const base = allProducts.find((p) => p.id === id)
+  if (!base) return null
+
+  const price = "price" in base ? (typeof base.price === "number" ? base.price : parsePrice(base.price)) : 0
+  return {
+    id,
+    brand: "brand" in base ? base.brand : "",
+    name: base.name,
+    colorway: "colorway" in base ? base.colorway : "",
+    price,
+    condition: "condition" in base ? base.condition : ("badge" in base ? base.badge ?? "NEW" : "NEW"),
+    size: "size" in base ? `US ${base.size}` : "US 10.5",
+    image: base.image,
+    alt: base.alt,
+    gallery: [base.image],
+    breakdown: [
+      { label: "Upper", score: 90 },
+      { label: "Midsole", score: 88 },
+      { label: "Outsole", score: 85 },
+      { label: "Box", score: 92 },
+    ],
+    marketPrice: Math.round(price * 1.1),
+    seller: { initial: "TR", name: "TechResell", role: "Verified Merchant", trust: 94 },
+  }
+}

@@ -48,7 +48,7 @@ export default function LoginPage() {
           href="/register"
           className="mt-2 inline-block border-b-2 border-primary pb-1 font-heading text-xs font-bold tracking-widest text-primary uppercase hover:border-ring hover:text-ring"
         >
-          Request Access
+          Sign Up
         </Link>
       </div>
     </AuthShell>

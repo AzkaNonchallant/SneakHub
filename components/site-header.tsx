@@ -34,7 +34,7 @@ export function SiteHeader() {
             label === "Seller Hub" ? (
               <Link
                 key={label}
-                href="#"
+                href="/seller-profile"
                 className="border-b-2 border-primary text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase transition-colors hover:text-on-tertiary-container"
               >
                 {label}
@@ -64,7 +64,8 @@ export function SiteHeader() {
           >
             <ShoppingCart />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Account" className="rounded-none">
+          <Button variant="ghost" size="icon" aria-label="Account" className="rounded-none" nativeButton={false}
+            >
             <CircleUser />
           </Button>
         </div>

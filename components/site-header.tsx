@@ -1,15 +1,40 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Camera, CircleUser, Image, ScanSearch, Search, ShoppingCart } from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
+import { Bell, Camera, CircleUser, Heart, Image, LogOut, Menu, Package, ScanSearch, Search, ShoppingCart, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { searchProducts } from "@/lib/products"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
+import { cn } from "@/lib/utils"
 
 const navLinks = ["Smart Find", "Shop", "Market Insights", "Seller Hub"]
+
+const mobileLinks: { label: string; href: string }[] = [
+  { label: "Smart Find", href: "/smart-find" },
+  { label: "Shop", href: "/search" },
+  { label: "Market Insights", href: "/home" },
+  { label: "Seller Hub", href: "/seller-profile" },
+]
+
+const accountLinks: { label: string; href: string; icon: typeof CircleUser }[] = [
+  { label: "Profile", href: "/profile", icon: CircleUser },
+  { label: "Orders", href: "/profile", icon: Package },
+  { label: "Wishlist", href: "/profile/wishlist", icon: Heart },
+  { label: "Notifications", href: "/profile/notifications", icon: Bell },
+]
+
+const mobileActions: { label: string; href: string; icon: typeof CircleUser }[] = [
+  { label: "Image Search", href: "/search", icon: ScanSearch },
+  { label: "Cart", href: "/cart", icon: ShoppingCart },
+  { label: "Profile", href: "/profile", icon: CircleUser },
+  { label: "Wishlist", href: "/profile/wishlist", icon: Heart },
+  { label: "Notifications", href: "/profile/notifications", icon: Bell },
+  { label: "Sign Out", href: "/login", icon: LogOut },
+]
 
 export function SiteHeader() {
   const router = useRouter()
@@ -18,13 +43,32 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(-1)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
 
   const results = searchProducts(query)
 
+  // ponytail: plain scroll-lock + Esc listener, no portal lib for one overlay
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return
+      setMobileOpen(false)
+      setAccountOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    document.body.style.overflow = mobileOpen ? "hidden" : ""
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      document.body.style.overflow = ""
+    }
+  }, [mobileOpen])
+
+  // ponytail: every menu action closes via onClick/onPhoto; no pathname watcher needed
   const onPhoto = (file: File | undefined) => {
     setMenuOpen(false)
+    setMobileOpen(false)
     if (!file) return
     useVisualSearchStore.getState().setFile(file)
     router.push("/search")
@@ -53,11 +97,11 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-outline-variant bg-background">
-      <div className="mx-auto flex h-20 w-full max-w-[1280px] items-center justify-between px-5 md:px-10">
+      <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-5 md:h-20 md:px-10">
         <div className="flex items-center gap-8">
           <Link
             href="/home"
-            className="font-heading text-5xl leading-[48px] font-black tracking-tighter text-primary"
+            className="font-heading text-4xl leading-10 font-black tracking-tighter text-primary md:text-5xl md:leading-[48px]"
           >
             SNEAKHUB
           </Link>
@@ -218,37 +262,224 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-4">
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            aria-label="Image search"
-            className="rounded-none"
-            nativeButton={false}
-            render={<Link href="/search" />}
+            aria-label="Open menu"
+            onClick={() => setMobileOpen(true)}
+            className="rounded-none md:hidden"
           >
-            <ScanSearch />
+            <Menu />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Shopping cart"
-            className="rounded-none"
-            nativeButton={false}
-            render={<Link href="/cart" />}
-          >
-            <ShoppingCart />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Account"
-            className="rounded-none"
-            nativeButton={false}
-            render={<Link href="/profile" />}
-          >
-            <CircleUser />
-          </Button>
+          <div className="hidden items-center gap-4 md:flex">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Image search"
+              className="rounded-none"
+              nativeButton={false}
+              render={<Link href="/search" />}
+            >
+              <ScanSearch />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Shopping cart"
+              className="rounded-none"
+              nativeButton={false}
+              render={<Link href="/cart" />}
+            >
+              <ShoppingCart />
+            </Button>
+            <div className="relative">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Account"
+                aria-expanded={accountOpen}
+                onClick={() => {
+                  setAccountOpen((v) => !v)
+                  setMenuOpen(false)
+                }}
+                className="rounded-none"
+              >
+                <CircleUser />
+              </Button>
+              {accountOpen ? (
+                <>
+                  {/* ponytail: invisible backdrop closes on any outside click */}
+                  <button
+                    type="button"
+                    aria-label="Close account menu"
+                    tabIndex={-1}
+                    onClick={() => setAccountOpen(false)}
+                    className="fixed inset-0 z-40 cursor-default"
+                  />
+                  <div className="absolute top-full right-0 z-50 mt-2 w-56 border border-primary bg-white shadow-[4px_4px_0px_0px_#000]">
+                    <span className="block border-b border-outline-variant px-3 py-2 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                      My Account
+                    </span>
+                    {accountLinks.map(({ label, href, icon: Icon }) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setAccountOpen(false)}
+                        className="flex w-full items-center gap-3 px-3 py-3 text-sm leading-5 text-primary transition-colors hover:bg-surface-container"
+                      >
+                        <Icon className="size-4 text-muted-foreground" />
+                        {label}
+                      </Link>
+                    ))}
+                    <Link
+                      href="/login"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex w-full items-center gap-3 border-t border-outline-variant px-3 py-3 text-sm leading-5 text-error transition-colors hover:bg-surface-container"
+                    >
+                      <LogOut className="size-4" />
+                      Sign Out
+                    </Link>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Mobile: full-screen black takeover menu */}
+      <AnimatePresence>
+        {mobileOpen ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            className="fixed inset-0 z-[60] flex flex-col bg-primary text-white md:hidden"
+          >
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/20 px-5">
+              <Link href="/home" className="font-heading text-4xl leading-10 font-black tracking-tighter">
+                SNEAKHUB
+              </Link>
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+                className="flex size-10 cursor-pointer items-center justify-center border border-white/30 text-white transition-colors hover:bg-white hover:text-primary"
+              >
+                <X />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-6">
+              <form
+                role="search"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  submitQuery()
+                  setMobileOpen(false)
+                }}
+                className="relative mb-8"
+              >
+                <Search
+                  aria-hidden
+                  className="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-white/50"
+                />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search brands, models, styles..."
+                  className="w-full border border-white bg-transparent py-3 pr-4 pl-10 text-base text-white outline-none transition-colors placeholder:text-white/50 focus:border-b-2 focus:border-on-tertiary-container"
+                />
+              </form>
+
+              <nav className="flex flex-col">
+                {mobileLinks.map(({ label, href }, i) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.08 + i * 0.06, duration: 0.3, ease: "easeOut" }}
+                  >
+                    <Link
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-baseline gap-4 border-b border-white/15 py-4"
+                    >
+                      <span className="text-[10px] font-bold tracking-widest text-white/40">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={cn(
+                          "font-heading text-3xl leading-9 font-bold tracking-tight uppercase transition-colors",
+                          pathname.startsWith(href) && href !== "/home"
+                            ? "text-on-tertiary-container"
+                            : "text-white",
+                        )}
+                      >
+                        {label}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </nav>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.34, duration: 0.3 }}
+                className="mt-10 border-t border-white/20 pt-6"
+              >
+                <span className="mb-3 block text-[10px] font-bold tracking-widest text-white/50 uppercase">
+                  Visual Match
+                </span>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => cameraRef.current?.click()}
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-2 border border-white py-3 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-primary"
+                  >
+                    <Camera className="size-4 text-on-tertiary-container" />
+                    Ambil Foto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => galleryRef.current?.click()}
+                    className="flex flex-1 cursor-pointer items-center justify-center gap-2 border border-white py-3 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-primary"
+                  >
+                    <Image className="size-4 text-on-tertiary-container" />
+                    Galeri
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.42, duration: 0.3, ease: "easeOut" }}
+              className="grid shrink-0 grid-cols-3 gap-px border-t border-white/20 bg-white/20"
+            >
+              {mobileActions.map(({ label, href, icon: Icon }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex flex-col items-center gap-1.5 bg-primary py-4 text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-white/10"
+                >
+                  <Icon className="size-5" />
+                  {label}
+                </Link>
+              ))}
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       {/* ponytail: hidden until picked by the camera menu; button-triggered so no clickjacking */}
       <input

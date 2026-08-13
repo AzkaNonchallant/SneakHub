@@ -223,7 +223,7 @@ export default function SmartFindPage() {
 
         {/* Results */}
         <section className="flex flex-1 flex-col gap-6">
-          <div className="flex items-end justify-between border-b border-outline-variant pb-2">
+          <div className="flex flex-wrap items-end justify-between gap-2 border-b border-outline-variant pb-2">
             <span className="text-base leading-6 text-muted-foreground">
               Showing top matches for your profile · {size}
             </span>

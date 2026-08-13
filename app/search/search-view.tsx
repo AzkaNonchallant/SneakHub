@@ -70,7 +70,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
           <span className="mb-4 inline-block bg-on-tertiary-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase">
             Smart Find
           </span>
-          <h1 className="font-heading text-5xl leading-[48px] font-bold text-primary uppercase md:text-6xl">
+          <h1 className="font-heading text-[32px] leading-8 font-bold text-primary uppercase md:text-6xl">
             Search The Market
           </h1>
           <p className="mt-2 max-w-xl text-base leading-6 text-muted-foreground">
@@ -98,7 +98,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search brands, models, colorways..."
               autoFocus
-              className="w-full border border-primary bg-white py-4 pr-32 pl-14 text-lg text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container"
+              className="w-full border border-primary bg-white py-4 pr-24 pl-14 text-lg text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container md:pr-32"
             />
             <div className="absolute top-1/2 right-2 flex -translate-y-1/2 gap-2">
               <Button
@@ -112,9 +112,10 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               </Button>
               <Button
                 type="submit"
-                className="h-10 rounded-none border border-primary bg-primary px-4 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+                className="h-10 rounded-none border border-primary bg-primary px-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary md:px-4"
               >
-                Search
+                <span className="hidden md:inline">Search</span>
+                <Search className="size-4 md:hidden" />
               </Button>
             </div>
           </form>

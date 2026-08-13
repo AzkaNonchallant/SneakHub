@@ -121,7 +121,7 @@ export default function CartPage() {
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-4 md:px-10">
           <Link
             href="/home"
-            className="font-heading text-5xl leading-[48px] font-bold tracking-tighter text-primary uppercase"
+            className="font-heading text-4xl leading-10 font-bold tracking-tighter text-primary uppercase md:text-5xl md:leading-[48px]"
           >
             Sneakhub
           </Link>
@@ -138,7 +138,7 @@ export default function CartPage() {
           transition={{ duration: 0.4 }}
           className="mb-8"
         >
-          <h1 className="font-heading text-[56px] leading-[56px] font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
+          <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
             Cart
           </h1>
           <p className="mt-2 text-lg leading-7 text-muted-foreground">

@@ -29,7 +29,7 @@ export default function WishlistPage() {
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col px-4 py-8 md:px-10 md:py-12">
         <header className="mb-12 flex items-end justify-between border-b-2 border-primary pb-4">
-          <h1 className="font-heading text-[56px] leading-[56px] font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
+          <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
             Wishlist
           </h1>
           <span className="hidden font-mono text-sm font-medium text-muted-foreground md:block">

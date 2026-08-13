@@ -1,0 +1,237 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "SNEAKHUB" [ref=e6] [cursor=pointer]:
+          - /url: /home
+        - button "Open menu" [active] [ref=e8]
+      - dialog "Mobile navigation" [ref=e249]:
+        - generic [ref=e250]:
+          - link "SNEAKHUB" [ref=e251] [cursor=pointer]:
+            - /url: /home
+          - button "Close menu" [ref=e252] [cursor=pointer]
+        - generic [ref=e256]:
+          - search [ref=e257]:
+            - textbox "Search brands, models, styles..." [ref=e261]
+          - navigation [ref=e262]:
+            - link "01 Smart Find" [ref=e264] [cursor=pointer]:
+              - /url: /smart-find
+              - generic [ref=e265]: "01"
+              - generic [ref=e266]: Smart Find
+            - link "02 Shop" [ref=e268] [cursor=pointer]:
+              - /url: /search
+              - generic [ref=e269]: "02"
+              - generic [ref=e270]: Shop
+            - link "03 Market Insights" [ref=e272] [cursor=pointer]:
+              - /url: /home
+              - generic [ref=e273]: "03"
+              - generic [ref=e274]: Market Insights
+            - link "04 Seller Hub" [ref=e276] [cursor=pointer]:
+              - /url: /seller-profile
+              - generic [ref=e277]: "04"
+              - generic [ref=e278]: Seller Hub
+          - generic [ref=e279]:
+            - generic [ref=e280]: Visual Match
+            - generic [ref=e281]:
+              - button "Ambil Foto" [ref=e282] [cursor=pointer]
+              - button "Galeri" [ref=e286] [cursor=pointer]
+        - generic [ref=e291]:
+          - link "Image Search" [ref=e292] [cursor=pointer]:
+            - /url: /search
+          - link "Cart" [ref=e300] [cursor=pointer]:
+            - /url: /cart
+          - link "Account" [ref=e305] [cursor=pointer]:
+            - /url: /profile
+    - generic [ref=e9]:
+      - img "Rare sneaker levitating against a stark white studio background" [ref=e11]
+      - generic [ref=e13]:
+        - generic [ref=e14]: Latest Drop
+        - heading "Technical Precision In Resale." [level=1] [ref=e15]: TechnicalPrecisionIn Resale.
+        - paragraph [ref=e16]: Access verified, authenticated, and high-performance footwear. Navigate the market with AI-driven insights.
+        - button "Explore the Collection" [ref=e17]
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - heading "Trending Shoes" [level=2] [ref=e22]
+          - paragraph [ref=e23]: High-growth popular sneakers.
+        - link "View All Market Data" [ref=e24] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e28]:
+        - generic [ref=e29] [cursor=pointer]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - generic [ref=e32]: New
+              - generic [ref=e33]: +12%
+            - img "Nike Dunk Low Panda black and white colorway" [ref=e37]
+          - generic [ref=e38]:
+            - generic [ref=e39]: Nike
+            - heading "Dunk Low 'Panda'" [level=3] [ref=e40]
+            - generic [ref=e41]:
+              - generic [ref=e42]:
+                - generic [ref=e43]: Current Ask
+                - text: $185
+              - button "Add Dunk Low 'Panda' to cart" [ref=e44]
+        - generic [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Refurbished 92/100
+              - generic [ref=e49]: +8%
+            - img "Air Jordan 1 High Chicago refurbished" [ref=e53]
+          - generic [ref=e54]:
+            - generic [ref=e55]: Jordan
+            - heading "Air Jordan 1 High 'Chicago'" [level=3] [ref=e56]
+            - generic [ref=e57]:
+              - generic [ref=e58]:
+                - generic [ref=e59]: Current Ask
+                - text: $450
+              - button "Add Air Jordan 1 High 'Chicago' to cart" [ref=e60]
+        - generic [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - generic [ref=e64]: New
+              - generic [ref=e65]: +24%
+            - img "New Balance 990v6 Grey"
+          - generic [ref=e69]:
+            - generic [ref=e70]: New Balance
+            - heading "990v6 'Grey'" [level=3] [ref=e71]
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e74]: Current Ask
+                - text: $220
+              - button "Add 990v6 'Grey' to cart" [ref=e75]
+        - generic [ref=e76] [cursor=pointer]:
+          - generic [ref=e77]:
+            - generic [ref=e78]: New
+            - img "Adidas Samba OG White Black"
+          - generic [ref=e80]:
+            - generic [ref=e81]: Adidas
+            - heading "Samba OG 'White Black'" [level=3] [ref=e82]
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - generic [ref=e85]: Current Ask
+                - text: $110
+              - button "Add Samba OG 'White Black' to cart" [ref=e86]
+    - generic [ref=e88]:
+      - heading "Technical Advantage" [level=2] [ref=e89]
+      - generic [ref=e90]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: AI Engine
+            - heading "Price Predictor" [level=3] [ref=e108]
+            - paragraph [ref=e109]: Leverage machine learning models to forecast market trends and determine optimal listing prices with technical precision.
+          - generic [ref=e110]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: Confidence Score
+              - generic [ref=e114]: 98.4%
+            - button "Calculate Now" [ref=e117]
+        - generic [ref=e118]:
+          - img "Macro photograph of luxury sneaker stitching in monochrome" [ref=e119]
+          - generic [ref=e120]:
+            - heading "Rigorous Authentication" [level=3] [ref=e124]: RigorousAuthentication
+            - paragraph [ref=e125]: Every item passes a multi-point inspection by certified experts before it reaches you.
+          - link "Process Details" [ref=e126] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - heading "Visual Search" [level=3] [ref=e131]
+            - paragraph [ref=e132]: Find exactly what you're looking for using image recognition.
+          - button "Visual search" [ref=e133] [cursor=pointer]
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - heading "Weekly Digest" [level=3] [ref=e136]
+            - paragraph [ref=e137]: Get the latest market fluctuations delivered directly.
+          - button "Weekly digest" [ref=e138]
+    - generic [ref=e140]:
+      - heading "Weekly Best Sellers" [level=2] [ref=e141]
+      - generic [ref=e142]:
+        - generic [ref=e143] [cursor=pointer]:
+          - generic [ref=e144]:
+            - generic [ref=e145]: "01"
+            - generic [ref=e146]: New
+            - img "Asics Gel-Kayano 14 Silver Blue"
+          - generic [ref=e148]:
+            - generic [ref=e149]: Asics
+            - heading "Gel-Kayano 14 'Silver Blue'" [level=3] [ref=e150]
+            - generic [ref=e152]:
+              - generic [ref=e153]: Current Ask
+              - text: $190
+        - generic [ref=e157] [cursor=pointer]:
+          - generic [ref=e158]:
+            - generic [ref=e159]: "02"
+            - generic [ref=e160]: New
+            - img "Travis Scott AJ1 Low Reverse Mocha"
+          - generic [ref=e162]:
+            - generic [ref=e163]: Jordan
+            - heading "AJ1 Low 'Travis Scott'" [level=3] [ref=e164]
+            - generic [ref=e166]:
+              - generic [ref=e167]: Current Ask
+              - text: $1,150
+        - generic [ref=e171] [cursor=pointer]:
+          - generic [ref=e172]:
+            - generic [ref=e173]: "03"
+            - generic [ref=e174]: New
+            - img "Adidas Yeezy Slide Onyx"
+          - generic [ref=e176]:
+            - generic [ref=e177]: Adidas
+            - heading "Yeezy Slide 'Onyx'" [level=3] [ref=e178]
+            - generic [ref=e180]:
+              - generic [ref=e181]: Current Ask
+              - text: $125
+        - generic [ref=e185] [cursor=pointer]:
+          - generic [ref=e186]:
+            - generic [ref=e187]: "04"
+            - img "New Balance 550 White Green"
+          - generic [ref=e188]:
+            - generic [ref=e189]: New Balance
+            - heading "550 'White Green'" [level=3] [ref=e190]
+            - generic [ref=e192]:
+              - generic [ref=e193]: Current Ask
+              - text: $130
+      - button "Load More Data" [ref=e198]
+    - generic [ref=e200]:
+      - generic [ref=e201]:
+        - heading "Cocok untuk Kamu" [level=2] [ref=e202]
+        - generic [ref=e204]: Algorithm Generated
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e207]:
+            - img "New Balance 550 White Green"
+          - generic [ref=e208]:
+            - generic [ref=e209]:
+              - generic [ref=e210]: New Balance
+              - generic [ref=e211]: 92% Match
+            - heading "550 'White Green'" [level=4] [ref=e212]
+            - generic [ref=e213]: $130
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - img "On Running Cloudmonster Triple Black"
+          - generic [ref=e216]:
+            - generic [ref=e217]:
+              - generic [ref=e218]: On Running
+              - generic [ref=e219]: 88% Match
+            - heading "Cloudmonster 'Triple Black'" [level=4] [ref=e220]
+            - generic [ref=e221]: $170
+        - generic [ref=e222]:
+          - generic [ref=e223]:
+            - img "Salomon XT-6 Lunar Rock"
+          - generic [ref=e224]:
+            - generic [ref=e225]:
+              - generic [ref=e226]: Salomon
+              - generic [ref=e227]: 85% Match
+            - heading "XT-6 'Lunar Rock'" [level=4] [ref=e228]
+            - generic [ref=e229]: $200
+    - contentinfo [ref=e230]:
+      - generic [ref=e231]:
+        - generic [ref=e232]: SNEAKHUB
+        - navigation [ref=e233]:
+          - link "Terms of Service" [ref=e234] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=e235] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=e236] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=e237] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e238]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.
+  - button "Open Next.js Dev Tools" [ref=e244] [cursor=pointer]
+  - alert [ref=e248]

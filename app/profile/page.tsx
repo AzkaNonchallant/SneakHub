@@ -118,7 +118,7 @@ export default function ProfilePage() {
         </aside>
 
         <div className="flex flex-1 flex-col gap-6">
-          <h1 className="border-b-2 border-primary pb-4 font-heading text-[56px] leading-[56px] font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
+          <h1 className="border-b-2 border-primary pb-4 font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
             Pesanan Saya
           </h1>
 

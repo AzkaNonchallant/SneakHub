@@ -1,0 +1,93 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e268] [cursor=pointer]
+  - alert [ref=e272]: WISHLIST
+  - generic [ref=e321]:
+    - banner [ref=e322]:
+      - generic [ref=e323]:
+        - generic [ref=e324]:
+          - link "SNEAKHUB" [ref=e325] [cursor=pointer]:
+            - /url: /home
+          - search [ref=e326]:
+            - textbox "Search brands, models, styles..." [ref=e330]
+            - button "Visual match search" [ref=e331]
+        - navigation [ref=e332]:
+          - link "Smart Find" [ref=e333] [cursor=pointer]:
+            - /url: /smart-find
+          - link "Shop" [ref=e334] [cursor=pointer]:
+            - /url: "#"
+          - link "Market Insights" [ref=e335] [cursor=pointer]:
+            - /url: "#"
+          - link "Seller Hub" [ref=e336] [cursor=pointer]:
+            - /url: /seller-profile
+        - generic [ref=e338]:
+          - button "Image search" [ref=e339] [cursor=pointer]
+          - button "Shopping cart" [ref=e340] [cursor=pointer]
+          - button "Account" [ref=e342]
+    - main [ref=e343]:
+      - generic [ref=e344]:
+        - heading "Wishlist" [level=1] [ref=e345]
+        - generic [ref=e346]: 2 ITEMS TRACKED
+      - generic [ref=e347]:
+        - complementary [ref=e348]:
+          - generic [ref=e349]:
+            - heading "Price Alert Settings" [level=2] [ref=e350]
+            - generic [ref=e351]:
+              - generic [ref=e352]:
+                - generic [ref=e353]:
+                  - heading "GLOBAL ALERTS" [level=3] [ref=e354]
+                  - paragraph [ref=e355]: Notify me of any price drops on my wishlist.
+                - button "Toggle GLOBAL ALERTS" [pressed] [ref=e356]
+              - generic [ref=e358]:
+                - generic [ref=e359]:
+                  - heading "RESTOCK NOTIFICATIONS" [level=3] [ref=e360]
+                  - paragraph [ref=e361]: Alert when unavailable sizes return.
+                - button "Toggle RESTOCK NOTIFICATIONS" [pressed] [ref=e362]
+              - generic [ref=e364]:
+                - generic [ref=e365]:
+                  - heading "MARKET TREND DIGEST" [level=3] [ref=e366]
+                  - paragraph [ref=e367]: Weekly summary of wishlist valuations.
+                - button "Toggle MARKET TREND DIGEST" [ref=e368]
+        - generic [ref=e370]:
+          - article [ref=e371] [cursor=pointer]:
+            - generic [ref=e372]: PRICE DROP
+            - generic [ref=e373]: 9.5/10
+            - img "Nike Air Max Plus Volt Black White" [ref=e376]
+            - generic [ref=e377]:
+              - generic [ref=e378]:
+                - generic [ref=e379]:
+                  - heading "Nike Air Max Plus" [level=3] [ref=e380]
+                  - paragraph [ref=e381]: Volt/Black-White
+                - img "In wishlist" [ref=e382]
+              - generic [ref=e384]:
+                - generic [ref=e385]: Rp2.400
+                - generic [ref=e386]: Rp2.800
+              - generic [ref=e387]:
+                - button "Move to Cart" [ref=e388]
+                - button "Remove" [ref=e389]
+          - article [ref=e390] [cursor=pointer]:
+            - generic [ref=e391]: BACK IN STOCK
+            - generic [ref=e392]: DS / NEW
+            - img "Jordan 4 Retro Military Blue" [ref=e395]
+            - generic [ref=e396]:
+              - generic [ref=e397]:
+                - generic [ref=e398]:
+                  - heading "Jordan 4 Retro" [level=3] [ref=e399]
+                  - paragraph [ref=e400]: Military Blue
+                - img "In wishlist" [ref=e401]
+              - generic [ref=e403]: Rp4.100
+              - generic [ref=e405]:
+                - button "Move to Cart" [ref=e406]
+                - button "Remove" [ref=e407]
+    - contentinfo [ref=e408]:
+      - generic [ref=e409]:
+        - generic [ref=e410]: SNEAKHUB
+        - navigation [ref=e411]:
+          - link "Terms of Service" [ref=e412] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy Policy" [ref=e413] [cursor=pointer]:
+            - /url: "#"
+          - link "Authentication Process" [ref=e414] [cursor=pointer]:
+            - /url: "#"
+          - link "Contact Support" [ref=e415] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e416]: © 2024 SNEAKHUB. TECHNICAL PRECISION IN RESALE.

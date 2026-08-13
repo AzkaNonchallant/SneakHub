@@ -30,31 +30,46 @@ const totalProducts = 24;
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-neutral-50 px-8 py-10">
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-neutral-900">
-        PROFIL TOKO
-      </h1>
+    <div className="mx-auto w-full max-w-[1280px] bg-background px-4 py-8 sm:px-8 sm:py-10 md:px-12">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase">
+            Seller Center
+          </div>
+          <h1 className="font-heading text-4xl font-black tracking-tighter text-primary uppercase">
+            Profil Toko
+          </h1>
+        </div>
+        <button
+          type="button"
+          className="h-auto border border-primary bg-primary px-6 py-2.5 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+        >
+          Edit Profil
+        </button>
+      </div>
 
       {/* Kartu profil utama */}
-      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <div className="flex items-start justify-between">
+      <section className="mb-6 border border-outline-variant bg-surface-container-low p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-2xl font-bold text-white">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-primary font-heading text-3xl leading-none font-bold text-white">
               {seller.initial}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-900">{seller.name}</h2>
-              <p className="mt-1 max-w-md text-sm text-neutral-500">
+              <h2 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                {seller.name}
+              </h2>
+              <p className="mt-1 max-w-md text-base leading-6 text-muted-foreground">
                 {seller.description}
               </p>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {seller.badges.map((badge) => (
                   <span
                     key={badge}
                     className={
                       badge === "Top Seller"
-                        ? "rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-600"
-                        : "rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-600"
+                        ? "border border-primary bg-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase"
+                        : "border border-[#10B981] bg-[#10B981]/10 px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase"
                     }
                   >
                     {badge}
@@ -63,26 +78,19 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          <button className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50">
-            EDIT PROFIL
-          </button>
         </div>
 
         {/* Statistik */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {seller.stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-neutral-200 py-4 text-center"
-            >
-              <div className="text-xl font-extrabold text-neutral-900">
+            <div key={stat.label} className="border border-outline-variant py-4 text-center">
+              <div className="font-heading text-2xl leading-7 font-black text-primary">
                 {stat.value}
                 {stat.suffix ? (
-                  <span className="ml-1 text-base text-yellow-500">{stat.suffix}</span>
+                  <span className="ml-1 text-lg font-bold text-tertiary">{stat.suffix}</span>
                 ) : null}
               </div>
-              <div className="mt-1 text-[11px] font-medium tracking-wide text-neutral-400">
+              <div className="mt-1 text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
                 {stat.label}
               </div>
             </div>
@@ -93,41 +101,50 @@ export default function ProfilePage() {
       {/* Trust score + Produk aktif */}
       <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Seller Trust Score */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-base font-bold text-neutral-900">Seller Trust Score</h3>
-          <div className="flex items-center gap-6">
+        <div className="border border-outline-variant bg-surface-container-low p-6">
+          <h3 className="mb-4 font-heading text-lg font-bold text-primary">
+            Seller Trust Score
+          </h3>
+          <div className="flex flex-wrap items-center gap-6">
             <TrustGauge score={seller.trustScore} />
             <div>
-              <div className="text-2xl font-extrabold text-neutral-900">
+              <div className="font-heading text-3xl leading-9 font-black text-primary">
                 {seller.trustScore}/100
               </div>
-              <div className="mt-1 text-sm font-semibold text-green-600">
-                {seller.trustLabel}
+              <div className="mt-1 flex items-center gap-1.5 text-base font-bold text-[#10B981]">
+                <CheckCircle2 className="size-4" /> {seller.trustLabel}
               </div>
-              <div className="mt-1 text-sm text-neutral-400">{seller.trustSubtext}</div>
+              <div className="mt-1 text-sm leading-5 text-muted-foreground">
+                {seller.trustSubtext}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Produk Aktif */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="border border-outline-variant bg-surface-container-low p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-neutral-900">
+            <h3 className="font-heading text-lg font-bold text-primary">
               Produk Aktif ({totalProducts})
             </h3>
-            <a href="#" className="text-sm text-neutral-500 hover:underline">
+            <a
+              href="#"
+              className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
+            >
               View All
             </a>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {products.map((p) => (
               <div key={p.name} className="flex items-center gap-3">
-                <div className="h-14 w-14 shrink-0 rounded-lg bg-neutral-100" />
+                <div className="h-14 w-14 shrink-0 border border-outline-variant bg-surface-container" />
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-neutral-900">
+                  <div className="truncate text-sm leading-5 font-medium text-primary">
                     {p.name}
                   </div>
-                  <div className="text-sm font-semibold text-orange-600">{p.price}</div>
+                  <div className="font-heading text-sm leading-5 font-bold text-primary">
+                    {p.price}
+                  </div>
                 </div>
               </div>
             ))}
@@ -136,12 +153,12 @@ export default function ProfilePage() {
       </section>
 
       {/* Ulasan Pelanggan */}
-      <section className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <h3 className="text-base font-bold text-neutral-900">Ulasan Pelanggan</h3>
-        <div className="flex items-center gap-1 text-sm">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="font-bold text-neutral-900">{seller.reviewRating}</span>
-          <span className="text-neutral-400">({seller.reviewCount} ulasan)</span>
+      <section className="flex flex-wrap items-center justify-between gap-4 border border-outline-variant bg-surface-container-low p-6">
+        <h3 className="font-heading text-lg font-bold text-primary">Ulasan Pelanggan</h3>
+        <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+          <Star className="size-4 fill-tertiary text-tertiary" />
+          <span className="font-heading font-black text-primary">{seller.reviewRating}</span>
+          <span>({seller.reviewCount} ulasan)</span>
         </div>
       </section>
     </div>
@@ -163,7 +180,7 @@ function TrustGauge({ score }: { score: number }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#e5e7eb"
+          className="stroke-outline-variant"
           strokeWidth={stroke}
           fill="none"
         />
@@ -171,7 +188,7 @@ function TrustGauge({ score }: { score: number }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#16a34a"
+          className="stroke-[#10B981]"
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={circumference}
@@ -179,7 +196,7 @@ function TrustGauge({ score }: { score: number }) {
           strokeLinecap="round"
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-xl font-extrabold text-neutral-900">
+      <div className="absolute inset-0 flex items-center justify-center font-heading text-xl leading-7 font-black text-primary">
         {score}
       </div>
     </div>

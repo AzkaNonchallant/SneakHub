@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-12 md:px-10">
-        <nav className="mb-8 flex items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
+        <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
           <Link href="/home" className="transition-colors hover:text-primary">
             Shop
           </Link>
@@ -96,7 +96,7 @@ export default function ProductDetailPage() {
 
           <div className="flex flex-col gap-8 lg:col-span-5">
             <div className="flex flex-col gap-2 border-b border-outline-variant pb-6">
-              <h1 className="font-heading text-[56px] leading-[56px] font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
+              <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
                 {detail.name}
               </h1>
               {detail.colorway && (
@@ -105,7 +105,7 @@ export default function ProductDetailPage() {
                 </h2>
               )}
               <div className="mt-2 flex items-baseline gap-4">
-                <span className="font-heading text-5xl leading-12 font-bold text-primary">
+                <span className="font-heading text-3xl leading-9 font-bold text-primary md:text-5xl md:leading-12">
                   ${detail.price.toFixed(2)}
                 </span>
                 <span className="text-xs leading-4 font-bold tracking-widest text-muted-foreground uppercase">

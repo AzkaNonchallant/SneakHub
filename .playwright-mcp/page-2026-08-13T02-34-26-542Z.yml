@@ -1,0 +1,86 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e244] [cursor=pointer]
+  - alert [ref=e248]
+  - generic [ref=e310]:
+    - generic [ref=e311]:
+      - generic [ref=e312]:
+        - generic [ref=e313]: SELLER HUB
+        - link "Storefront" [ref=e314] [cursor=pointer]:
+          - /url: /home
+      - navigation [ref=e319]:
+        - link "Dashboard" [ref=e320] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Inventory" [ref=e321] [cursor=pointer]:
+          - /url: /inventory
+        - link "Price Predictor" [ref=e322] [cursor=pointer]:
+          - /url: /price-predictor
+        - link "Analytics" [ref=e323] [cursor=pointer]:
+          - /url: /analytics
+        - link "Settings" [ref=e324] [cursor=pointer]:
+          - /url: /settings
+    - main:
+      - generic [ref=e325]:
+        - heading "PROFIL TOKO" [level=1]
+        - generic [ref=e326]:
+          - generic:
+            - generic [ref=e327]:
+              - generic [ref=e328]: S
+              - generic [ref=e329]:
+                - heading "SneakerVault ID" [level=2] [ref=e330]
+                - paragraph [ref=e331]: Spesialis sneaker original & premium. Berpengalaman sejak 2020.
+                - generic [ref=e332]:
+                  - generic [ref=e333]: Seller Terverifikasi
+                  - generic [ref=e334]: Top Seller
+            - button "EDIT PROFIL" [ref=e335]
+          - generic:
+            - generic [ref=e336]:
+              - generic: "312"
+              - generic: TOTAL PESANAN
+            - generic [ref=e337]:
+              - generic: 98%
+              - generic: PENYELESAIAN
+            - generic [ref=e338]:
+              - generic: 96%
+              - generic: TINGKAT RESPONS
+            - generic [ref=e339]:
+              - generic: 4.8★
+              - generic: RATING
+            - generic [ref=e340]:
+              - generic: 2%
+              - generic: PEMBATALAN
+        - generic:
+          - generic [ref=e341]:
+            - heading "Seller Trust Score" [level=3]
+            - generic:
+              - generic [ref=e342]: "94"
+              - generic [ref=e347]:
+                - generic [ref=e348]: 94/100
+                - generic [ref=e349]: Seller Terpercaya
+                - generic [ref=e350]: Teratas 5% dari seluruh seller
+          - generic [ref=e351]:
+            - generic:
+              - heading "Produk Aktif (24)" [level=3] [ref=e352]
+              - link "View All" [ref=e353] [cursor=pointer]:
+                - /url: "#"
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Air Force 1 Low ...
+                  - generic: Rp1.200.000
+              - generic:
+                - generic:
+                  - generic: Air Max 90 Black
+                  - generic: Rp950.000
+              - generic:
+                - generic:
+                  - generic: Forum Low Blac...
+                  - generic: Rp850.000
+              - generic:
+                - generic:
+                  - generic: Dunk Low Panda
+                  - generic: Rp1.650.000
+        - generic [ref=e358]:
+          - heading "Ulasan Pelanggan" [level=3] [ref=e359]
+          - generic [ref=e360]:
+            - generic [ref=e363]: "4.8"
+            - generic [ref=e364]: (312 ulasan)

@@ -55,9 +55,9 @@ const trustBreakdown = [
 
 export default function DashboardPage() {
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-8 py-10 md:px-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase">
             Seller Center

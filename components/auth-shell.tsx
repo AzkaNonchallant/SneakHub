@@ -32,7 +32,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           className="relative w-full max-w-md border border-primary bg-card p-8 shadow-[8px_8px_0px_0px_#000] md:p-10"
         >
           <div className="mb-10 text-center">
-            <h1 className="font-heading text-5xl leading-none font-bold tracking-tighter text-primary uppercase md:text-[72px] md:leading-[72px]">
+            <h1 className="font-heading text-[32px] leading-9 font-bold tracking-tighter text-primary uppercase md:text-[72px] md:leading-[72px]">
               Sneakhub
             </h1>
             <p className="mt-3 border-b border-primary pb-4 text-xs font-medium tracking-widest text-muted-foreground uppercase">

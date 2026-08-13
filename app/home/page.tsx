@@ -50,7 +50,7 @@ export default function HomePage() {
             <span className="mb-4 inline-block border border-outline-variant bg-surface-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-primary uppercase">
               Latest Drop
             </span>
-            <h1 className="font-heading text-[56px] leading-[56px] font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
+            <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase sm:text-[56px] sm:leading-[56px] md:text-[72px] md:leading-[72px]">
               Technical
               <br />
               Precision
@@ -74,7 +74,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.div {...fadeUp} className="mb-8 flex items-end justify-between">
             <div>
-              <h2 className="font-heading text-5xl leading-[48px] font-bold text-primary uppercase">
+              <h2 className="font-heading text-[32px] leading-8 font-bold text-primary uppercase md:text-5xl md:leading-[48px]">
                 Trending Shoes
               </h2>
               <p className="mt-2 text-base leading-6 text-muted-foreground">High-growth popular sneakers.</p>
@@ -267,7 +267,7 @@ export default function HomePage() {
       {/* Personalized */}
       <section className="border-b border-outline-variant bg-surface-container-lowest py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
-          <motion.div {...fadeUp} className="mb-8 flex items-center gap-4">
+          <motion.div {...fadeUp} className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2">
             <h2 className="font-heading text-5xl leading-[48px] font-bold text-primary uppercase">
               Cocok untuk Kamu
             </h2>

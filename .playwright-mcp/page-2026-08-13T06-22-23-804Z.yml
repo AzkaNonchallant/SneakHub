@@ -1,0 +1,104 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: SELLER HUB
+        - generic [ref=e6]: PRO STATUS
+      - navigation [ref=e7]:
+        - link "Dashboard" [ref=e8] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Inventory" [ref=e15] [cursor=pointer]:
+          - /url: /inventory
+        - link "Price Predictor" [ref=e21] [cursor=pointer]:
+          - /url: /price-predictor
+        - link "Analytics" [ref=e26] [cursor=pointer]:
+          - /url: /analytics
+        - link "Settings" [ref=e30] [cursor=pointer]:
+          - /url: /settings
+    - main [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Seller Center
+            - heading "Dashboard" [level=1] [ref=e40]
+          - button "Tambah Produk" [ref=e41]
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e52]: Rp284.750.000
+            - generic [ref=e53]: Total Penjualan
+          - generic [ref=e54]:
+            - generic [ref=e64]: "312"
+            - generic [ref=e65]: Total Pesanan
+          - generic [ref=e66]:
+            - generic [ref=e73]: "24"
+            - generic [ref=e74]: Produk Aktif
+          - generic [ref=e75]:
+            - generic [ref=e83]: 4.8★
+            - generic [ref=e84]: Rating Rata-rata
+          - generic [ref=e85]:
+            - generic [ref=e94]: 94/100
+            - generic [ref=e95]: Trust Score
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - text: Sales Analytics
+              - heading "Penjualan Bulanan" [level=3] [ref=e99]
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - generic [ref=e102]: "42"
+                - generic [ref=e104]: Mar
+              - generic [ref=e105]:
+                - generic [ref=e106]: "58"
+                - generic [ref=e108]: Apr
+              - generic [ref=e109]:
+                - generic [ref=e110]: "71"
+                - generic [ref=e112]: Mei
+              - generic [ref=e113]:
+                - generic [ref=e114]: "65"
+                - generic [ref=e116]: Jun
+              - generic [ref=e117]:
+                - generic [ref=e118]: "89"
+                - generic [ref=e120]: Jul
+              - generic [ref=e121]:
+                - generic [ref=e122]: "76"
+                - generic [ref=e124]: Agu
+          - generic [ref=e125]:
+            - generic [ref=e126]:
+              - text: Reputation
+              - heading "Seller Trust Score" [level=3] [ref=e127]
+            - generic [ref=e128]:
+              - generic [ref=e129]: "94"
+              - generic [ref=e134]:
+                - generic [ref=e135]: 94/100
+                - generic [ref=e136]: Seller Terpercaya
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - term [ref=e139]: Rating
+                - definition [ref=e140]: 4.8★
+              - generic [ref=e141]:
+                - term [ref=e142]: Order Completion
+                - definition [ref=e143]: 98%
+              - generic [ref=e144]:
+                - term [ref=e145]: Response Rate
+                - definition [ref=e146]: 96%
+              - generic [ref=e147]:
+                - term [ref=e148]: Cancellation Rate
+                - definition [ref=e149]: 2%
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e152]:
+              - generic [ref=e153]:
+                - text: Activity
+                - heading "Pesanan Terbaru" [level=3] [ref=e154]
+              - link "Lihat semua" [ref=e155] [cursor=pointer]:
+                - /url: "#"
+            - generic [ref=e159]: Belum ada data.
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - text: Top Products
+                - heading "Produk Terlaris" [level=3] [ref=e163]
+              - link "Kelola" [ref=e164] [cursor=pointer]:
+                - /url: "#"
+            - generic [ref=e168]: Belum ada data.
+  - button "Open Next.js Dev Tools" [ref=e174] [cursor=pointer]

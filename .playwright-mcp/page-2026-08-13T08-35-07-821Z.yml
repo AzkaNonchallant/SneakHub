@@ -1,0 +1,87 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: SELLER HUB
+        - generic [ref=e6]: PRO STATUS
+      - navigation [ref=e7]:
+        - link "Dashboard" [ref=e8] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Profil Toko" [ref=e15] [cursor=pointer]:
+          - /url: /seller-profile
+        - link "Inventory" [ref=e21] [cursor=pointer]:
+          - /url: /inventory
+        - link "Price Predictor" [ref=e27] [cursor=pointer]:
+          - /url: /price-predictor
+        - link "Analytics" [ref=e32] [cursor=pointer]:
+          - /url: /analytics
+        - link "Settings" [ref=e36] [cursor=pointer]:
+          - /url: /settings
+    - main [ref=e41]:
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]: Seller Center
+            - heading "Inventory" [level=1] [ref=e46]
+            - paragraph [ref=e47]: 4 produk terverifikasi.
+          - button "Tambah Produk" [ref=e48]
+        - generic [ref=e49]:
+          - generic [ref=e50]: Aktif
+          - combobox [ref=e55]:
+            - 'option "Sort: Terbaru" [selected]'
+            - 'option "Harga: Termurah"'
+            - 'option "Harga: Termahal"'
+            - 'option "Nama: A-Z"'
+        - generic [ref=e56]:
+          - article [ref=e57]:
+            - generic [ref=e58]: DS
+            - img "Adidas Samba OG White Black" [ref=e60]
+            - generic [ref=e61]:
+              - heading "Samba OG" [level=3] [ref=e62]
+              - paragraph [ref=e63]: Adidas • White Black
+              - generic [ref=e64]:
+                - generic [ref=e65]:
+                  - generic [ref=e66]: Harga
+                  - text: Rp 110
+                - generic [ref=e67]: Stok 5 • US 10.5
+            - button "Lihat Detail" [ref=e68]
+          - article [ref=e69]:
+            - generic [ref=e70]: Trending
+            - generic [ref=e71]: DS
+            - img "New Balance 990v6 Grey" [ref=e73]
+            - generic [ref=e74]:
+              - heading "990v6" [level=3] [ref=e75]
+              - paragraph [ref=e76]: New Balance • Grey
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - generic [ref=e79]: Harga
+                  - text: Rp 220
+                - generic [ref=e80]: Stok 5 • US 10.5
+            - button "Lihat Detail" [ref=e81]
+          - article [ref=e82]:
+            - generic [ref=e83]: Trending
+            - generic [ref=e84]: 92/100
+            - img "Air Jordan 1 High Chicago refurbished" [ref=e86]
+            - generic [ref=e87]:
+              - heading "Air Jordan 1 High" [level=3] [ref=e88]
+              - paragraph [ref=e89]: Jordan • Chicago
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e92]: Harga
+                  - text: Rp 450
+                - generic [ref=e93]: Stok 5 • US 10.5
+            - button "Lihat Detail" [ref=e94]
+          - article [ref=e95]:
+            - generic [ref=e96]: Trending
+            - generic [ref=e97]: DS
+            - img "Nike Dunk Low Panda black and white colorway" [ref=e99]
+            - generic [ref=e100]:
+              - heading "Dunk Low" [level=3] [ref=e101]
+              - paragraph [ref=e102]: Nike • Panda
+              - generic [ref=e103]:
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Harga
+                  - text: Rp 185
+                - generic [ref=e106]: Stok 5 • US 10.5
+            - button "Lihat Detail" [ref=e107]
+  - button "Open Next.js Dev Tools" [ref=e113] [cursor=pointer]

@@ -203,7 +203,7 @@ export default function ProductDetailPage() {
 
             <button
               type="button"
-              onClick={() => router.push("/profile")}
+              onClick={() => router.push("/seller-profile")}
               className="flex cursor-pointer items-center justify-between gap-4 border border-outline-variant bg-surface p-6 transition-opacity hover:opacity-80"
             >
               <div className="flex items-center gap-4">

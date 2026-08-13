@@ -1,36 +1,37 @@
-import { ArrowUpRight, Minus } from "lucide-react"
+import { ArrowUpRight, Minus, Package, Plus, ShieldCheck, ShoppingBag, Star, Wallet } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 // ---- Data contoh — ganti dengan data asli dari API/DB kamu ----
 const stats = [
   {
-    icon: "💰",
+    icon: Wallet,
     trend: "up" as const,
     value: "Rp284.750.000",
     label: "Total Penjualan",
   },
   {
-    icon: "📦",
+    icon: Package,
     trend: "up" as const,
     value: "312",
     label: "Total Pesanan",
   },
   {
-    icon: "👟",
+    icon: ShoppingBag,
     trend: "flat" as const,
     value: "24",
     label: "Produk Aktif",
   },
   {
-    icon: "⭐",
+    icon: Star,
     trend: "up" as const,
     value: "4.8",
     valueSuffix: "★",
     label: "Rating Rata-rata",
   },
   {
-    icon: "🛡️",
+    icon: ShieldCheck,
     trend: "up" as const,
     value: "94/100",
     label: "Trust Score",
@@ -53,6 +54,25 @@ const trustBreakdown = [
   { label: "Cancellation Rate", value: "2%", tone: "warning" as const },
 ]
 
+function SectionTitle({
+  eyebrow,
+  title,
+  className,
+}: {
+  eyebrow: string
+  title: string
+  className?: string
+}) {
+  return (
+    <div className={cn("mb-6", className)}>
+      <span className="text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
+        {eyebrow}
+      </span>
+      <h3 className="mt-0.5 font-heading text-lg leading-6 font-bold text-primary">{title}</h3>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -66,7 +86,12 @@ export default function DashboardPage() {
             Dashboard
           </h1>
         </div>
-        <Button size="lg" className="rounded-none">+ Tambah Produk</Button>
+        <Button
+          size="lg"
+          className="h-auto rounded-none border border-primary bg-primary px-6 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+        >
+          <Plus className="size-4" /> Tambah Produk
+        </Button>
       </div>
 
       {/* Stat cards */}
@@ -74,25 +99,27 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="border border-outline-variant bg-surface-container-low p-6"
+className="border border-outline-variant bg-surface-container-lowest p-5 sm:p-6"
           >
             <div className="flex items-center justify-between">
-              <div className="flex size-11 items-center justify-center bg-surface-container text-xl">
-                {stat.icon}
+              <div className="flex size-11 items-center justify-center border border-outline-variant bg-surface-container-low">
+                <stat.icon className="size-5 text-primary" aria-hidden />
               </div>
               {stat.trend === "up" ? (
-                <ArrowUpRight className="size-5 text-tertiary" aria-hidden />
+                <ArrowUpRight className="size-5 text-[#10B981]" aria-hidden />
               ) : (
                 <Minus className="size-5 text-muted-foreground" aria-hidden />
               )}
             </div>
-            <div className="mt-5 font-heading text-2xl font-black text-primary">
+            <div className="mt-5 font-heading text-lg leading-6 font-black break-words text-primary sm:text-xl sm:leading-7 lg:text-2xl lg:leading-7">
               {stat.value}
               {stat.valueSuffix ? (
                 <span className="ml-1 text-lg text-tertiary">{stat.valueSuffix}</span>
               ) : null}
             </div>
-            <div className="mt-1.5 text-sm text-muted-foreground">{stat.label}</div>
+            <div className="mt-1.5 text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
+              {stat.label}
+            </div>
           </div>
         ))}
       </div>
@@ -100,38 +127,34 @@ export default function DashboardPage() {
       {/* Chart + Trust score */}
       <div className="mb-8 grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
         {/* Penjualan Bulanan */}
-        <div className="border border-outline-variant bg-surface-container-low p-8">
-          <h3 className="mb-8 font-heading text-lg font-bold text-primary">
-            Penjualan Bulanan
-          </h3>
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <SectionTitle eyebrow="Sales Analytics" title="Penjualan Bulanan" />
           <MonthlySalesChart data={monthlySales} />
         </div>
 
         {/* Seller Trust Score */}
-        <div className="border border-outline-variant bg-surface-container-low p-8">
-          <h3 className="mb-6 font-heading text-lg font-bold text-primary">
-            Seller Trust Score
-          </h3>
-          <div className="mb-6 flex items-center gap-6">
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <SectionTitle eyebrow="Reputation" title="Seller Trust Score" />
+          <div className="mb-6 flex flex-wrap items-center gap-6">
             <TrustGauge score={94} />
             <div>
-              <div className="font-heading text-3xl font-black text-primary">94/100</div>
-              <div className="mt-0.5 text-base font-bold text-tertiary">
-                Seller Terpercaya
-              </div>
+              <div className="font-heading text-3xl leading-9 font-black text-primary">94/100</div>
+              <div className="mt-0.5 text-base font-bold text-[#10B981]">Seller Terpercaya</div>
             </div>
           </div>
           <dl className="divide-y divide-outline-variant border-t border-outline-variant">
             {trustBreakdown.map((row) => (
               <div
                 key={row.label}
-                className="flex items-center justify-between py-3.5 text-base"
+                className="flex items-center justify-between py-3.5"
               >
-                <dt className="text-muted-foreground">{row.label}</dt>
+                <dt className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
+                  {row.label}
+                </dt>
                 <dd
                   className={[
-                    "font-bold",
-                    row.tone === "warning" ? "text-red-500" : "text-primary",
+                    "font-heading text-base font-bold",
+                    row.tone === "warning" ? "text-error" : "text-primary",
                   ].join(" ")}
                 >
                   {row.value}
@@ -145,36 +168,36 @@ export default function DashboardPage() {
 
       {/* Pesanan Terbaru + Produk Terlaris */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="border border-outline-variant bg-surface-container-low p-8">
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-lg font-bold text-primary">
-              Pesanan Terbaru
-            </h3>
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+            <SectionTitle eyebrow="Activity" title="Pesanan Terbaru" className="mb-0" />
             <a
               href="#"
-              className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase hover:text-on-tertiary-container"
+              className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
             >
               Lihat semua <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
             </a>
           </div>
           {/* TODO: list pesanan terbaru — ganti dengan data asli */}
-          <div className="mt-5 text-sm text-muted-foreground">Belum ada data.</div>
+          <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+            Belum ada data.
+          </div>
         </div>
 
-        <div className="border border-outline-variant bg-surface-container-low p-8">
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-lg font-bold text-primary">
-              Produk Terlaris
-            </h3>
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+            <SectionTitle eyebrow="Top Products" title="Produk Terlaris" className="mb-0" />
             <a
               href="#"
-              className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase hover:text-on-tertiary-container"
+              className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
             >
               Kelola <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
             </a>
           </div>
           {/* TODO: list produk terlaris — ganti dengan data asli */}
-          <div className="mt-5 text-sm text-muted-foreground">Belum ada data.</div>
+          <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+            Belum ada data.
+          </div>
         </div>
       </div>
     </div>
@@ -196,16 +219,14 @@ function MonthlySalesChart({
           <div
             className={[
               "w-full",
-              d.isCurrent ? "bg-primary" : "bg-surface-container",
+              d.isCurrent ? "bg-primary" : "bg-surface-container-highest",
             ].join(" ")}
             style={{ height: `${(d.value / max) * 100}px` }}
           />
           <span
             className={[
               "text-xs",
-              d.isCurrent
-                ? "font-bold text-primary"
-                : "text-muted-foreground",
+              d.isCurrent ? "font-bold text-primary" : "text-muted-foreground",
             ].join(" ")}
           >
             {d.month}
@@ -238,7 +259,7 @@ function TrustGauge({ score }: { score: number }) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          className="stroke-tertiary"
+          className="stroke-[#10B981]"
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={circumference}
@@ -246,7 +267,7 @@ function TrustGauge({ score }: { score: number }) {
           strokeLinecap="round"
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-heading text-lg font-black text-primary">
+      <div className="absolute inset-0 flex items-center justify-center font-heading text-lg leading-6 font-black text-primary">
         {score}
       </div>
     </div>

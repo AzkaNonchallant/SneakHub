@@ -28,6 +28,19 @@ const products = [
 
 const totalProducts = 24;
 
+function SectionHeader({ number, title }: { number: string; title: string }) {
+  return (
+    <div className="mb-6 flex items-baseline gap-3 border-b border-outline-variant pb-4">
+      <span className="font-heading text-sm leading-4 font-black text-on-tertiary-container">
+        {number}
+      </span>
+      <h2 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   return (
     <div className="mx-auto w-full max-w-[1280px] bg-background px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -48,17 +61,18 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Kartu profil utama */}
-      <section className="mb-6 border border-outline-variant bg-surface-container-low p-6">
+      {/* 01 Profil */}
+      <section className="mb-6 border border-outline-variant bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
+        <SectionHeader number="01" title="Profil Toko" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-primary font-heading text-3xl leading-none font-bold text-white">
               {seller.initial}
             </div>
             <div>
-              <h2 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+              <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
                 {seller.name}
-              </h2>
+              </h3>
               <p className="mt-1 max-w-md text-base leading-6 text-muted-foreground">
                 {seller.description}
               </p>
@@ -83,8 +97,8 @@ export default function ProfilePage() {
         {/* Statistik */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {seller.stats.map((stat) => (
-            <div key={stat.label} className="border border-outline-variant py-4 text-center">
-              <div className="font-heading text-2xl leading-7 font-black text-primary">
+            <div key={stat.label} className="border border-outline-variant px-3 py-4 text-center">
+              <div className="font-heading text-lg leading-6 font-black break-words text-primary sm:text-xl sm:leading-7 lg:text-2xl lg:leading-7">
                 {stat.value}
                 {stat.suffix ? (
                   <span className="ml-1 text-lg font-bold text-tertiary">{stat.suffix}</span>
@@ -98,13 +112,11 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Trust score + Produk aktif */}
+      {/* 02 Trust Score + 03 Produk Aktif */}
       <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Seller Trust Score */}
-        <div className="border border-outline-variant bg-surface-container-low p-6">
-          <h3 className="mb-4 font-heading text-lg font-bold text-primary">
-            Seller Trust Score
-          </h3>
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <SectionHeader number="02" title="Trust Score" />
           <div className="flex flex-wrap items-center gap-6">
             <TrustGauge score={seller.trustScore} />
             <div>
@@ -122,11 +134,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Produk Aktif */}
-        <div className="border border-outline-variant bg-surface-container-low p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-heading text-lg font-bold text-primary">
-              Produk Aktif ({totalProducts})
-            </h3>
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <div className="flex items-start justify-between gap-4">
+            <SectionHeader number="03" title={`Produk Aktif (${totalProducts})`} />
             <a
               href="#"
               className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
@@ -152,13 +162,18 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Ulasan Pelanggan */}
-      <section className="flex flex-wrap items-center justify-between gap-4 border border-outline-variant bg-surface-container-low p-6">
-        <h3 className="font-heading text-lg font-bold text-primary">Ulasan Pelanggan</h3>
-        <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-          <Star className="size-4 fill-tertiary text-tertiary" />
-          <span className="font-heading font-black text-primary">{seller.reviewRating}</span>
-          <span>({seller.reviewCount} ulasan)</span>
+      {/* 04 Ulasan Pelanggan */}
+      <section className="border border-outline-variant bg-surface-container-lowest p-6">
+        <SectionHeader number="04" title="Ulasan Pelanggan" />
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="text-base leading-6 text-muted-foreground">
+            Lihat bagaimana pembeli menilai kualitas dan layanan toko ini.
+          </p>
+          <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+            <Star className="size-4 fill-tertiary text-tertiary" />
+            <span className="font-heading font-black text-primary">{seller.reviewRating}</span>
+            <span>({seller.reviewCount} ulasan)</span>
+          </div>
         </div>
       </section>
     </div>

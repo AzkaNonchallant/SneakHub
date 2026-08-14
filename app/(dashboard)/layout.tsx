@@ -1,5 +1,6 @@
-import { SiteHeader } from "@/components/site-header";
 "use client"
+import { SiteHeader } from "@/components/site-header";
+
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";

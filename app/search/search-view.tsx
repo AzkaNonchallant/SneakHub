@@ -9,8 +9,8 @@ import { ProductCard } from "@/components/product-card"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { formatRp, toCard, type ProductCardData } from "@/lib/api"
-import { useProducts, useSearchByImage } from "@/lib/hooks"
+import { formatRp, PLACEHOLDER_IMAGE, toCard, type ProductCardData } from "@/lib/api"
+import { useProducts, useRecommendations, useSearchByImage } from "@/lib/hooks"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
 
 type MatchPhase = "analyzing" | "done"
@@ -30,8 +30,23 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   const cameraRef = useRef<HTMLInputElement>(null)
 
   const searchByImage = useSearchByImage()
+  const { data: recoData } = useRecommendations(9)
   const [matchResults, setMatchResults] = useState<ProductCardData[]>([])
   const [visualError, setVisualError] = useState("")
+
+  const recommendations: ProductCardData[] = (recoData?.items ?? []).map((r) => ({
+    id: r.product_id,
+    brand: "",
+    name: r.nama_produk,
+    price: formatRp(r.harga),
+    image: r.image_url || PLACEHOLDER_IMAGE,
+    alt: r.nama_produk,
+    badge: `SCORE ${Math.round(r.score)}`,
+    trend: r.reason,
+    harga: r.harga,
+    kondisi: "",
+    ukuran: [],
+  }))
 
   useEffect(() => {
     if (match?.phase !== "analyzing") return
@@ -311,14 +326,20 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-3">
-                {results.slice(0, 9).map((product, i) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    number={i + 1}
-                    className="w-auto border-r border-b"
-                  />
-                ))}
+                {recommendations.length > 0 ? (
+                  recommendations.map((product, i) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      number={i + 1}
+                      className="w-auto border-r border-b"
+                    />
+                  ))
+                ) : (
+                  <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
+                    Belum ada rekomendasi — perbanyak aktivitas belanja & wishlist.
+                  </div>
+                )}
               </div>
             </>
           )}

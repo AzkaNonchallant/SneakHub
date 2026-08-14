@@ -1,7 +1,10 @@
 "use client"
 
 import { BadgeCheck, Bell, Heart, Lock, MapPin, Package, Settings, Star } from "lucide-react"
+import Link from "next/link"
 
+import { AddressSection } from "@/components/address-manager"
+import { EditProfilButton } from "@/components/edit-profil-dialog"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -9,13 +12,13 @@ import { formatRp, isSellerRole } from "@/lib/api"
 import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
 
 const menuItems = [
-  { label: "Pesanan Saya", href: "#", icon: Package, active: true },
+  { label: "Pesanan Saya", href: "/profile", icon: Package, active: true },
   { label: "Wishlist", href: "/profile/wishlist", icon: Heart },
   { label: "Ulasan Saya", href: "#", icon: Star },
   { label: "Preferensi", href: "#", icon: Settings },
   { label: "Notifikasi", href: "/profile/notifications", icon: Bell },
   { label: "Keamanan", href: "#", icon: Lock },
-  { label: "Alamat Saya", href: "#", icon: MapPin },
+  { label: "Alamat Saya", href: "#alamat", icon: MapPin },
 ]
 
 const statusLabel: Record<string, string> = {
@@ -68,6 +71,7 @@ export default function ProfilePage() {
                 {activate.isPending ? "Mengaktifkan…" : "Jadi Seller"}
               </Button>
             ) : null}
+            <EditProfilButton user={user} />
           </div>
 
           <nav className="flex flex-col border border-outline bg-surface-container-low py-4 shadow-[4px_4px_0px_0px_#000]">
@@ -104,8 +108,9 @@ export default function ProfilePage() {
           ) : (
             <div className="flex flex-col gap-4">
               {orders.map((order) => (
-                <article
+                <Link
                   key={order.order_id}
+                  href={`/profile/orders/${order.order_id}`}
                   className="flex flex-col items-start justify-between gap-4 border border-outline bg-surface-container-lowest p-6 transition-shadow hover:shadow-[4px_4px_0px_0px_#000] md:flex-row md:items-center"
                 >
                   <div className="flex flex-col gap-2">
@@ -135,13 +140,17 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex w-full flex-col gap-3 md:w-auto md:items-end">
                     <span className="font-heading text-2xl leading-7 font-black tracking-tight text-primary">
-                      {formatRp(order.total ?? 0)}
+                      {formatRp(order.total_pembayaran ?? 0)}
                     </span>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}
+
+          <section id="alamat" className="scroll-mt-24 border-t border-outline-variant pt-8">
+            <AddressSection />
+          </section>
         </div>
       </main>
 

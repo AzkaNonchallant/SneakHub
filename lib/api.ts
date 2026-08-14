@@ -28,6 +28,14 @@ export function isSellerRole(peran?: string): boolean {
   return peran === "seller" || peran === "penjual";
 }
 
+export function isAdminRole(peran?: string): boolean {
+  return peran === "admin";
+}
+
+// ponytail: backend wajib isi brand_id tapi TIDAK punya endpoint list brand;
+// pakai brand Nike yang sudah ada di seed (dari product detail AF1)
+export const DEFAULT_BRAND_ID = "2d72d218-2e0b-449d-a3b2-1521cd21ff20";
+
 export const api = axios.create({ baseURL: "/api" });
 
 api.interceptors.request.use((config) => {
@@ -118,13 +126,15 @@ export type ApiAddress = {
   is_default: boolean;
 };
 
+// ponytail: shape cart hasil probe live — field flat, bukan nested product
 export type ApiCartItem = {
   cart_item_id: string;
   product_id: string;
   jumlah: number;
-  // ponytail: asumsi nested product — belum bisa probe (semua produk stok 0)
-  product?: ApiProduct;
+  subtotal?: number;
+  nama_produk?: string;
   harga?: number;
+  image_url?: string;
 };
 
 export type ApiCart = {
@@ -134,14 +144,169 @@ export type ApiCart = {
   total: number;
 };
 
-// ponytail: shape order nggak bisa diprobe penuh (peran JWT stuck customer);
-// field dibikin optional biar render aman apa pun yang dikirim backend
+// ponytail: shape verified live via GET /orders/:id
 export type ApiOrder = {
   order_id: string;
   status_order?: string;
-  total?: number;
+  subtotal?: number;
+  biaya_pengiriman?: number;
+  total_pembayaran?: number;
   created_at?: string;
-  items?: { product_id?: string; jumlah?: number; nama_produk?: string; harga?: number }[];
+  items?: {
+    order_item_id?: string;
+    product_id?: string;
+    jumlah?: number;
+    nama_produk?: string;
+    harga_saat_transaksi?: number;
+  }[];
+};
+
+export type ApiWishlistItem = {
+  wishlist_id: string;
+  product_id: string;
+  nama_produk: string;
+  harga: number;
+  status_stok_terakhir?: string;
+  price_alert?: { enabled: boolean; target_price?: number };
+  restock_alert?: { enabled: boolean };
+  image_url?: string;
+};
+
+export type ApiNotification = {
+  notification_id: string;
+  jenis_notifikasi: string;
+  isi_notifikasi: string;
+  status_baca: boolean;
+  created_at: string;
+};
+
+export type PriceInsight = {
+  current_price: number;
+  market_price_min: number;
+  market_price_max: number;
+  market_average: number;
+  price_difference_percent: number;
+  anomaly: boolean;
+  anomaly_type?: string;
+  message: string;
+};
+
+export type ConditionScore = {
+  product_id: string;
+  skor_akhir: number;
+  detail: {
+    upper: number;
+    outsole: number;
+    midsole: number;
+    insole: number;
+    accessories: number;
+    box: number;
+  };
+  dinilai_oleh: string;
+};
+
+export type SmartFilterItem = {
+  product_id: string;
+  nama_produk: string;
+  harga: number;
+  match_score: number;
+  alasan: string[];
+  image_url?: string;
+};
+
+export type HomeSection = {
+  type: string;
+  title: string;
+  products: { product_id: string; nama_produk: string; harga: number; image_url: string }[];
+};
+
+export type RecommendationItem = {
+  product_id: string;
+  nama_produk: string;
+  harga: number;
+  score: number;
+  reason: string;
+  image_url?: string;
+};
+
+export type TrendingItem = {
+  product_id: string;
+  nama_produk: string;
+  trend_score: number;
+  views: number;
+  wishlist_count: number;
+  image_url?: string;
+};
+
+export type BestSellerItem = {
+  rank: number;
+  product_id: string;
+  nama_produk: string;
+  total_terjual: number;
+  image_url?: string;
+};
+
+export type SellerDashboard = {
+  total_produk: number;
+  produk_aktif: number;
+  total_terjual: number;
+  total_pendapatan: number;
+  rating_rata_rata: number;
+  seller_trust_score: number | null;
+  produk_terlaris: { product_id: string; nama_produk: string; total_terjual: number }[];
+};
+
+export type SellerTrustScore = {
+  seller_id: string;
+  skor_akhir: number;
+  order_completion_rate: number;
+  average_rating: number;
+  cancellation_rate: number;
+  response_rate: number;
+};
+
+export type PricePrediction = {
+  estimated_market_price_min: number;
+  estimated_market_price_max: number;
+  recommended_price: number;
+  confidence: number;
+};
+
+export type AdminUser = {
+  user_id: string;
+  nama: string;
+  email: string;
+  peran: string;
+  status_akun: string;
+};
+
+export type AdminProduct = {
+  product_id: string;
+  nama_produk: string;
+  seller_id: string;
+  harga: number;
+  status_publikasi: string;
+  stok?: number;
+  kondisi?: string;
+};
+
+export type AdminOrder = {
+  order_id: string;
+  customer_id: string;
+  seller_id: string;
+  status_order: string;
+  total_pembayaran: number;
+  created_at?: string;
+  customer?: { user_id: string; nama: string };
+};
+
+export type AdminReport = {
+  period: string;
+  total_users: number;
+  total_sellers: number;
+  total_products: number;
+  total_orders: number;
+  total_revenue: number;
 };
 
 export type Pagination = { page: number; limit: number; total: number; total_pages: number };

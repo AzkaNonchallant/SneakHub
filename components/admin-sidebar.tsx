@@ -6,19 +6,21 @@ import {
   LayoutGrid,
   ShieldCheck,
   Package,
+  FolderOpen,
   LineChart,
   Users,
   FileText,
   Settings,
-  Gavel,
 } from "lucide-react"
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutGrid },
   { label: "Authentication", href: "/admin/authentication", icon: ShieldCheck },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
+  { label: "Categories", href: "/admin/categories", icon: FolderOpen },
+  { label: "Analytics", href: "/admin/analytics", icon: LineChart },
   { label: "User Management", href: "/admin/users", icon: Users },
-  { label:  "Moderasi", href: "/admin/moderasi", icon: Gavel},
+  { label: "System Logs", href: "/admin/logs", icon: FileText },
 ]
 
 export function AdminSidebar() {
@@ -33,12 +35,7 @@ export function AdminSidebar() {
 
         <nav className="flex flex-col gap-1 px-3">
           {navItems.map(({ label, href, icon: Icon }) => {
-            // Dashboard ("/admin") harus exact match saja,
-            // karena semua route lain juga diawali "/admin/"
-            const isActive =
-              href === "/admin"
-                ? pathname === "/admin"
-                : pathname === href || pathname?.startsWith(href + "/")
+            const isActive = pathname === href || pathname?.startsWith(href + "/")
 
             return (
               <Link

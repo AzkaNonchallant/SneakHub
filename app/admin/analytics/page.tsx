@@ -1,0 +1,84 @@
+"use client"
+
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+
+import { formatRp } from "@/lib/api"
+import { useAdminReports } from "@/lib/hooks"
+
+export default function AdminAnalyticsPage() {
+  const { data, isLoading } = useAdminReports({ period: "monthly" })
+
+  const rows = data
+    ? [
+        { label: "Users", value: data.total_users },
+        { label: "Sellers", value: data.total_sellers },
+        { label: "Products", value: data.total_products },
+        { label: "Orders", value: data.total_orders },
+        { label: "Revenue", value: data.total_revenue },
+      ]
+    : []
+
+  return (
+    <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <div className="mb-6 border-b border-primary pb-4">
+        <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
+          Analytics
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">Laporan agregat platform (periode {data?.period ?? "-"}).</p>
+      </div>
+
+      {isLoading ? (
+        <div className="border border-outline-variant bg-surface-container-low p-10 text-center text-muted-foreground">
+          Loading…
+        </div>
+      ) : data ? (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-5 lg:col-span-1 lg:grid-cols-1">
+            {rows.slice(0, 4).map((r) => (
+              <div key={r.label} className="border border-outline-variant bg-surface-container-lowest p-5">
+                <div className="font-heading text-3xl leading-9 font-black text-primary">{r.value}</div>
+                <div className="mt-1 text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
+                  {r.label}
+                </div>
+              </div>
+            ))}
+            <div className="border border-on-tertiary-container bg-on-tertiary-container/5 p-5">
+              <div className="font-heading text-3xl leading-9 font-black text-on-tertiary-container">
+                {formatRp(data.total_revenue)}
+              </div>
+              <div className="mt-1 text-[10px] leading-4 font-bold tracking-widest text-on-tertiary-container uppercase">
+                Total Revenue
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-outline-variant bg-surface-container-lowest p-6 lg:col-span-2">
+            <h2 className="mb-6 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+              Platform Metrics
+            </h2>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
+                <CartesianGrid stroke="#e2e2e2" strokeDasharray="4 0" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fontWeight: 700 }} tickLine={false} axisLine={{ stroke: "#1b1b1b" }} />
+                <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                <Tooltip
+                  cursor={{ fill: "#eeeeee" }}
+                  contentStyle={{ borderRadius: 0, border: "1px solid #1b1b1b", fontSize: 12 }}
+                />
+                <Bar dataKey="value" radius={[0, 0, 0, 0]}>
+                  {rows.map((r, i) => (
+                    <Cell key={r.label} fill={i === 4 ? "#2b82f4" : "#000000"} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      ) : (
+        <div className="border border-primary bg-surface-container-low p-10 text-center text-muted-foreground">
+          Belum ada data laporan.
+        </div>
+      )}
+    </div>
+  )
+}

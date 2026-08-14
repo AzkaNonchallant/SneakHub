@@ -4,19 +4,34 @@ import { useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowUpRight, LogOut, Minus, Package, ShieldCheck, ShoppingBag, Star, Wallet } from "lucide-react"
+import { toast } from "sonner"
 
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
+import { PricePredictionButton } from "@/components/price-prediction-dialog"
 import { Button } from "@/components/ui/button"
+import { errMessage, formatRp } from "@/lib/api"
+import { useProducts, useSellerDashboard, useSellerOrders, useTrustScore, useUpdateOrderStatus } from "@/lib/hooks"
 import { cn } from "@/lib/utils"
-import { formatRp } from "@/lib/api"
-import { useOrders, useProducts } from "@/lib/hooks"
 
 const statusLabel: Record<string, string> = {
   pending: "Pending",
   diproses: "Diproses",
+  processing: "Diproses",
   dikirim: "Dikirim",
   selesai: "Selesai",
   dibatalkan: "Dibatalkan",
+}
+
+// ponytail: seller/orders balikin status UPPERCASE (PENDING/PROCESSING) —
+// normalisasi ke lowercase biar map statusLabel/nextStatus jalan
+const norm = (s?: string) => (s ?? "").toLowerCase()
+
+// ponytail: alur status maju satu langkah; dibatalkan/terminal tidak punya tombol
+const nextStatus: Record<string, string> = {
+  pending: "diproses",
+  processing: "dikirim",
+  diproses: "dikirim",
+  dikirim: "selesai",
 }
 
 function SectionTitle({
@@ -40,42 +55,57 @@ function SectionTitle({
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { data: ordersData } = useOrders({ limit: 100 })
+  const { data: dash } = useSellerDashboard()
   const { data: productsData } = useProducts({ limit: 100 })
+  // ponytail: API tidak expose seller_id milik user; ambil dari produk publik
+  const sellerId = productsData?.items.find((p) => p.seller?.seller_id)?.seller?.seller_id
+  const { data: trust } = useTrustScore(sellerId)
+  const { data: ordersData } = useSellerOrders({ limit: 100 })
+  const updateStatus = useUpdateOrderStatus()
   const orders = ordersData?.items ?? []
   const products = productsData?.items ?? []
 
-  // ponytail: statistik yang nggak ada endpoint-nya ditampilkan "-" biar nggak bohong
+  const advanceStatus = async (order: { order_id: string; status_order?: string }) => {
+    const target = nextStatus[norm(order.status_order)]
+    if (!target) return
+    try {
+      await updateStatus.mutateAsync({ id: order.order_id, status_order: target })
+      toast.success(`Status diubah ke ${statusLabel[target]}`)
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
+
   const stats = [
     {
       icon: Wallet,
       trend: "up" as const,
-      value: formatRp(orders.reduce((sum, o) => sum + (o.total ?? 0), 0)),
-      label: "Total Penjualan",
+      value: formatRp(dash?.total_pendapatan ?? 0),
+      label: "Total Pendapatan",
     },
     {
       icon: Package,
       trend: "up" as const,
-      value: String(orders.length),
-      label: "Total Pesanan",
+      value: String(dash?.total_terjual ?? orders.length),
+      label: "Total Terjual",
     },
     {
       icon: ShoppingBag,
       trend: "flat" as const,
-      value: String(products.filter((p) => p.status_publikasi === "AKTIF").length),
+      value: String(dash?.produk_aktif ?? products.filter((p) => p.status_publikasi === "AKTIF").length),
       label: "Produk Aktif",
     },
     {
       icon: Star,
       trend: "flat" as const,
-      value: "-",
+      value: dash?.rating_rata_rata ? String(dash.rating_rata_rata) : "-",
       valueSuffix: "★",
       label: "Rating Rata-rata",
     },
     {
       icon: ShieldCheck,
-      trend: "flat" as const,
-      value: "-",
+      trend: "up" as const,
+      value: dash?.seller_trust_score ?? trust?.skor_akhir ?? "-",
       label: "Trust Score",
     },
   ]
@@ -87,7 +117,7 @@ export default function DashboardPage() {
       for (const o of orders) {
         if (!o.created_at) continue
         const key = new Date(o.created_at).toLocaleString("id-ID", { month: "short" })
-        byMonth.set(key, (byMonth.get(key) ?? 0) + (o.total ?? 0))
+        byMonth.set(key, (byMonth.get(key) ?? 0) + (o.total_pembayaran ?? 0))
       }
       const max = Math.max(0, ...byMonth.values())
       return Array.from(byMonth.entries()).map(([month, value], i) => ({
@@ -124,6 +154,7 @@ export default function DashboardPage() {
             <LogOut className="size-4" />
             Keluar
           </Button>
+          <PricePredictionButton />
           <TambahProdukButton />
         </div>
       </div>
@@ -174,11 +205,16 @@ export default function DashboardPage() {
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <SectionTitle eyebrow="Reputation" title="Trust Score" />
           <div className="mb-6 flex flex-wrap items-center gap-6">
-            <TrustGauge score={0} />
+            <TrustGauge score={dash?.seller_trust_score ?? trust?.skor_akhir ?? 0} />
             <div>
-              <div className="font-heading text-3xl leading-9 font-black text-primary">-</div>
+              <div className="font-heading text-3xl leading-9 font-black text-primary">
+                {dash?.seller_trust_score ?? trust?.skor_akhir ?? "-"}
+                {trust ? <span className="text-base font-bold text-muted-foreground">/100</span> : null}
+              </div>
               <div className="mt-0.5 text-base font-bold text-muted-foreground">
-                Belum ada penilaian
+                {trust
+                  ? `Selesai ${trust.order_completion_rate}% • Batal ${trust.cancellation_rate}%`
+                  : "Belum ada penilaian"}
               </div>
             </div>
           </div>
@@ -204,10 +240,10 @@ export default function DashboardPage() {
           ) : (
             <div className="divide-y divide-outline-variant border-t border-outline-variant">
               {recentOrders.map((o) => (
-                <div key={o.order_id} className="flex items-center justify-between py-3">
+                <div key={o.order_id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
                     <div className="truncate font-heading text-sm font-bold text-primary">
-                      {o.items?.[0]?.nama_produk ?? "Pesanan"}
+                      {o.customer?.nama ?? "Pesanan"}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {o.order_id.slice(0, 8).toUpperCase()}
@@ -215,11 +251,21 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="border border-outline bg-surface-container-low px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
-                      {statusLabel[o.status_order ?? ""] ?? o.status_order ?? "-"}
+                      {statusLabel[norm(o.status_order)] ?? o.status_order ?? "-"}
                     </span>
                     <span className="font-heading text-sm font-bold text-primary">
-                      {formatRp(o.total ?? 0)}
+                      {formatRp(o.total_pembayaran ?? 0)}
                     </span>
+                    {nextStatus[norm(o.status_order)] ? (
+                      <button
+                        type="button"
+                        disabled={updateStatus.isPending}
+                        onClick={() => advanceStatus(o)}
+                        className="border border-primary bg-primary px-2 py-1 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
+                      >
+                        {statusLabel[nextStatus[norm(o.status_order)]]}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -243,16 +289,27 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-outline-variant border-t border-outline-variant">
-              {topProducts.map((p) => (
-                <div key={p.product_id} className="flex items-center justify-between py-3">
-                  <div className="truncate font-heading text-sm font-bold text-primary">
-                    {p.nama_produk}
-                  </div>
-                  <span className="text-xs font-bold text-muted-foreground uppercase">
-                    Stok {p.stok}
-                  </span>
-                </div>
-              ))}
+              {(dash?.produk_terlaris ?? []).length > 0
+                ? dash!.produk_terlaris.map((p) => (
+                    <div key={p.product_id} className="flex items-center justify-between py-3">
+                      <div className="truncate font-heading text-sm font-bold text-primary">
+                        {p.nama_produk}
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground uppercase">
+                        {p.total_terjual} terjual
+                      </span>
+                    </div>
+                  ))
+                : topProducts.map((p) => (
+                    <div key={p.product_id} className="flex items-center justify-between py-3">
+                      <div className="truncate font-heading text-sm font-bold text-primary">
+                        {p.nama_produk}
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground uppercase">
+                        Stok {p.stok}
+                      </span>
+                    </div>
+                  ))}
             </div>
           )}
         </div>

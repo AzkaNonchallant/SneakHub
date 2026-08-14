@@ -1,11 +1,13 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react"
+import { ChevronLeft, ChevronRight, Trash2, TrendingUp } from "lucide-react"
+import { toast } from "sonner"
 
+import { EditProdukButton } from "@/components/edit-produk-dialog"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
-import { formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
-import { useProducts } from "@/lib/hooks"
+import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
+import { useDeleteProduct, useProducts } from "@/lib/hooks"
 
 const PAGE_SIZE = 6
 
@@ -36,8 +38,19 @@ function sortItems(items: ApiProduct[], key: SortKey): ApiProduct[] {
 export default function InventoryPage() {
   const { data } = useProducts({ limit: 100 })
   const items = data?.items ?? []
+  const remove = useDeleteProduct()
   const [sort, setSort] = useState<SortKey>("newest")
   const [page, setPage] = useState(1)
+
+  const onDelete = async (item: ApiProduct) => {
+    if (!window.confirm(`Hapus produk "${item.nama_produk}"?`)) return
+    try {
+      await remove.mutateAsync(item.product_id)
+      toast.success("Produk dihapus")
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
 
   const sorted = useMemo(() => sortItems(items, sort), [items, sort])
   const pages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
@@ -94,7 +107,7 @@ export default function InventoryPage() {
           {/* Grid */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {pageItems.map((item) => (
-              <InventoryCard key={item.product_id} item={item} />
+              <InventoryCard key={item.product_id} item={item} onDelete={onDelete} />
             ))}
           </div>
 
@@ -140,7 +153,7 @@ export default function InventoryPage() {
   )
 }
 
-function InventoryCard({ item }: { item: ApiProduct }) {
+function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: ApiProduct) => void }) {
   const image = item.images?.[0]?.image_url || item.image_url || PLACEHOLDER_IMAGE
   return (
     <article className="group relative flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000]">
@@ -179,12 +192,16 @@ function InventoryCard({ item }: { item: ApiProduct }) {
         </div>
       </div>
 
-      <button
-        type="button"
-        className="w-full border-t border-primary bg-primary py-3 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
-      >
-        Lihat Detail
-      </button>
+      <div className="flex gap-2 border-t border-primary p-2">
+        <EditProdukButton product={item} />
+        <button
+          type="button"
+          onClick={() => onDelete(item)}
+          className="flex flex-1 items-center justify-center gap-2 border border-primary bg-white py-2 text-xs font-bold tracking-widest text-error uppercase transition-colors hover:bg-error hover:text-white"
+        >
+          <Trash2 className="size-3.5" /> Hapus
+        </button>
+      </div>
     </article>
   )
 }

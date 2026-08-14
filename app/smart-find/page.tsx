@@ -1,24 +1,19 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { BadgeCheck } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
-import { useProducts } from "@/lib/hooks"
+import { formatRp, PLACEHOLDER_IMAGE, type SmartFilterItem } from "@/lib/api"
+import { useProducts, useSmartFilter, type SmartFilterParams } from "@/lib/hooks"
 
-// ponytail: skor match/delta masih disintesis dari condition_score & harga —
-// API nggak punya data valuation per produk
-const matchScore = (p: ApiProduct) => Math.min(99, Math.max(70, Math.round((p.condition_score ?? 8) * 10) + (p.harga % 7)))
-const valuationDelta = (p: ApiProduct) => (((p.harga / 1000) % 24) - 6)
-const authConfidence = (p: ApiProduct) => 99 - (p.harga % 3)
-
-const conditions = ["new", "used"]
+const conditions = ["NEW", "USED", "REFURBISHED"]
 
 export default function SmartFindPage() {
   const { data } = useProducts({ limit: 50 })
+  const filter = useSmartFilter()
   const catalog = useMemo(() => data?.items ?? [], [data])
 
   const maxPrice = useMemo(
@@ -31,32 +26,35 @@ export default function SmartFindPage() {
   )
 
   const [budget, setBudget] = useState<[number, number]>([0, maxPrice || 1])
+  // ponytail: produk fetch async, maxPrice 0 di render pertama — sinkronkan setelah data masuk
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (maxPrice > 0) setBudget((b) => [b[0], maxPrice])
+  }, [maxPrice])
   const [size, setSize] = useState("Any Size")
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
-  // ponytail: draft state so "Apply Filters" matches the mockup; filters are live either way
-  const [applied, setApplied] = useState({ budget, brands: selectedBrands, conditions: selectedConditions })
   const [sort, setSort] = useState("Match Score")
 
-  const toggle = (list: string[], value: string) =>
-    list.includes(value) ? list.filter((v) => v !== value) : [...list, value]
+  const applyFilters = () => {
+    const params: SmartFilterParams = {
+      budget_min: budget[0] > 0 ? budget[0] : undefined,
+      budget_max: budget[1] > 0 ? budget[1] : undefined,
+      brand: selectedBrands.length > 0 ? selectedBrands : undefined,
+      kondisi: selectedConditions.length > 0 ? selectedConditions : undefined,
+      ukuran: size !== "Any Size" ? [size] : undefined,
+      prioritas: { harga: 0.5, kondisi: 0.3, seller_trust: 0.2 },
+    }
+    filter.mutate(params)
+  }
 
+  // ponytail: smart-filter nggak balikin harga per sort — sorting client-side via hook state di batch respons
   const results = useMemo(() => {
-    const list = catalog.filter((p) => {
-      if (p.harga < applied.budget[0] || p.harga > applied.budget[1]) return false
-      if (applied.brands.length > 0 && !applied.brands.includes(p.seller?.nama_toko ?? "SneakHub"))
-        return false
-      if (applied.conditions.length > 0 && !applied.conditions.includes(p.kondisi.toLowerCase()))
-        return false
-      if (size !== "Any Size" && !p.ukuran_tersedia.includes(size)) return false
-      return true
-    })
-    return list.sort((a, b) => {
-      if (sort === "Price: Low to High") return a.harga - b.harga
-      if (sort === "Price: High to Low") return b.harga - a.harga
-      return matchScore(b) - matchScore(a)
-    })
-  }, [applied, sort, catalog, size])
+    const list = filter.data?.items ?? []
+    if (sort === "Price: Low to High") return [...list].sort((a, b) => a.harga - b.harga)
+    if (sort === "Price: High to Low") return [...list].sort((a, b) => b.harga - a.harga)
+    return list
+  }, [filter.data, sort])
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -148,7 +146,11 @@ export default function SmartFindPage() {
                     <input
                       type="checkbox"
                       checked={selectedBrands.includes(brand)}
-                      onChange={() => setSelectedBrands((l) => toggle(l, brand))}
+                      onChange={() =>
+                        setSelectedBrands((l) =>
+                          l.includes(brand) ? l.filter((v) => v !== brand) : [...l, brand],
+                        )
+                      }
                       className="rounded-none border-outline-variant text-primary focus:ring-primary"
                     />
                     {brand}
@@ -170,7 +172,11 @@ export default function SmartFindPage() {
                     <input
                       type="checkbox"
                       checked={selectedConditions.includes(c)}
-                      onChange={() => setSelectedConditions((l) => toggle(l, c))}
+                      onChange={() =>
+                        setSelectedConditions((l) =>
+                          l.includes(c) ? l.filter((v) => v !== c) : [...l, c],
+                        )
+                      }
                       className="rounded-none border-outline-variant text-primary focus:ring-primary"
                     />
                     {c}
@@ -182,12 +188,11 @@ export default function SmartFindPage() {
 
           <button
             type="button"
-            onClick={() =>
-              setApplied({ budget, brands: selectedBrands, conditions: selectedConditions })
-            }
-            className="w-full border border-primary bg-primary px-4 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-white hover:text-primary"
+            onClick={applyFilters}
+            disabled={filter.isPending}
+            className="w-full border border-primary bg-primary px-4 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
           >
-            Apply Filters
+            {filter.isPending ? "Memproses…" : "Apply Filters"}
           </button>
         </aside>
 
@@ -195,7 +200,7 @@ export default function SmartFindPage() {
         <section className="flex flex-1 flex-col gap-6">
           <div className="flex flex-wrap items-end justify-between gap-2 border-b border-outline-variant pb-2">
             <span className="text-base leading-6 text-muted-foreground">
-              Showing top matches for your profile · {size}
+              {filter.data ? `Top ${results.length} match untuk filter kamu` : "Tekan Apply Filters untuk mendapat match score"}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
@@ -213,19 +218,30 @@ export default function SmartFindPage() {
             </div>
           </div>
 
-          {results.length > 0 ? (
-            <div className="grid grid-cols-1 gap-0 border-t border-l border-outline-variant sm:grid-cols-2 lg:grid-cols-3">
-              {results.map((product) => (
-                <SmartFindCard key={product.product_id} product={product} />
-              ))}
-            </div>
+          {filter.data ? (
+            results.length > 0 ? (
+              <div className="grid grid-cols-1 gap-0 border-t border-l border-outline-variant sm:grid-cols-2 lg:grid-cols-3">
+                {results.map((product) => (
+                  <SmartFindCard key={product.product_id} item={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="border border-primary bg-surface-container-low p-10 text-center">
+                <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                  No matches for these filters
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Widen your budget or clear a few filters.
+                </p>
+              </div>
+            )
           ) : (
-            <div className="border border-primary bg-surface-container-low p-10 text-center">
-              <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                No matches for these filters
+            <div className="border border-outline-variant bg-surface-container-low p-10 text-center">
+              <p className="font-heading text-xl leading-6 font-semibold text-primary uppercase">
+                Belum ada hasil
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Widen your budget or clear a few filters.
+                {filter.isPending ? "Memproses filter kamu…" : "Atur filter lalu tekan Apply Filters."}
               </p>
             </div>
           )}
@@ -237,67 +253,45 @@ export default function SmartFindPage() {
   )
 }
 
-function SmartFindCard({ product }: { product: ApiProduct }) {
-  const score = matchScore(product)
-  const delta = valuationDelta(product)
-  const image = product.images?.[0]?.image_url || product.image_url || PLACEHOLDER_IMAGE
-
+function SmartFindCard({ item }: { item: SmartFilterItem }) {
   return (
     <article className="group relative overflow-hidden border-b border-r border-outline-variant bg-white transition-all duration-200 hover:shadow-[4px_4px_0px_0px_#000]">
-      <Link href={`/product/${product.product_id}`} className="flex h-full flex-col">
+      <Link href={`/product/${item.product_id}`} className="flex h-full flex-col">
         <div className="relative aspect-square overflow-hidden bg-surface-container-high">
-          <div className="absolute top-2 right-2 z-10 border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase shadow-[4px_4px_0px_0px_#000]"
+          <div
+            className="absolute top-2 right-2 z-10 border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase shadow-[4px_4px_0px_0px_#000]"
             style={{ background: "linear-gradient(135deg,#2b82f4 0%,#00458f 100%)" }}
           >
-            {score}% Match
-          </div>
-          <div className="absolute top-2 left-2 z-10 border border-outline bg-surface-container px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-            {product.kondisi}
+            {item.match_score}% Match
           </div>
           <img
-            src={image}
-            alt={product.nama_produk}
+            src={item.image_url || PLACEHOLDER_IMAGE}
+            alt={item.nama_produk}
             loading="lazy"
             className="h-full w-full object-cover p-8 transition-transform duration-300 group-hover:scale-105"
           />
         </div>
 
         <div className="flex flex-col gap-2 bg-white p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                {product.seller?.nama_toko ?? "SneakHub"}
-              </p>
-              <h3 className="font-heading text-xl leading-6 font-semibold text-primary">
-                {product.nama_produk}
-              </h3>
-            </div>
-          </div>
+          <h3 className="font-heading text-xl leading-6 font-semibold text-primary">
+            {item.nama_produk}
+          </h3>
 
-          <div className="mt-2 grid grid-cols-2 gap-2 border-y border-outline-variant py-2">
-            <div className="flex flex-col">
-              <span className="text-[10px] leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                Valuation Delta
+          <div className="mt-1 flex flex-col gap-1 border-y border-outline-variant py-2">
+            {item.alasan.map((reason) => (
+              <span key={reason} className="text-[10px] leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
+                • {reason}
               </span>
-              <span className={`text-sm leading-5 font-bold ${delta >= 0 ? "text-on-tertiary-container" : "text-error"}`}>
-                {delta >= 0 ? "+" : ""}{delta}%
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                Auth. Confidence
-              </span>
-              <span className="text-sm leading-5 font-bold">{authConfidence(product)}%</span>
-            </div>
+            ))}
           </div>
 
           <div className="mt-2 flex items-end justify-between">
             <p className="font-heading text-3xl leading-8 font-bold tracking-tighter text-primary">
-              {formatRp(product.harga)}
+              {formatRp(item.harga)}
             </p>
-            <span className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
+            <span className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase">
               <BadgeCheck className="size-4" />
-              Authenticated
+              Trusted
             </span>
           </div>
         </div>

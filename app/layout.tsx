@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 import { Archivo_Narrow, Inter } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
+        <Toaster position="top-center" toastOptions={{ className: "rounded-none border border-outline" }} />
       </body>
     </html>
   );

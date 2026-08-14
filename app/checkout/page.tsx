@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { AlertCircle, Lock, ShieldCheck } from "lucide-react"
+import { AlertCircle, Lock, Plus, ShieldCheck } from "lucide-react"
 
+import { AddressDialog } from "@/components/address-manager"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
@@ -77,6 +78,13 @@ export default function CheckoutPage() {
                 </span>
                 Shipping Address
               </h2>
+              <AddressDialog
+                trigger={
+                  <>
+                    <Plus className="size-4" /> Tambah Alamat
+                  </>
+                }
+              />
               {addresses && addresses.length > 0 ? (
                 <div className="space-y-3">
                   {addresses.map((a) => (
@@ -109,7 +117,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
-                  Belum ada alamat. Tambahkan alamat dari halaman profil dulu.
+                  Belum ada alamat. Klik &quot;Tambah Alamat&quot; di atas untuk buat alamat pengiriman.
                 </p>
               )}
             </div>
@@ -184,33 +192,30 @@ export default function CheckoutPage() {
               ) : (
                 <>
                   <div className="mb-6 space-y-4">
-                    {items.map((item) => {
-                      const p = item.product
-                      return (
-                        <div key={item.cart_item_id} className="flex gap-4">
-                          <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
-                            <img
-                              src={p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE}
-                              alt={p?.nama_produk ?? "Produk"}
-                              className="h-full w-full object-cover"
-                            />
-                            <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                              {item.jumlah}
-                            </span>
-                          </div>
-                          <div className="flex grow flex-col justify-between">
-                            <div>
-                              <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                                {p?.nama_produk ?? "Produk"}
-                              </p>
-                            </div>
-                            <p className="font-heading text-2xl leading-7 font-semibold text-primary">
-                              {formatRp((p?.harga ?? 0) * item.jumlah)}
+                    {items.map((item) => (
+                      <div key={item.cart_item_id} className="flex gap-4">
+                        <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
+                          <img
+                            src={item.image_url || PLACEHOLDER_IMAGE}
+                            alt={item.nama_produk ?? "Produk"}
+                            className="h-full w-full object-cover"
+                          />
+                          <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                            {item.jumlah}
+                          </span>
+                        </div>
+                        <div className="flex grow flex-col justify-between">
+                          <div>
+                            <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
+                              {item.nama_produk ?? "Produk"}
                             </p>
                           </div>
+                          <p className="font-heading text-2xl leading-7 font-semibold text-primary">
+                            {formatRp((item.harga ?? 0) * item.jumlah)}
+                          </p>
                         </div>
-                      )
-                    })}
+                      </div>
+                    ))}
                   </div>
                   <div className="mb-6 space-y-3 border-t border-outline pt-4 text-base leading-6 text-on-surface-variant">
                     <div className="flex justify-between">

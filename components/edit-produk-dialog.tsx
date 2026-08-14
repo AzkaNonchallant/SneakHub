@@ -2,13 +2,20 @@
 
 import { useCallback, useState } from "react"
 import { Dialog } from "@base-ui/react/dialog"
-import { ImagePlus, X } from "lucide-react"
+import { ImagePlus, Pencil, Trash2, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
+import { toast } from "sonner"
 import { z } from "zod"
 
+import { Field } from "@/components/tambah-produk-dialog"
 import { Button } from "@/components/ui/button"
-import { DEFAULT_BRAND_ID, errMessage } from "@/lib/api"
-import { useCategories, useCreateProduct, useUploadProductImage } from "@/lib/hooks"
+import { DEFAULT_BRAND_ID, errMessage, type ApiProduct } from "@/lib/api"
+import {
+  useCategories,
+  useDeleteProductImage,
+  useUpdateProduct,
+  useUploadProductImage,
+} from "@/lib/hooks"
 
 const schema = z.object({
   name: z.string().trim().min(1, "Nama produk wajib diisi"),
@@ -20,23 +27,18 @@ const schema = z.object({
   category_id: z.string().optional(),
 })
 
-export function TambahProdukButton() {
-  const create = useCreateProduct()
+export function EditProdukButton({ product }: { product: ApiProduct }) {
+  const update = useUpdateProduct()
   const upload = useUploadProductImage()
+  const deleteImage = useDeleteProductImage()
   const { data: categories } = useCategories()
   const [open, setOpen] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [image, setImage] = useState<string>("")
-  const [file, setFile] = useState<File | null>(null)
   const [formError, setFormError] = useState("")
+  const [file, setFile] = useState<File | null>(null)
 
   const onDrop = useCallback((accepted: File[]) => {
-    const f = accepted[0]
-    if (!f) return
-    setFile(f)
-    const reader = new FileReader()
-    reader.onload = () => setImage(reader.result as string)
-    reader.readAsDataURL(f)
+    setFile(accepted[0] ?? null)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -44,6 +46,8 @@ export function TambahProdukButton() {
     accept: { "image/*": [] },
     multiple: false,
   })
+
+  const images = product.images ?? []
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -62,7 +66,6 @@ export function TambahProdukButton() {
       const next: Record<string, string> = {}
       for (const issue of parsed.error.issues) {
         const key = String(issue.path[0] ?? "form")
-        // ponytail: keep first message per field
         if (!(key in next)) next[key] = issue.message
       }
       setErrors(next)
@@ -70,17 +73,20 @@ export function TambahProdukButton() {
     }
     const v = parsed.data
     try {
-      const product = await create.mutateAsync({
-        nama_produk: v.name,
-        brand_id: DEFAULT_BRAND_ID,
-        kondisi: v.condition,
-        deskripsi: v.description ?? "",
-        harga: v.price,
-        stok: v.stock,
-        status_publikasi: "aktif",
-        ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-        condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
-        category_id: v.category_id || categories?.[0]?.cateogry_id,
+      await update.mutateAsync({
+        id: product.product_id,
+        body: {
+          nama_produk: v.name,
+          brand_id: product.brand_id ?? DEFAULT_BRAND_ID,
+          kondisi: v.condition,
+          deskripsi: v.description ?? "",
+          harga: v.price,
+          stok: v.stock,
+          status_publikasi: product.status_publikasi ?? "aktif",
+          ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
+          condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
+          category_id: v.category_id || product.category_id || categories?.[0]?.cateogry_id,
+        },
       })
       if (file) {
         const img = new FormData()
@@ -88,7 +94,7 @@ export function TambahProdukButton() {
         img.append("urutan_tampil", "1")
         await upload.mutateAsync({ productId: product.product_id, fd: img })
       }
-      setImage("")
+      toast.success("Produk diperbarui")
       setFile(null)
       setErrors({})
       setOpen(false)
@@ -97,12 +103,21 @@ export function TambahProdukButton() {
     }
   }
 
+  const onDeleteImage = async (imageId: string) => {
+    try {
+      await deleteImage.mutateAsync({ productId: product.product_id, imageId })
+      toast.success("Foto dihapus")
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
         render={
-          <Button className="h-auto rounded-none border border-primary bg-primary px-6 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary">
-            Tambah Produk
+          <Button className="h-auto gap-2 rounded-none border border-primary px-3 py-2 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white">
+            <Pencil className="size-3.5" /> Edit
           </Button>
         }
       />
@@ -111,7 +126,7 @@ export function TambahProdukButton() {
         <Dialog.Popup className="fixed top-1/2 left-1/2 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 border border-primary bg-surface-container-lowest focus:outline-none">
           <div className="flex items-center justify-between border-b border-primary px-5 py-4">
             <Dialog.Title className="font-heading text-xl leading-6 font-black text-primary uppercase">
-              Tambah Produk
+              Edit Produk
             </Dialog.Title>
             <Dialog.Close className="flex size-8 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white">
               <X className="size-4" aria-hidden />
@@ -119,28 +134,52 @@ export function TambahProdukButton() {
           </div>
 
           <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-5">
-            {/* Image upload */}
+            {images.length > 0 ? (
+              <div className="mb-5">
+                <label className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                  Foto Terpasang
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {images.map((img) => (
+                    <div key={img.image_id} className="relative size-20 border border-outline bg-surface-container-low">
+                      <img
+                        src={img.image_url}
+                        alt={product.nama_produk}
+                        className="h-full w-full object-contain mix-blend-multiply"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Hapus foto"
+                        onClick={() => onDeleteImage(img.image_id)}
+                        className="absolute -top-2 -right-2 flex size-6 items-center justify-center border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white"
+                      >
+                        <Trash2 className="size-3" aria-hidden />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className="mb-5">
               <label className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                Gambar Produk
+                Tambah Foto Baru
               </label>
               <div
                 {...getRootProps()}
                 className={[
-                  "flex h-40 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-outline-variant bg-surface-container-low p-4 text-center transition-colors",
+                  "flex h-28 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-outline-variant bg-surface-container-low p-4 text-center transition-colors",
                   isDragActive ? "border-primary bg-surface-container" : "hover:bg-surface-container",
                 ].join(" ")}
               >
                 <input {...getInputProps()} />
-                {image ? (
-                  <img
-                    src={image}
-                    alt="Preview produk"
-                    className="h-full w-full object-contain mix-blend-multiply"
-                  />
+                {file ? (
+                  <span className="text-xs font-bold tracking-widest text-primary uppercase">
+                    {file.name} (klik untuk ganti)
+                  </span>
                 ) : (
                   <>
-                    <ImagePlus className="size-6 text-muted-foreground" aria-hidden />
+                    <ImagePlus className="size-5 text-muted-foreground" aria-hidden />
                     <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
                       Seret gambar atau klik untuk upload
                     </span>
@@ -150,11 +189,19 @@ export function TambahProdukButton() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Nama Produk" name="name" placeholder="Jordan 1 Retro High" />
-              <Field label="Harga (Rp)" name="price" type="number" min={1} placeholder="4500000" />
-              <Field label="Ukuran (pisahkan koma)" name="sizes" placeholder="40, 41, 42" />
-              <Field label="Kondisi" name="condition" placeholder="new / used / 9.5" />
-              <Field label="Stok" name="stock" type="number" min={0} defaultValue="1" />
+              <Field
+                label="Nama Produk"
+                name="name"
+                defaultValue={product.nama_produk}
+              />
+              <Field label="Harga (Rp)" name="price" type="number" min={1} defaultValue={String(product.harga)} />
+              <Field
+                label="Ukuran (pisahkan koma)"
+                name="sizes"
+                defaultValue={product.ukuran_tersedia.join(", ")}
+              />
+              <Field label="Kondisi" name="condition" defaultValue={product.kondisi} />
+              <Field label="Stok" name="stock" type="number" min={0} defaultValue={String(product.stok)} />
               <div>
                 <label
                   htmlFor="category_id"
@@ -165,6 +212,7 @@ export function TambahProdukButton() {
                 <select
                   id="category_id"
                   name="category_id"
+                  defaultValue={product.category_id ?? ""}
                   className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
                 >
                   <option value="">Pilih kategori…</option>
@@ -175,7 +223,11 @@ export function TambahProdukButton() {
                   ))}
                 </select>
               </div>
-              <Field label="Deskripsi (min. 10 karakter)" name="description" placeholder="Sepatu original 100% (min. 10 karakter)" />
+              <Field
+                label="Deskripsi (min. 10 karakter)"
+                name="description"
+                defaultValue={product.deskripsi ?? ""}
+              />
             </div>
 
             {Object.keys(errors).length > 0 ? (
@@ -205,51 +257,15 @@ export function TambahProdukButton() {
               />
               <Button
                 type="submit"
-                disabled={create.isPending}
+                disabled={update.isPending}
                 className="h-auto rounded-none border border-primary bg-primary px-5 py-2.5 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
               >
-                {create.isPending ? "Menyimpan…" : "Simpan Produk"}
+                {update.isPending ? "Menyimpan…" : "Simpan Perubahan"}
               </Button>
             </div>
           </form>
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
-  )
-}
-
-export function Field({
-  label,
-  name,
-  type = "text",
-  min,
-  defaultValue,
-  placeholder,
-}: {
-  label: string
-  name: string
-  type?: string
-  min?: number
-  defaultValue?: string
-  placeholder?: string
-}) {
-  return (
-    <div>
-      <label
-        htmlFor={name}
-        className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase"
-      >
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        min={min}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-b-2 focus:border-ring"
-      />
-    </div>
   )
 }

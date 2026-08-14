@@ -1,246 +1,186 @@
-"use client";
+"use client"
 
-import {
-  User,
-  Store,
-  Footprints,
-  ClipboardCheck,
-  CircleDollarSign,
-  TriangleAlert,
-  ArrowUp,
-  ArrowDown,
-  HelpCircle,
-} from "lucide-react";
+import Link from "next/link"
+import { AlertTriangle, ArrowUpRight, Package, ShieldCheck, ShoppingBag, Users } from "lucide-react"
 
-interface StatCard {
-  icon: React.ElementType;
-  iconColor: string;
-  value: string;
-  label: string;
-  delta: string;
-  deltaUp: boolean;
+import { formatRp } from "@/lib/api"
+import { useAdminOrders, useAdminProducts, useAdminReports, useAdminUsers } from "@/lib/hooks"
+
+const statusLabel: Record<string, string> = {
+  PENDING: "Pending",
+  PROCESSING: "Diproses",
+  SHIPPED: "Dikirim",
+  COMPLETED: "Selesai",
+  CANCELLED: "Dibatalkan",
 }
 
-const STATS: StatCard[] = [
-  {
-    icon: User,
-    iconColor: "text-blue-500",
-    value: "12,847",
-    label: "Total Pengguna",
-    delta: "+234 bulan ini",
-    deltaUp: true,
-  },
-  {
-    icon: Store,
-    iconColor: "text-gray-700",
-    value: "1,203",
-    label: "Total Seller",
-    delta: "+45 bulan ini",
-    deltaUp: true,
-  },
-  {
-    icon: Footprints,
-    iconColor: "text-blue-500",
-    value: "48,921",
-    label: "Total Produk",
-    delta: "+1,204 bulan ini",
-    deltaUp: true,
-  },
-  {
-    icon: ClipboardCheck,
-    iconColor: "text-gray-700",
-    value: "28,341",
-    label: "Total Pesanan",
-    delta: "+892 bulan ini",
-    deltaUp: true,
-  },
-  {
-    icon: CircleDollarSign,
-    iconColor: "text-amber-500",
-    value: "Rp4.2M",
-    label: "Revenue",
-    delta: "+12% vs bulan lalu",
-    deltaUp: true,
-  },
-  {
-    icon: TriangleAlert,
-    iconColor: "text-red-500",
-    value: "23",
-    label: "Laporan Aktif",
-    delta: "-5 dari kemarin",
-    deltaUp: false,
-  },
-];
-
-interface Order {
-  id: string;
-  buyer: string;
-  product: string;
-  price: string;
+const tone: Record<string, string> = {
+  PENDING: "bg-[#f59e0b]",
+  PROCESSING: "bg-surface-container-highest text-primary",
+  SHIPPED: "bg-on-tertiary-container",
+  COMPLETED: "bg-[#10B981]",
+  CANCELLED: "bg-error",
 }
-
-const ORDERS: Order[] = [
-  {
-    id: "ORD-2024-001",
-    buyer: "Budi Santoso",
-    product: "Nike Air Force 1 Low",
-    price: "Rp1.200.000",
-  },
-  {
-    id: "ORD-2024-002",
-    buyer: "Rina Wulandari",
-    product: "Adidas Forum Low",
-    price: "Rp850.000",
-  },
-  {
-    id: "ORD-2024-003",
-    buyer: "Hendra Kusuma",
-    product: "Nike Dunk Low Panda",
-    price: "Rp1.650.000",
-  },
-];
-
-interface ReportItem {
-  tags: { label: string; className: string }[];
-  title: string;
-  desc: string;
-}
-
-const REPORTS: ReportItem[] = [
-  {
-    tags: [
-      { label: "PRODUK", className: "bg-red-100 text-red-600" },
-      { label: "PENDING", className: "bg-amber-100 text-amber-600" },
-    ],
-    title: 'Nike Air Force 1 "Replika"',
-    desc: "Produk palsu",
-  },
-  {
-    tags: [
-      { label: "SELLER", className: "bg-blue-100 text-blue-600" },
-      { label: "DIPROSES", className: "bg-purple-100 text-purple-600" },
-    ],
-    title: "FakeKicks.id",
-    desc: "Penjual tidak jujur",
-  },
-];
 
 export default function AdminDashboardPage() {
+  const { data: report } = useAdminReports({ period: "monthly" })
+  const { data: pending } = useAdminProducts({ status: "PENDING", limit: 5 })
+  const { data: orders } = useAdminOrders({ limit: 5 })
+  const { data: users } = useAdminUsers({ limit: 5 })
+
+  const stats = [
+    { icon: Users, label: "Total Users", value: report?.total_users ?? "-" },
+    { icon: ShieldCheck, label: "Total Sellers", value: report?.total_sellers ?? "-" },
+    { icon: Package, label: "Total Products", value: report?.total_products ?? "-" },
+    { icon: ShoppingBag, label: "Total Orders", value: report?.total_orders ?? "-" },
+  ]
+
   return (
-    <div className="relative min-h-screen bg-[#f4f4f2] px-8 py-8">
-      <h1 className="mb-6 text-[28px] font-extrabold tracking-tight text-[#1a1a1a]">
-        Admin Dashboard
-      </h1>
+    <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <div className="mb-6 border-b border-primary pb-4">
+        <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
+          Command Center
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Oversight operasional platform — periode {report?.period ?? "-"}.
+        </p>
+      </div>
 
       {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-3 gap-5">
-        {STATS.map((stat) => {
-          const Icon = stat.icon;
-          const DeltaIcon = stat.deltaUp ? ArrowUp : ArrowDown;
-          return (
-            <div
-              key={stat.label}
-              className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <Icon className={`h-5 w-5 ${stat.iconColor}`} strokeWidth={2} />
-                <DeltaIcon
-                  className={`h-4 w-4 ${
-                    stat.deltaUp ? "text-green-500" : "text-red-500"
-                  }`}
-                />
-              </div>
-              <div className="text-[26px] font-extrabold leading-tight text-[#1a1a1a]">
-                {stat.value}
-              </div>
-              <div className="mt-1 text-[13.5px] text-gray-500">
-                {stat.label}
-              </div>
-              <div
-                className={`mt-2 text-[12.5px] font-medium ${
-                  stat.deltaUp ? "text-green-600" : "text-red-500"
-                }`}
-              >
-                {stat.delta}
-              </div>
+      <div className="mb-6 grid grid-cols-2 gap-5 lg:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.label} className="border border-outline-variant bg-surface-container-lowest p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
+                {s.label}
+              </span>
+              <s.icon className="size-4 text-primary" aria-hidden />
             </div>
-          );
-        })}
+            <div className="mt-3 font-heading text-4xl leading-10 font-black text-primary">{s.value}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Bottom two columns */}
-      <div className="grid grid-cols-2 gap-5">
-        {/* Pesanan Terbaru */}
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-[16px] font-bold text-[#1a1a1a]">
-            Pesanan Terbaru
-          </h2>
-          <div className="flex flex-col">
-            {ORDERS.map((order, idx) => (
-              <div
-                key={order.id}
-                className={`flex items-center justify-between py-3.5 ${
-                  idx !== ORDERS.length - 1 ? "border-b border-gray-100" : ""
-                }`}
-              >
-                <div>
-                  <div className="text-[11px] text-gray-400">{order.id}</div>
-                  <div className="mt-0.5 text-[13.5px] font-semibold text-[#1a1a1a]">
-                    {order.buyer} · {order.product}
+      <div className="mb-6 border border-on-tertiary-container bg-on-tertiary-container/5 p-5">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] leading-4 font-bold tracking-widest text-on-tertiary-container uppercase">
+            Total Revenue
+          </span>
+          <ArrowUpRight className="size-4 text-on-tertiary-container" aria-hidden />
+        </div>
+        <div className="mt-3 font-heading text-4xl leading-10 font-black text-on-tertiary-container">
+          {formatRp(report?.total_revenue ?? 0)}
+        </div>
+      </div>
+
+      {/* Queue + Orders */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Pending moderation */}
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-black tracking-wide text-primary uppercase">
+              Antrian Moderasi (PENDING)
+            </h2>
+            <Link
+              href="/admin/inventory"
+              className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-on-tertiary-container uppercase hover:text-primary"
+            >
+              Lihat semua <ArrowUpRight className="size-3.5 rotate-45" />
+            </Link>
+          </div>
+          {(pending?.items ?? []).length === 0 ? (
+            <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
+              Tidak ada produk menunggu moderasi.
+            </div>
+          ) : (
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
+              {pending!.items.map((p) => (
+                <div key={p.product_id} className="flex items-center justify-between py-3">
+                  <div className="truncate font-heading text-sm font-bold text-primary">{p.nama_produk}</div>
+                  <span className="border border-[#f59e0b] bg-[#f59e0b] px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase">
+                    PENDING
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent orders */}
+        <div className="border border-outline-variant bg-surface-container-lowest p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-black tracking-wide text-primary uppercase">Pesanan Terbaru</h2>
+            <span className="font-mono text-xs text-muted-foreground">Semua seller</span>
+          </div>
+          {(orders?.items ?? []).length === 0 ? (
+            <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
+              Belum ada pesanan.
+            </div>
+          ) : (
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
+              {orders!.items.map((o) => (
+                <div key={o.order_id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <div className="truncate font-heading text-sm font-bold text-primary">
+                      {o.customer?.nama ?? "Customer"} • {o.order_id.slice(0, 8).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase ${tone[o.status_order] ?? "bg-surface-container-highest text-primary"}`}>
+                      {statusLabel[o.status_order] ?? o.status_order}
+                    </span>
+                    <span className="font-heading text-sm font-bold text-primary">
+                      {formatRp(o.total_pembayaran)}
+                    </span>
                   </div>
                 </div>
-                <div className="text-[14px] font-bold text-[#1a1a1a]">
-                  {order.price}
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* User activity */}
+      <div className="mt-6 border border-outline-variant bg-surface-container-lowest p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-black tracking-wide text-primary uppercase">Aktivitas User</h2>
+          <Link
+            href="/admin/users"
+            className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-on-tertiary-container uppercase hover:text-primary"
+          >
+            Kelola <ArrowUpRight className="size-3.5 rotate-45" />
+          </Link>
+        </div>
+        {(users?.items ?? []).length === 0 ? (
+          <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
+            Belum ada data.
+          </div>
+        ) : (
+          <div className="divide-y divide-outline-variant border-t border-outline-variant">
+            {users!.items.map((u) => (
+              <div key={u.user_id} className="flex items-center justify-between py-3">
+                <div className="min-w-0">
+                  <div className="truncate font-heading text-sm font-bold text-primary">{u.nama}</div>
+                  <div className="font-mono text-xs text-muted-foreground">{u.email}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="border border-outline px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
+                    {u.peran}
+                  </span>
+                  <span className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase ${u.status_akun === "ACTIVE" ? "bg-[#10B981]" : "bg-[#f59e0b]"}`}>
+                    {u.status_akun}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Laporan Terbaru */}
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-[16px] font-bold text-[#1a1a1a]">
-            Laporan Terbaru
-          </h2>
-          <div className="flex flex-col">
-            {REPORTS.map((report, idx) => (
-              <div
-                key={report.title}
-                className={`flex items-center justify-between py-3.5 ${
-                  idx !== REPORTS.length - 1 ? "border-b border-gray-100" : ""
-                }`}
-              >
-                <div>
-                  <div className="mb-1.5 flex gap-1.5">
-                    {report.tags.map((tag) => (
-                      <span
-                        key={tag.label}
-                        className={`rounded px-2 py-0.5 text-[10px] font-semibold tracking-wide ${tag.className}`}
-                      >
-                        {tag.label}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-[13.5px] font-semibold text-[#1a1a1a]">
-                    {report.title}
-                  </div>
-                  <div className="text-[12px] text-gray-400">
-                    {report.desc}
-                  </div>
-                </div>
-                <button className="rounded-md bg-[#1a1a1a] px-4 py-2 text-[11.5px] font-semibold tracking-wide text-white hover:bg-black">
-                  REVIEW
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Floating help button */}
-      <button className="fixed bottom-6 right-8 flex h-11 w-11 items-center justify-center rounded-full bg-[#1a1a1a] text-white shadow-lg hover:bg-black">
-        <HelpCircle className="h-5 w-5" />
-      </button>
+      <div className="mt-6 flex items-center gap-2 border border-outline-variant bg-surface-container-lowest p-4 text-xs text-muted-foreground">
+        <AlertTriangle className="size-4 text-[#f59e0b]" />
+        Laporan diperbarui otomatis dari endpoint /admin/reports.
+      </div>
     </div>
-  );
+  )
 }

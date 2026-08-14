@@ -15,8 +15,8 @@ import { ProductCard } from "@/components/product-card"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { toCard } from "@/lib/api"
-import { useProducts } from "@/lib/hooks"
+import { formatRp, PLACEHOLDER_IMAGE, type ProductCardData } from "@/lib/api"
+import { useBestSellerWeekly, useHomePersonalized, useProducts, useTrending } from "@/lib/hooks"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -26,11 +26,61 @@ const fadeUp = {
 }
 
 export default function HomePage() {
-  const { data } = useProducts({ limit: 12, sort: "terbaru" })
-  const all = data?.items.map(toCard) ?? []
-  const trending = all.slice(0, 8)
-  const bestSellers = all.slice(0, 4)
-  const personalized = all.slice(0, 3)
+  const { data: trendingData } = useTrending({ period: "weekly", limit: 8 })
+  const { data: bestSellerData } = useBestSellerWeekly(4)
+  const { data: personalizedData } = useHomePersonalized()
+  const { data: productsData } = useProducts({ limit: 50, sort: "terbaru" })
+
+  const catalog = new Map((productsData?.items ?? []).map((p) => [p.product_id, p]))
+
+  const trending: ProductCardData[] = (trendingData?.items ?? []).map((t) => {
+    const p = catalog.get(t.product_id)
+    return {
+      id: t.product_id,
+      brand: p?.brand ?? p?.seller?.nama_toko ?? "",
+      name: t.nama_produk,
+      price: p ? formatRp(p.harga) : "",
+      image: p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE,
+      alt: t.nama_produk,
+      badge: "TRENDING",
+      trend: `${t.trend_score} SCORE`,
+      harga: p?.harga ?? 0,
+      kondisi: "",
+      ukuran: [],
+    }
+  })
+  const bestSellers: ProductCardData[] = (bestSellerData?.items ?? []).map((b) => {
+    const p = catalog.get(b.product_id)
+    return {
+      id: b.product_id,
+      brand: p?.brand ?? p?.seller?.nama_toko ?? "",
+      name: b.nama_produk,
+      price: p ? formatRp(p.harga) : "",
+      image: p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE,
+      alt: b.nama_produk,
+      badge: `#${b.rank} BEST SELLER`,
+      trend: `${b.total_terjual} TERJUAL`,
+      harga: p?.harga ?? 0,
+      kondisi: "",
+      ukuran: [],
+    }
+  })
+  const personalized: ProductCardData[] =
+    (personalizedData?.sections[0]?.products ?? []).map((p) => {
+      const full = catalog.get(p.product_id)
+      return {
+        id: p.product_id,
+        brand: full?.brand ?? full?.seller?.nama_toko ?? "",
+        name: p.nama_produk,
+        price: formatRp(p.harga),
+        image: p.image_url || full?.images?.[0]?.image_url || full?.image_url || PLACEHOLDER_IMAGE,
+        alt: p.nama_produk,
+        harga: p.harga,
+        kondisi: "",
+        ukuran: [],
+      }
+    })
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
       <SiteHeader />
@@ -93,11 +143,17 @@ export default function HomePage() {
               <TrendingUp className="size-4" />
             </Link>
           </motion.div>
-          <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8 snap-x snap-mandatory [mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)] md:-mx-10 md:px-10">
-            {trending.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
+          {trending.length > 0 ? (
+            <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8 snap-x snap-mandatory [mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)] md:-mx-10 md:px-10">
+              {trending.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
+              Belum ada data trending periode ini.
+            </div>
+          )}
         </div>
       </section>
 
@@ -249,15 +305,21 @@ export default function HomePage() {
             Weekly Best Sellers
           </motion.h2>
           <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
-            {bestSellers.map((product, i) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                number={i + 1}
-                index={i}
-                className="w-auto border-r border-b"
-              />
-            ))}
+            {bestSellers.length > 0 ? (
+              bestSellers.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  number={i + 1}
+                  index={i}
+                  className="w-auto border-r border-b"
+                />
+              ))
+            ) : (
+              <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
+                Belum ada data best seller minggu ini.
+              </div>
+            )}
           </div>
           <div className="mt-8 flex justify-center">
             <Button
@@ -283,13 +345,15 @@ export default function HomePage() {
             </span>
           </motion.div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {personalized.map((product, i) => (
-              <motion.div
-                key={product.id}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                className="group flex border border-outline-variant bg-white p-4 transition-colors hover:border-primary"
-              >
+            {personalized.length > 0 ? (
+              personalized.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: i * 0.08 }}
+                  className="group flex cursor-pointer border border-outline-variant bg-white p-4 transition-colors hover:border-primary"
+                  onClick={() => (window.location.href = `/product/${product.id}`)}
+                >
                 <div className="mr-4 flex w-1/3 items-center justify-center border border-outline-variant bg-surface-container-low p-2">
                   <img
                     src={product.image}
@@ -315,7 +379,12 @@ export default function HomePage() {
                   </span>
                 </div>
               </motion.div>
-            ))}
+            ))
+          ) : (
+            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
+              Lengkapi preferensi kamu di profil untuk rekomendasi personal.
+            </div>
+          )}
           </div>
         </div>
       </section>

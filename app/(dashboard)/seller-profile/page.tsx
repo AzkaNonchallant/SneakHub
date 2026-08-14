@@ -3,7 +3,7 @@
 import { CheckCircle2, Star } from "lucide-react"
 
 import { formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useMe, useProducts } from "@/lib/hooks"
+import { useMe, useProducts, useSellerDashboard, useSellerOrders, useTrustScore } from "@/lib/hooks"
 
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
@@ -20,12 +20,16 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
 
 export default function SellerProfilePage() {
   const { data: user } = useMe()
-  const { data: productsData } = useProducts({ limit: 24 })
+  const { data: dash } = useSellerDashboard()
+  const { data: ordersData } = useSellerOrders({ limit: 100 })
+  // ponytail: API tidak expose seller_id milik user; ambil dari produk publik
+  const { data: productsData } = useProducts({ limit: 100 })
+  const sellerId = productsData?.items.find((p) => p.seller?.seller_id)?.seller?.seller_id
+  const { data: trust } = useTrustScore(sellerId)
 
   const storeName = `${user?.nama ?? "Toko"} Store`
-  const products = productsData?.items.slice(0, 4) ?? []
-  const totalProducts = productsData?.pagination.total ?? 0
-  const trustScore = 0
+  const totalOrders = ordersData?.pagination.total ?? 0
+  const trustScore = dash?.seller_trust_score ?? trust?.skor_akhir ?? 0
 
   return (
     <div className="mx-auto w-full max-w-[1280px] bg-background px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -62,9 +66,10 @@ export default function SellerProfilePage() {
         {/* Statistik */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[
-            { label: "TOTAL PESANAN", value: "-" },
-            { label: "PRODUK AKTIF", value: String(totalProducts) },
-            { label: "RATING", value: "-", suffix: "★" },
+            { label: "TOTAL PESANAN", value: String(totalOrders) },
+            { label: "PRODUK AKTIF", value: String(dash?.produk_aktif ?? "-") },
+            { label: "TOTAL TERJUAL", value: String(dash?.total_terjual ?? "-") },
+            { label: "RATING", value: dash?.rating_rata_rata ? String(dash.rating_rata_rata) : "-", suffix: "★" },
           ].map((stat) => (
             <div key={stat.label} className="border border-outline-variant px-3 py-4 text-center">
               <div className="font-heading text-lg leading-6 font-black break-words text-primary sm:text-xl sm:leading-7 lg:text-2xl lg:leading-7">
@@ -91,36 +96,38 @@ export default function SellerProfilePage() {
               <div className="font-heading text-3xl leading-9 font-black text-primary">
                 {trustScore || "-"}/100
               </div>
-              <div className="mt-1 flex items-center gap-1.5 text-base font-bold text-muted-foreground">
-                <CheckCircle2 className="size-4" /> Belum ada penilaian
-              </div>
+              {trust ? (
+                <div className="mt-1 flex flex-col gap-1 text-sm font-bold text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4 text-[#10B981]" /> Selesai {trust.order_completion_rate}%
+                  </span>
+                  <span>Batal {trust.cancellation_rate}% • Respon {trust.response_rate}%</span>
+                </div>
+              ) : (
+                <div className="mt-1 flex items-center gap-1.5 text-base font-bold text-muted-foreground">
+                  <CheckCircle2 className="size-4" /> Belum ada penilaian
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
-          <SectionHeader number="03" title={`Produk Aktif (${totalProducts})`} />
-          {products.length === 0 ? (
+          <SectionHeader number="03" title={`Produk Aktif (${dash?.produk_aktif ?? "-"})`} />
+          {!dash || dash.produk_terlaris.length === 0 ? (
             <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
               Belum ada data.
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              {products.map((p) => (
+              {dash.produk_terlaris.map((p) => (
                 <div key={p.product_id} className="flex items-center gap-3">
-                  <div className="h-14 w-14 shrink-0 border border-outline-variant bg-surface-container">
-                    <img
-                      src={p.images?.[0]?.image_url || p.image_url || PLACEHOLDER_IMAGE}
-                      alt={p.nama_produk}
-                      className="h-full w-full object-contain p-1"
-                    />
-                  </div>
                   <div className="min-w-0">
                     <div className="truncate text-sm leading-5 font-medium text-primary">
                       {p.nama_produk}
                     </div>
                     <div className="font-heading text-sm leading-5 font-bold text-primary">
-                      {formatRp(p.harga)}
+                      {p.total_terjual} terjual
                     </div>
                   </div>
                 </div>
@@ -139,8 +146,10 @@ export default function SellerProfilePage() {
           </p>
           <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <Star className="size-4 fill-tertiary text-tertiary" />
-            <span className="font-heading font-black text-primary">-</span>
-            <span>(belum ada ulasan)</span>
+            <span className="font-heading font-black text-primary">
+              {dash?.rating_rata_rata ? String(dash.rating_rata_rata) : "-"}
+            </span>
+            <span>(rating toko)</span>
           </div>
         </div>
       </section>

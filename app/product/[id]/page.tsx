@@ -1,29 +1,62 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { ChevronRight, Heart, Info, LineChart } from "lucide-react"
+import { ChevronRight, Heart, Info, LineChart, Plus } from "lucide-react"
 import { notFound } from "next/navigation"
+import { toast } from "sonner"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useAddCartItems, useProduct } from "@/lib/hooks"
-import { useWishlistStore } from "@/lib/wishlist-store"
+import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ConditionScore } from "@/lib/api"
+import {
+  useAddCartItems,
+  useAddWishlist,
+  useConditionScores,
+  useMe,
+  usePriceInsight,
+  useProduct,
+  useRemoveWishlist,
+  useSubmitConditionScore,
+  useWishlist,
+} from "@/lib/hooks"
+
+const kondisiBadge: Record<string, string> = {
+  NEW: "bg-[#10B981]",
+  USED: "bg-surface-container-highest",
+  REFURBISHED: "bg-outline",
+}
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = String(params.id)
   const { data: product, isLoading } = useProduct(id)
+  const { data: me } = useMe()
+  const { data: wishlist } = useWishlist()
   const [activeImage, setActiveImage] = useState(0)
 
   const addToCart = useAddCartItems()
-  const wishlist = useWishlistStore((s) => s.items)
-  const addWishlist = useWishlistStore((s) => s.add)
-  const removeWishlist = useWishlistStore((s) => s.remove)
+  const addWishlist = useAddWishlist()
+  const removeWishlist = useRemoveWishlist()
+
+  const inWishlist = useMemo(
+    () => (wishlist ?? []).some((w) => w.product_id === id),
+    [wishlist, id],
+  )
+
+  const toggleWishlist = async () => {
+    try {
+      if (inWishlist) await removeWishlist.mutateAsync(id)
+      else await addWishlist.mutateAsync(id)
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
+
+  const isSellerOrAdmin = me?.peran === "seller" || me?.peran === "admin" || me?.peran === "SELLER" || me?.peran === "ADMIN"
 
   if (isLoading) return <div className="p-10 font-heading text-2xl text-primary uppercase">Loading…</div>
   if (!product) notFound()
@@ -32,10 +65,7 @@ export default function ProductDetailPage() {
     product.images && product.images.length > 0
       ? product.images.map((i) => i.image_url)
       : [product.image_url || PLACEHOLDER_IMAGE]
-  const conditionScore = product.condition_score ?? 0
-  const marketPrice = Math.round(product.harga * 1.1)
   const sellerName = product.seller?.nama_toko ?? "SneakHub Seller"
-  const inWishlist = wishlist.some((i) => i.id === id)
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -53,7 +83,7 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
           <div className="flex flex-col gap-4 lg:col-span-7">
             <div className="group relative flex aspect-square w-full items-center justify-center overflow-hidden border border-outline-variant bg-surface-container-low p-8">
-              <span className="absolute top-4 left-4 border border-primary bg-surface-container-highest px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
+              <span className={`absolute top-4 left-4 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${kondisiBadge[product.kondisi] ?? "bg-surface-container-highest text-primary"}`}>
                 Condition: {product.kondisi}
               </span>
               <img
@@ -111,18 +141,7 @@ export default function ProductDetailPage() {
               </Button>
               <Button
                 type="button"
-                onClick={() =>
-                  inWishlist ? removeWishlist(id) : addWishlist({
-                    id,
-                    name: product.nama_produk,
-                    colorway: "",
-                    price: product.harga,
-                    tag: "NEW",
-                    score: String(conditionScore),
-                    image: gallery[0],
-                    alt: product.nama_produk,
-                  })
-                }
+                onClick={toggleWishlist}
                 className="h-auto rounded-none border border-primary bg-background py-4 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase transition-colors hover:bg-surface-container-low"
               >
                 <Heart className="size-4" fill={inWishlist ? "currentColor" : "none"} />
@@ -130,22 +149,7 @@ export default function ProductDetailPage() {
               </Button>
             </div>
 
-            <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  Condition Score
-                </h3>
-                <span className="flex items-center gap-2 bg-surface-container-highest px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase">
-                  Overall <span className="text-base font-bold">{conditionScore}/10</span>
-                </span>
-              </div>
-              <div className="h-1 w-full bg-surface-container">
-                <div className="h-1 bg-primary" style={{ width: `${conditionScore * 10}%` }} />
-              </div>
-              <p className="text-sm leading-6 text-muted-foreground">
-                {product.deskripsi || "Produk ini terverifikasi oleh SneakHub."}
-              </p>
-            </div>
+            <ConditionScoreBox productId={id} isSellerOrAdmin={isSellerOrAdmin} />
 
             <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
               <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -167,39 +171,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="relative flex flex-col gap-4 overflow-hidden border border-outline-variant bg-surface p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <LineChart className="size-5 text-on-tertiary-container" fill="currentColor" />
-                  <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                    Price Insight
-                  </h3>
-                </div>
-                <span className="text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
-                  {product.harga < marketPrice ? "Below Market" : "At Market"}
-                </span>
-              </div>
-              <div className="relative mt-4 flex h-12 w-full items-end">
-                <div className="absolute bottom-0 h-1 w-full bg-surface-container-high" />
-                <div className="absolute bottom-0 left-0 h-1 w-1/3 bg-[#10B981]" />
-                <div className="absolute bottom-0 left-[20%] flex -translate-x-1/2 translate-y-2 flex-col items-center">
-                  <div className="mb-1 h-0 w-0 border-b-8 border-l-6 border-r-6 border-b-primary border-l-transparent border-r-transparent" />
-                  <span className="rounded-sm bg-primary px-2 py-1 font-mono text-[10px] whitespace-nowrap text-white">
-                    THIS LISTING
-                  </span>
-                </div>
-                <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 -translate-y-8 flex-col items-center">
-                  <span className="font-mono text-[10px] text-muted-foreground">
-                    MARKET AVG: {formatRp(marketPrice)}
-                  </span>
-                  <div className="mt-1 h-6 w-0.5 bg-secondary" />
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                Listed {Math.round((1 - product.harga / marketPrice) * 100)}% below current average
-                market value for similar condition.
-              </p>
-            </div>
+            <PriceInsightBox productId={id} price={product.harga} />
 
             <button
               type="button"
@@ -233,6 +205,226 @@ export default function ProductDetailPage() {
       </main>
 
       <SiteFooter />
+    </div>
+  )
+}
+
+const kondisiMeta = (kondisi: string) =>
+  kondisi === "NEW"
+    ? { bg: "bg-[#10B981]", label: "BARU" }
+    : kondisi === "USED"
+      ? { bg: "bg-surface-container-highest", label: "SECOND" }
+      : { bg: "bg-outline", label: "REFURBISHED" }
+
+function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; isSellerOrAdmin: boolean }) {
+  const { data: score, isLoading } = useConditionScores(productId)
+  const [open, setOpen] = useState(false)
+  const latest = score ?? undefined
+
+  const skor = latest?.skor_akhir ?? 0
+  const meta = kondisiMeta("USED")
+
+  return (
+    <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+          Condition Score
+        </h3>
+        {isLoading ? (
+          <span className="text-xs text-muted-foreground">Loading…</span>
+        ) : latest ? (
+          <span className={`flex items-center gap-2 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${meta.bg}`}>
+            Overall <span className="text-base font-bold">{skor}/100</span>
+          </span>
+        ) : (
+          <span className="border border-outline bg-surface-container-highest px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase">
+            BELUM DINILAI
+          </span>
+        )}
+      </div>
+      {latest ? (
+        <>
+          <div className="h-1 w-full bg-surface-container">
+            <div className="h-1 bg-primary" style={{ width: `${skor}%` }} />
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {(["upper", "outsole", "midsole", "insole", "accessories", "box"] as const).map((k) => (
+              <div key={k} className="border border-outline-variant bg-surface-container-lowest px-2 py-2">
+                <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{k}</div>
+                <div className="font-heading text-base font-bold text-primary">{latest!.detail[k]}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-sm leading-6 text-muted-foreground">
+          Belum ada penilaian kondisi dari verifikator.
+        </p>
+      )}
+      {isSellerOrAdmin ? (
+        <Button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="h-auto w-fit rounded-none border border-primary bg-primary px-5 py-2.5 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+        >
+          <Plus className="size-3.5" /> {latest ? "Nilai Ulang" : "Nilai Kondisi"}
+        </Button>
+      ) : null}
+      {open ? (
+        <ConditionScoreDialog
+          productId={productId}
+          initial={latest}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+function ConditionScoreDialog({
+  productId,
+  initial,
+  onClose,
+}: {
+  productId: string
+  initial?: ConditionScore
+  onClose: () => void
+}) {
+  const submit = useSubmitConditionScore()
+  const [komponen, setKomponen] = useState({
+    upper: initial?.detail.upper ?? 80,
+    outsole: initial?.detail.outsole ?? 80,
+    midsole: initial?.detail.midsole ?? 80,
+    insole: initial?.detail.insole ?? 80,
+    accessories: initial?.detail.accessories ?? 80,
+    box: initial?.detail.box ?? 80,
+  })
+  const set = (k: keyof typeof komponen, v: number) => setKomponen((s) => ({ ...s, [k]: v }))
+
+  const save = async () => {
+    try {
+      await submit.mutateAsync({ productId, body: { ...komponen, dinilai_oleh: "SELLER" } })
+      toast.success("Skor kondisi tersimpan")
+      onClose()
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal>
+      <div className="flex max-h-[90vh] w-full max-w-md flex-col border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
+        <div className="mb-4 flex items-center justify-between border-b border-outline-variant pb-4">
+          <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+            Nilai Kondisi
+          </h3>
+          <button type="button" onClick={onClose} className="cursor-pointer text-xs font-bold tracking-widest text-muted-foreground uppercase hover:text-primary">
+            Tutup
+          </button>
+        </div>
+        <div className="flex flex-col gap-4 overflow-y-auto">
+          {(["upper", "outsole", "midsole", "insole", "accessories", "box"] as const).map((k) => (
+            <label key={k} className="flex flex-col gap-1">
+              <span className="flex items-center justify-between text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
+                {k}
+                <span className="font-heading text-base font-bold text-on-tertiary-container">{komponen[k]}</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={komponen[k]}
+                onChange={(e) => set(k, Number(e.target.value))}
+                className="w-full accent-black"
+              />
+            </label>
+          ))}
+        </div>
+        <Button
+          type="button"
+          disabled={submit.isPending}
+          onClick={save}
+          className="mt-6 h-auto rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
+        >
+          {submit.isPending ? "Menyimpan…" : "Simpan Skor"}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function PriceInsightBox({ productId, price }: { productId: string; price: number }) {
+  const { data: insight } = usePriceInsight(productId)
+
+  const anomalyType = insight?.anomaly_type ?? ""
+  const isBelow = insight ? insight.current_price < insight.market_average : false
+  const isAbove = insight ? insight.current_price > insight.market_average : false
+  const diffPct = insight?.price_difference_percent ?? 0
+  const marketAvg = insight?.market_average ?? price
+
+  const tone =
+    anomalyType === "CHEAP"
+      ? { chip: "bg-[#10B981]", text: "text-[#10B981]", label: "DI BAWAH PASAR" }
+      : anomalyType === "OVERPRICED"
+        ? { chip: "bg-[#f59e0b]", text: "text-[#f59e0b]", label: "DI ATAS PASAR" }
+        : { chip: "bg-surface-container-highest", text: "text-muted-foreground", label: "SESUAI PASAR" }
+
+  const rel = marketAvg ? (price / marketAvg - 1) * 100 : 0
+  const markerLeft = Math.min(90, Math.max(10, 10 + rel * 8))
+
+  return (
+    <div className="relative flex flex-col gap-4 overflow-hidden border border-outline-variant bg-surface p-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <LineChart className="size-5 text-on-tertiary-container" fill="currentColor" />
+          <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+            Price Insight
+          </h3>
+        </div>
+        <span className={`border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${tone.chip}`}>
+          {tone.label}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {[
+          { label: "Harga Listing", value: formatRp(price) },
+          { label: "Rata-rata Pasar", value: formatRp(marketAvg) },
+          { label: "Range Pasar", value: `${formatRp(insight?.market_price_min ?? price)} – ${formatRp(insight?.market_price_max ?? price)}` },
+          { label: "Selisih", value: `${diffPct >= 0 ? "+" : ""}${diffPct}%`, cls: tone.text },
+        ].map((s) => (
+          <div key={s.label} className="border border-outline-variant bg-surface-container-lowest p-3">
+            <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{s.label}</div>
+            <div className={`mt-0.5 font-heading text-sm leading-5 font-bold text-primary ${s.cls ?? ""}`}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="relative mt-2 h-10 w-full">
+        <div className="absolute bottom-2 h-1 w-full bg-surface-container-high" />
+        <div
+          className="absolute bottom-2 h-1 bg-[#10B981]"
+          style={{ width: `${Math.min(50, markerLeft)}%` }}
+        />
+        <div
+          className="absolute bottom-2 flex -translate-x-1/2 flex-col items-center"
+          style={{ left: `${markerLeft}%` }}
+        >
+          <span className="font-mono text-[10px] whitespace-nowrap text-primary">
+            {formatRp(price)}
+          </span>
+          <div className="h-0 w-0 border-t-8 border-l-6 border-r-6 border-t-primary border-l-transparent border-r-transparent" />
+        </div>
+        <span className="absolute right-0 bottom-2 font-mono text-[10px] text-muted-foreground">
+          AVG {formatRp(marketAvg)}
+        </span>
+      </div>
+
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        {insight?.message ?? "Memuat data pasar…"}
+        {isBelow ? " Daftar ini ~" + Math.abs(Math.round(rel)) + "% di bawah rata-rata pasar." : ""}
+        {isAbove ? " Daftar ini ~" + Math.abs(Math.round(rel)) + "% di atas rata-rata pasar." : ""}
+      </p>
     </div>
   )
 }

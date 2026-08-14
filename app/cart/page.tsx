@@ -18,11 +18,10 @@ function CartItemRow({
   onChange: (qty: number) => void
   onRemove: () => void
 }) {
-  const product = item.product
-  const name = product?.nama_produk ?? "Produk"
-  const image = product?.images?.[0]?.image_url || product?.image_url || PLACEHOLDER_IMAGE
-  const price = product?.harga ?? item.harga ?? 0
-  const size = product?.ukuran_tersedia?.[0] ?? "-"
+  const name = item.nama_produk ?? "Produk"
+  const image = item.image_url || PLACEHOLDER_IMAGE
+  const price = item.harga ?? 0
+  const size = "-"
 
   return (
     <motion.article
@@ -49,7 +48,9 @@ function CartItemRow({
                   {name}
                 </Link>
               </h3>
-              <p className="text-sm font-medium text-muted-foreground">{product?.kondisi ?? ""}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {formatRp(item.subtotal ?? price * item.jumlah)}
+              </p>
             </div>
             <Button
               type="button"

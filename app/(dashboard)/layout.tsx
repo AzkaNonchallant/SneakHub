@@ -1,3 +1,4 @@
+import { SiteHeader } from "@/components/site-header";
 "use client"
 
 import { useEffect } from "react";
@@ -24,9 +25,16 @@ export default function DashboardLayout({
   if (isLoading || !isSellerRole(me?.peran)) return null;
 
   return (
-    <div className="flex min-h-full flex-1 flex-col md:flex-row">
-      <SiteSidebar />
-      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+
+      <div className="flex flex-1">
+        <SiteSidebar />
+
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

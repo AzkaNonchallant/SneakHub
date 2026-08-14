@@ -7,7 +7,7 @@ import { Heart } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { useCartStore } from "@/lib/cart-store"
+import { useAddCartItems } from "@/lib/hooks"
 import { useWishlistStore } from "@/lib/wishlist-store"
 
 const alertSettings = [
@@ -20,7 +20,7 @@ export default function WishlistPage() {
   const router = useRouter()
   const items = useWishlistStore((s) => s.items)
   const removeWishlist = useWishlistStore((s) => s.remove)
-  const addToCart = useCartStore((s) => s.add)
+  const addToCart = useAddCartItems()
   const [alerts, setAlerts] = useState(alertSettings.map((a) => a.on))
 
   return (
@@ -141,16 +141,7 @@ export default function WishlistPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation()
-                        addToCart({
-                          id: item.id,
-                          name: item.name,
-                          colorway: item.colorway,
-                          price: item.price,
-                          condition: item.score,
-                          size: "US 10.5",
-                          image: item.image,
-                          alt: item.alt,
-                        })
+                        addToCart.mutate([{ product_id: String(item.id), jumlah: 1 }])
                         removeWishlist(item.id)
                       }}
                       className="h-auto w-full rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary"

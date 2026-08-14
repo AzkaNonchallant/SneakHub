@@ -1,17 +1,21 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useDeferredValue, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "motion/react"
 import { Bell, Camera, CircleUser, Heart, Image, LogOut, Menu, Package, ScanSearch, Search, ShoppingCart, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { searchProducts } from "@/lib/products"
+import { isSellerRole, setToken, toCard } from "@/lib/api"
+import { useMe, useProducts } from "@/lib/hooks"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
 import { cn } from "@/lib/utils"
 
 const navLinks = ["Smart Find", "Shop", "Market Insights", "Seller Hub"]
+
+const navLinksFor = (isSeller: boolean) =>
+  navLinks.filter((label) => isSeller || label !== "Seller Hub")
 
 const mobileLinks: { label: string; href: string }[] = [
   { label: "Smart Find", href: "/smart-find" },
@@ -48,7 +52,12 @@ export function SiteHeader() {
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
 
-  const results = searchProducts(query)
+  const deferredQuery = useDeferredValue(query)
+  const trimmed = deferredQuery.trim()
+  const { data: resultsData } = useProducts({ search: trimmed, limit: 8 })
+  const results = trimmed ? (resultsData?.items.map(toCard) ?? []) : []
+  const { data: me } = useMe()
+  const isSeller = isSellerRole(me?.peran)
 
   // ponytail: plain scroll-lock + Esc listener, no portal lib for one overlay
   useEffect(() => {
@@ -228,7 +237,7 @@ export function SiteHeader() {
           </form>
         </div>
         <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((label) =>
+          {navLinksFor(isSeller).map((label) =>
             label === "Seller Hub" ? (
               <Link
                 key={label}
@@ -334,7 +343,10 @@ export function SiteHeader() {
                     ))}
                     <Link
                       href="/login"
-                      onClick={() => setAccountOpen(false)}
+                      onClick={() => {
+                        setAccountOpen(false)
+                        setToken(null)
+                      }}
                       className="flex w-full items-center gap-3 border-t border-outline-variant px-3 py-3 text-sm leading-5 text-error transition-colors hover:bg-surface-container"
                     >
                       <LogOut className="size-4" />
@@ -399,7 +411,9 @@ export function SiteHeader() {
               </form>
 
               <nav className="flex flex-col">
-                {mobileLinks.map(({ label, href }, i) => (
+                {mobileLinks
+                  .filter(({ label }) => isSeller || label !== "Seller Hub")
+                  .map(({ label, href }, i) => (
                   <motion.div
                     key={label}
                     initial={{ opacity: 0, y: 16 }}

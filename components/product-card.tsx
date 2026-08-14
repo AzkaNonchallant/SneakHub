@@ -3,11 +3,12 @@
 import { motion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { ArrowUpRight, Plus, TrendingUp } from "lucide-react"
+import { useState } from "react"
 
 import { cn } from "@/lib/utils"
-import { parsePrice, type Product } from "@/lib/products"
+import type { ProductCardData } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { useCartStore } from "@/lib/cart-store"
+import { useAddCartItems } from "@/lib/hooks"
 
 export function ProductCard({
   product,
@@ -15,13 +16,14 @@ export function ProductCard({
   index = 0,
   className,
 }: {
-  product: Product
+  product: ProductCardData
   number?: number
   index?: number
   className?: string
 }) {
   const router = useRouter()
-  const addToCart = useCartStore((s) => s.add)
+  const addToCart = useAddCartItems()
+  const [adding, setAdding] = useState(false)
 
   return (
     <motion.div
@@ -85,18 +87,15 @@ export function ProductCard({
               type="button"
               size="icon"
               aria-label={`Add ${product.name} to cart`}
-              onClick={(e) => {
+              disabled={adding}
+              onClick={async (e) => {
                 e.stopPropagation()
-                addToCart({
-                  id: product.id,
-                  name: product.name,
-                  colorway: "",
-                  price: parsePrice(product.price),
-                  condition: product.badge ?? "NEW",
-                  size: "US 10.5",
-                  image: product.image,
-                  alt: product.alt,
-                })
+                setAdding(true)
+                try {
+                  await addToCart.mutateAsync([{ product_id: product.id, jumlah: 1 }])
+                } finally {
+                  setAdding(false)
+                }
               }}
               className="size-10 rounded-none border border-primary bg-primary text-white shadow-none transition-all hover:bg-on-tertiary-container hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >

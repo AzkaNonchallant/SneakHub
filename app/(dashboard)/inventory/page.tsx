@@ -4,7 +4,8 @@ import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react"
 
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
-import { useInventoryStore, formatRp, type InventoryItem } from "@/lib/inventory-store"
+import { formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
+import { useProducts } from "@/lib/hooks"
 
 const PAGE_SIZE = 6
 
@@ -17,21 +18,24 @@ const sortLabels: Record<SortKey, string> = {
   name: "Nama: A-Z",
 }
 
-function sortItems(items: InventoryItem[], key: SortKey): InventoryItem[] {
+function sortItems(items: ApiProduct[], key: SortKey): ApiProduct[] {
   switch (key) {
     case "newest":
-      return [...items].sort((a, b) => b.id - a.id)
+      return [...items].sort(
+        (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
+      )
     case "price-asc":
-      return [...items].sort((a, b) => a.price - b.price)
+      return [...items].sort((a, b) => a.harga - b.harga)
     case "price-desc":
-      return [...items].sort((a, b) => b.price - a.price)
+      return [...items].sort((a, b) => b.harga - a.harga)
     case "name":
-      return [...items].sort((a, b) => a.name.localeCompare(b.name))
+      return [...items].sort((a, b) => a.nama_produk.localeCompare(b.nama_produk))
   }
 }
 
 export default function InventoryPage() {
-  const items = useInventoryStore((s) => s.items)
+  const { data } = useProducts({ limit: 100 })
+  const items = data?.items ?? []
   const [sort, setSort] = useState<SortKey>("newest")
   const [page, setPage] = useState(1)
 
@@ -81,69 +85,73 @@ export default function InventoryPage() {
         </select>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {pageItems.map((item) => (
-          <InventoryCard key={item.id} item={item} />
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
+          Belum ada produk. Klik &quot;Tambah Produk&quot; untuk mulai berjualan.
+        </p>
+      ) : (
+        <>
+          {/* Grid */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {pageItems.map((item) => (
+              <InventoryCard key={item.product_id} item={item} />
+            ))}
+          </div>
 
-      {/* Pagination */}
-      {pages > 1 ? (
-        <div className="mt-12 flex items-center justify-center gap-2">
-          <button
-            type="button"
-            aria-label="Halaman sebelumnya"
-            onClick={() => paginate(page - 1)}
-            disabled={page === 1}
-            className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
-          >
-            <ChevronLeft className="size-4" aria-hidden />
-          </button>
-          {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPage(p)}
-              className={[
-                "size-10 border border-primary text-xs font-bold tracking-widest transition-colors hover:bg-primary hover:text-white",
-                p === page ? "bg-primary text-white" : "text-primary",
-              ].join(" ")}
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            type="button"
-            aria-label="Halaman berikutnya"
-            onClick={() => paginate(page + 1)}
-            disabled={page === pages}
-            className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
-          >
-            <ChevronRight className="size-4" aria-hidden />
-          </button>
-        </div>
-      ) : null}
+          {/* Pagination */}
+          {pages > 1 ? (
+            <div className="mt-12 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                aria-label="Halaman sebelumnya"
+                onClick={() => paginate(page - 1)}
+                disabled={page === 1}
+                className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ChevronLeft className="size-4" aria-hidden />
+              </button>
+              {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPage(p)}
+                  className={[
+                    "size-10 border border-primary text-xs font-bold tracking-widest transition-colors hover:bg-primary hover:text-white",
+                    p === page ? "bg-primary text-white" : "text-primary",
+                  ].join(" ")}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                type="button"
+                aria-label="Halaman berikutnya"
+                onClick={() => paginate(page + 1)}
+                disabled={page === pages}
+                className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ChevronRight className="size-4" aria-hidden />
+              </button>
+            </div>
+          ) : null}
+        </>
+      )}
     </div>
   )
 }
 
-function InventoryCard({ item }: { item: InventoryItem }) {
+function InventoryCard({ item }: { item: ApiProduct }) {
+  const image = item.images?.[0]?.image_url || item.image_url || PLACEHOLDER_IMAGE
   return (
     <article className="group relative flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000]">
-      {item.trend ? (
-        <span className="absolute top-2 left-2 z-10 border border-primary bg-[#ff6b00] px-2 py-1 text-[10px] font-bold tracking-widest text-white uppercase shadow-[2px_2px_0px_0px_#000]">
-          Trending
-        </span>
-      ) : null}
       <span className="absolute top-2 right-2 z-10 border border-primary bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest text-primary uppercase shadow-[2px_2px_0px_0px_#000]">
-        {item.condition}
+        {item.kondisi}
       </span>
 
       <div className="flex aspect-square items-center justify-center overflow-hidden border-b border-primary bg-surface-container-low p-4">
         <img
-          src={item.image}
-          alt={item.alt}
+          src={image}
+          alt={item.nama_produk}
           loading="lazy"
           className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
         />
@@ -151,11 +159,10 @@ function InventoryCard({ item }: { item: InventoryItem }) {
 
       <div className="flex grow flex-col p-4">
         <h3 className="line-clamp-1 font-heading text-xl leading-6 font-semibold text-primary uppercase">
-          {item.name}
+          {item.nama_produk}
         </h3>
         <p className="mt-1 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          {item.brand}
-          {item.colorway ? ` • ${item.colorway}` : ""}
+          {item.seller?.nama_toko ?? "SneakHub"}
         </p>
         <div className="mt-auto flex items-end justify-between border-t border-outline-variant pt-3">
           <div>
@@ -163,11 +170,11 @@ function InventoryCard({ item }: { item: InventoryItem }) {
               Harga
             </span>
             <span className="font-heading text-2xl leading-7 font-black text-primary">
-              {formatRp(item.price)}
+              {formatRp(item.harga)}
             </span>
           </div>
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            Stok {item.stock} • {item.size}
+            Stok {item.stok} • {item.ukuran_tersedia.join(", ") || "-"}
           </span>
         </div>
       </div>

@@ -15,7 +15,8 @@ import { ProductCard } from "@/components/product-card"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { bestSellers, personalizedProducts, trendingProducts } from "@/lib/products"
+import { toCard } from "@/lib/api"
+import { useProducts } from "@/lib/hooks"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -25,6 +26,11 @@ const fadeUp = {
 }
 
 export default function HomePage() {
+  const { data } = useProducts({ limit: 12, sort: "terbaru" })
+  const all = data?.items.map(toCard) ?? []
+  const trending = all.slice(0, 8)
+  const bestSellers = all.slice(0, 4)
+  const personalized = all.slice(0, 3)
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
       <SiteHeader />
@@ -88,7 +94,7 @@ export default function HomePage() {
             </Link>
           </motion.div>
           <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8 snap-x snap-mandatory [mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)] md:-mx-10 md:px-10">
-            {trendingProducts.map((product, i) => (
+            {trending.map((product, i) => (
               <ProductCard key={product.id} product={product} index={i} />
             ))}
           </div>
@@ -277,7 +283,7 @@ export default function HomePage() {
             </span>
           </motion.div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {personalizedProducts.map((product, i) => (
+            {personalized.map((product, i) => (
               <motion.div
                 key={product.id}
                 {...fadeUp}
@@ -298,7 +304,7 @@ export default function HomePage() {
                       {product.brand}
                     </span>
                     <span className="border border-on-tertiary-container/30 bg-on-tertiary-container/10 px-1 text-[10px] font-bold text-on-tertiary-container">
-                      {product.match} Match
+                      {product.badge}
                     </span>
                   </div>
                   <h4 className="font-heading mb-2 text-base leading-5 font-semibold text-primary">

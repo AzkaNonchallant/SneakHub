@@ -6,17 +6,24 @@ import { motion } from "motion/react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
-import { useCartStore, type CartLine } from "@/lib/cart-store"
+import { formatRp, PLACEHOLDER_IMAGE, type ApiCartItem } from "@/lib/api"
+import { useCart, useDeleteCartItem, useUpdateCartItem } from "@/lib/hooks"
 
 function CartItemRow({
   item,
   onChange,
   onRemove,
 }: {
-  item: CartLine
+  item: ApiCartItem
   onChange: (qty: number) => void
   onRemove: () => void
 }) {
+  const product = item.product
+  const name = product?.nama_produk ?? "Produk"
+  const image = product?.images?.[0]?.image_url || product?.image_url || PLACEHOLDER_IMAGE
+  const price = product?.harga ?? item.harga ?? 0
+  const size = product?.ukuran_tersedia?.[0] ?? "-"
+
   return (
     <motion.article
       layout
@@ -28,8 +35,8 @@ function CartItemRow({
     >
       <div className="relative flex aspect-square w-full items-center justify-center border-b border-outline bg-surface-container-low p-4 sm:aspect-auto sm:w-48 sm:border-r sm:border-b-0">
         <img
-          src={item.image}
-          alt={item.alt}
+          src={image}
+          alt={name}
           className="h-full w-full object-cover mix-blend-multiply"
         />
       </div>
@@ -38,17 +45,17 @@ function CartItemRow({
           <div className="mb-2 flex items-start justify-between">
             <div>
               <h3 className="font-heading text-2xl leading-7 font-semibold tracking-tight text-primary uppercase">
-                <Link href={`/product/${item.id}`} className="hover:underline">
-                  {item.name}
+                <Link href={`/product/${item.product_id}`} className="hover:underline">
+                  {name}
                 </Link>
               </h3>
-              <p className="text-sm font-medium text-muted-foreground">{item.colorway}</p>
+              <p className="text-sm font-medium text-muted-foreground">{product?.kondisi ?? ""}</p>
             </div>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              aria-label={`Remove ${item.name}`}
+              aria-label={`Remove ${name}`}
               onClick={onRemove}
               className="rounded-none text-muted-foreground hover:text-error"
             >
@@ -56,24 +63,12 @@ function CartItemRow({
             </Button>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
-            <div
-              className={
-                item.condition === "NEW"
-                  ? "inline-flex items-center gap-2 border border-primary bg-primary px-3 py-1 text-white"
-                  : "inline-flex items-center gap-2 border border-outline bg-surface-container-highest px-3 py-1"
-              }
-            >
-              <span className="text-xs leading-4 font-bold tracking-[0.05em] uppercase">
-                Condition
-              </span>
-              <span className="font-heading text-[18px] font-semibold leading-7">{item.condition}</span>
-            </div>
             <div className="inline-flex items-center gap-2 border border-outline bg-surface-container-highest px-3 py-1">
               <span className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                Size
+                Ukuran
               </span>
               <span className="font-heading text-[18px] font-semibold leading-7 text-primary">
-                {item.size}
+                {size}
               </span>
             </div>
           </div>
@@ -83,23 +78,23 @@ function CartItemRow({
             <button
               type="button"
               aria-label="Decrease quantity"
-              onClick={() => onChange(Math.max(1, item.qty - 1))}
+              onClick={() => onChange(Math.max(1, item.jumlah - 1))}
               className="px-3 py-1 text-muted-foreground transition-colors hover:bg-surface-container-high hover:text-primary"
             >
               <Minus className="size-3.5" />
             </button>
-            <span className="border-x border-outline px-4 py-1 text-sm font-medium">{item.qty}</span>
+            <span className="border-x border-outline px-4 py-1 text-sm font-medium">{item.jumlah}</span>
             <button
               type="button"
               aria-label="Increase quantity"
-              onClick={() => onChange(item.qty + 1)}
+              onClick={() => onChange(item.jumlah + 1)}
               className="px-3 py-1 text-muted-foreground transition-colors hover:bg-surface-container-high hover:text-primary"
             >
               <Plus className="size-3.5" />
             </button>
           </div>
           <div className="font-heading text-2xl leading-7 font-semibold text-primary">
-            ${(item.price * item.qty).toFixed(2)}
+            {formatRp(price * item.jumlah)}
           </div>
         </div>
       </div>
@@ -108,11 +103,12 @@ function CartItemRow({
 }
 
 export default function CartPage() {
-  const items = useCartStore((s) => s.items)
-  const remove = useCartStore((s) => s.remove)
-  const setQty = useCartStore((s) => s.setQty)
+  const { data: cart } = useCart()
+  const updateItem = useUpdateCartItem()
+  const deleteItem = useDeleteCartItem()
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+  const items = cart?.items ?? []
+  const subtotal = cart?.total ?? 0
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -163,10 +159,10 @@ export default function CartPage() {
             <div className="flex flex-col gap-6 lg:col-span-8">
               {items.map((item) => (
                 <CartItemRow
-                  key={item.id}
+                  key={item.cart_item_id}
                   item={item}
-                  onChange={(qty) => setQty(item.id, qty)}
-                  onRemove={() => remove(item.id)}
+                  onChange={(qty) => updateItem.mutate({ id: item.cart_item_id, jumlah: qty })}
+                  onRemove={() => deleteItem.mutate(item.cart_item_id)}
                 />
               ))}
             </div>
@@ -179,14 +175,10 @@ export default function CartPage() {
                 <div className="flex flex-col gap-4 text-sm font-medium text-muted-foreground">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span className="font-bold text-primary">${subtotal.toFixed(2)}</span>
+                    <span className="font-bold text-primary">{formatRp(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-right">Calculated at next step</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax</span>
                     <span className="text-right">Calculated at next step</span>
                   </div>
                 </div>
@@ -195,10 +187,9 @@ export default function CartPage() {
                     Total
                   </span>
                   <span className="font-heading text-[32px] leading-none font-bold text-primary">
-                    ${subtotal.toFixed(2)}
+                    {formatRp(subtotal)}
                   </span>
                 </div>
-                {/* ponytail: checkout page exists — no payment backend yet */}
                 <Button
                   type="button"
                   nativeButton={false}

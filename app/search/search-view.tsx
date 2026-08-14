@@ -9,46 +9,63 @@ import { ProductCard } from "@/components/product-card"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import {
-  personalizedProducts,
-  searchProducts,
-  type Product,
-} from "@/lib/products"
+import { formatRp, toCard, type ProductCardData } from "@/lib/api"
+import { useProducts, useSearchByImage } from "@/lib/hooks"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
 
 type MatchPhase = "analyzing" | "done"
 
-type Match = { preview: string; phase: MatchPhase }
+type Match = { file: File; preview: string; phase: MatchPhase }
 
 export function SearchView({ initialQuery }: { initialQuery: string }) {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [match, setMatch] = useState<Match | null>(() => {
-    // ponytail: photo handed over from the header camera menu; real recognition later
+    // ponytail: photo handed over from the header camera menu
     const photo = useVisualSearchStore.getState().file
     if (!photo || !photo.type.startsWith("image/")) return null
     useVisualSearchStore.getState().clear()
-    return { preview: URL.createObjectURL(photo), phase: "analyzing" }
+    return { file: photo, preview: URL.createObjectURL(photo), phase: "analyzing" }
   })
   const cameraRef = useRef<HTMLInputElement>(null)
 
+  const searchByImage = useSearchByImage()
+  const [matchResults, setMatchResults] = useState<ProductCardData[]>([])
+  const [visualError, setVisualError] = useState("")
+
   useEffect(() => {
     if (match?.phase !== "analyzing") return
-    const t = setTimeout(() => setMatch((m) => (m ? { ...m, phase: "done" } : m)), 1400)
+    const t = setTimeout(async () => {
+      if (!match) return
+      setMatch((m) => (m ? { ...m, phase: "done" } : m))
+      const fd = new FormData()
+      fd.append("gambar", match.file)
+      fd.append("limit", "10")
+      try {
+        const data = await searchByImage.mutateAsync(fd)
+        setMatchResults(data.items.map(toCard))
+      } catch {
+        setVisualError("Gambar tidak dikenali, coba foto lain.")
+      }
+    }, 1400)
     return () => clearTimeout(t)
-  }, [match?.phase])
+  }, [match?.phase, match, searchByImage])
 
   const applyFile = (file: File) => {
     if (!file.type.startsWith("image/")) return
+    setMatchResults([])
+    setVisualError("")
     setMatch((old) => {
       if (old) URL.revokeObjectURL(old.preview)
-      return { preview: URL.createObjectURL(file), phase: "analyzing" }
+      return { file, preview: URL.createObjectURL(file), phase: "analyzing" }
     })
   }
 
   const clearMatch = () =>
     setMatch((old) => {
       if (old) URL.revokeObjectURL(old.preview)
+      setMatchResults([])
+      setVisualError("")
       return null
     })
 
@@ -58,8 +75,9 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
     onDropAccepted: ([file]) => applyFile(file),
   })
 
-  const results = searchProducts(query)
   const hasQuery = query.trim().length > 0
+  const { data: searchData } = useProducts({ search: hasQuery ? query : undefined, limit: 20 })
+  const results = searchData?.items.map(toCard) ?? []
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -231,9 +249,19 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
 
           {match?.phase === "done" ? (
             <div className="mt-8 space-y-3">
-              {personalizedProducts.map((product, i) => (
-                <MatchRow key={product.id} product={product} rank={i + 1} />
-              ))}
+              {visualError ? (
+                <p className="border border-error bg-error/10 p-4 text-sm font-bold text-error">
+                  {visualError}
+                </p>
+              ) : matchResults.length > 0 ? (
+                matchResults.map((product, i) => (
+                  <MatchRow key={product.id} product={product} rank={i + 1} />
+                ))
+              ) : searchByImage.isPending ? (
+                <p className="p-4 text-sm text-muted-foreground">Mencari produk serupa…</p>
+              ) : (
+                <p className="p-4 text-sm text-muted-foreground">Tidak ada produk serupa ditemukan.</p>
+              )}
             </div>
           ) : null}
         </div>
@@ -283,7 +311,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-3">
-                {personalizedProducts.map((product, i) => (
+                {results.slice(0, 9).map((product, i) => (
                   <ProductCard
                     key={product.id}
                     product={product}
@@ -302,7 +330,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   )
 }
 
-function MatchRow({ product, rank }: { product: Product; rank: number }) {
+function MatchRow({ product, rank }: { product: ProductCardData; rank: number }) {
   return (
     <div className="flex items-center gap-4 border border-primary bg-white p-4">
       <span className="font-heading w-10 text-2xl leading-7 font-black text-outline opacity-40">
@@ -321,10 +349,10 @@ function MatchRow({ product, rank }: { product: Product; rank: number }) {
         <h3 className="font-heading text-xl leading-6 font-semibold text-primary">
           {product.name}
         </h3>
-        <span className="font-heading text-sm font-bold text-primary">{product.price}</span>
+        <span className="font-heading text-sm font-bold text-primary">{formatRp(product.harga)}</span>
       </div>
       <span className="border border-on-tertiary-container bg-on-tertiary-container/10 px-2 py-1 text-xs leading-4 font-bold text-on-tertiary-container">
-        {product.match} Match
+        {product.kondisi}
       </span>
     </div>
   )

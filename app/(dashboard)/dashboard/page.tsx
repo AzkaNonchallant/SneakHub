@@ -1,58 +1,23 @@
-import { ArrowUpRight, Minus, Package, Plus, ShieldCheck, ShoppingBag, Star, Wallet } from "lucide-react"
+"use client"
 
+import { useMemo } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { ArrowUpRight, LogOut, Minus, Package, ShieldCheck, ShoppingBag, Star, Wallet } from "lucide-react"
+
+import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { formatRp } from "@/lib/api"
+import { useOrders, useProducts } from "@/lib/hooks"
 
-// ---- Data contoh — ganti dengan data asli dari API/DB kamu ----
-const stats = [
-  {
-    icon: Wallet,
-    trend: "up" as const,
-    value: "Rp284.750.000",
-    label: "Total Penjualan",
-  },
-  {
-    icon: Package,
-    trend: "up" as const,
-    value: "312",
-    label: "Total Pesanan",
-  },
-  {
-    icon: ShoppingBag,
-    trend: "flat" as const,
-    value: "24",
-    label: "Produk Aktif",
-  },
-  {
-    icon: Star,
-    trend: "up" as const,
-    value: "4.8",
-    valueSuffix: "★",
-    label: "Rating Rata-rata",
-  },
-  {
-    icon: ShieldCheck,
-    trend: "up" as const,
-    value: "94/100",
-    label: "Trust Score",
-  },
-]
-
-const monthlySales = [
-  { month: "Mar", value: 42 },
-  { month: "Apr", value: 58 },
-  { month: "Mei", value: 71 },
-  { month: "Jun", value: 65 },
-  { month: "Jul", value: 89 },
-  { month: "Agu", value: 76, isCurrent: true },
-]
-
-const trustBreakdown = [
-  { label: "Rating", value: "4.8", suffix: "★" },
-  { label: "Order Completion", value: "98%" },
-  { label: "Response Rate", value: "96%" },
-  { label: "Cancellation Rate", value: "2%", tone: "warning" as const },
-]
+const statusLabel: Record<string, string> = {
+  pending: "Pending",
+  diproses: "Diproses",
+  dikirim: "Dikirim",
+  selesai: "Selesai",
+  dibatalkan: "Dibatalkan",
+}
 
 function SectionTitle({
   eyebrow,
@@ -74,6 +39,69 @@ function SectionTitle({
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const { data: ordersData } = useOrders({ limit: 100 })
+  const { data: productsData } = useProducts({ limit: 100 })
+  const orders = ordersData?.items ?? []
+  const products = productsData?.items ?? []
+
+  // ponytail: statistik yang nggak ada endpoint-nya ditampilkan "-" biar nggak bohong
+  const stats = [
+    {
+      icon: Wallet,
+      trend: "up" as const,
+      value: formatRp(orders.reduce((sum, o) => sum + (o.total ?? 0), 0)),
+      label: "Total Penjualan",
+    },
+    {
+      icon: Package,
+      trend: "up" as const,
+      value: String(orders.length),
+      label: "Total Pesanan",
+    },
+    {
+      icon: ShoppingBag,
+      trend: "flat" as const,
+      value: String(products.filter((p) => p.status_publikasi === "AKTIF").length),
+      label: "Produk Aktif",
+    },
+    {
+      icon: Star,
+      trend: "flat" as const,
+      value: "-",
+      valueSuffix: "★",
+      label: "Rating Rata-rata",
+    },
+    {
+      icon: ShieldCheck,
+      trend: "flat" as const,
+      value: "-",
+      label: "Trust Score",
+    },
+  ]
+
+  const monthlySales = useMemo(
+    // ponytail: agregasi order per bulan, kosong kalau belum ada data
+    () => {
+      const byMonth = new Map<string, number>()
+      for (const o of orders) {
+        if (!o.created_at) continue
+        const key = new Date(o.created_at).toLocaleString("id-ID", { month: "short" })
+        byMonth.set(key, (byMonth.get(key) ?? 0) + (o.total ?? 0))
+      }
+      const max = Math.max(0, ...byMonth.values())
+      return Array.from(byMonth.entries()).map(([month, value], i) => ({
+        month,
+        value: max > 0 ? Math.round((value / max) * 100) : 0,
+        isCurrent: i === byMonth.size - 1,
+      }))
+    },
+    [orders],
+  )
+
+  const recentOrders = orders.slice(0, 5)
+  const topProducts = products.slice(0, 5)
+
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
       {/* Header */}
@@ -86,12 +114,18 @@ export default function DashboardPage() {
             Dashboard
           </h1>
         </div>
-        <Button
-          size="lg"
-          className="h-auto rounded-none border border-primary bg-primary px-6 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
-        >
-          <Plus className="size-4" /> Tambah Produk
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/home")}
+            className="gap-2 rounded-none"
+          >
+            <LogOut className="size-4" />
+            Keluar
+          </Button>
+          <TambahProdukButton />
+        </div>
       </div>
 
       {/* Stat cards */}
@@ -99,7 +133,7 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-className="border border-outline-variant bg-surface-container-lowest p-5 sm:p-6"
+            className="border border-outline-variant bg-surface-container-lowest p-5 sm:p-6"
           >
             <div className="flex items-center justify-between">
               <div className="flex size-11 items-center justify-center border border-outline-variant bg-surface-container-low">
@@ -124,80 +158,103 @@ className="border border-outline-variant bg-surface-container-lowest p-5 sm:p-6"
         ))}
       </div>
 
-      {/* Chart + Trust score */}
+      {/* Chart */}
       <div className="mb-8 grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
-        {/* Penjualan Bulanan */}
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
-          <SectionTitle eyebrow="Sales Analytics" title="Penjualan Bulanan" />
-          <MonthlySalesChart data={monthlySales} />
+          <SectionTitle eyebrow="Sales Analytics" title="Penjualan per Bulan" />
+          {monthlySales.length > 0 ? (
+            <MonthlySalesChart data={monthlySales} />
+          ) : (
+            <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+              Belum ada data penjualan.
+            </div>
+          )}
         </div>
 
-        {/* Seller Trust Score */}
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
-          <SectionTitle eyebrow="Reputation" title="Seller Trust Score" />
+          <SectionTitle eyebrow="Reputation" title="Trust Score" />
           <div className="mb-6 flex flex-wrap items-center gap-6">
-            <TrustGauge score={94} />
+            <TrustGauge score={0} />
             <div>
-              <div className="font-heading text-3xl leading-9 font-black text-primary">94/100</div>
-              <div className="mt-0.5 text-base font-bold text-[#10B981]">Seller Terpercaya</div>
+              <div className="font-heading text-3xl leading-9 font-black text-primary">-</div>
+              <div className="mt-0.5 text-base font-bold text-muted-foreground">
+                Belum ada penilaian
+              </div>
             </div>
           </div>
-          <dl className="divide-y divide-outline-variant border-t border-outline-variant">
-            {trustBreakdown.map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center justify-between py-3.5"
-              >
-                <dt className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                  {row.label}
-                </dt>
-                <dd
-                  className={[
-                    "font-heading text-base font-bold",
-                    row.tone === "warning" ? "text-error" : "text-primary",
-                  ].join(" ")}
-                >
-                  {row.value}
-                  {row.suffix ? <span className="ml-1 text-tertiary">{row.suffix}</span> : null}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
       </div>
 
-      {/* Pesanan Terbaru + Produk Terlaris */}
+      {/* Pesanan Terbaru + Produk */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
             <SectionTitle eyebrow="Activity" title="Pesanan Terbaru" className="mb-0" />
-            <a
-              href="#"
+            <Link
+              href="/profile"
               className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
             >
               Lihat semua <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
-            </a>
+            </Link>
           </div>
-          {/* TODO: list pesanan terbaru — ganti dengan data asli */}
-          <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
-            Belum ada data.
-          </div>
+          {recentOrders.length === 0 ? (
+            <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+              Belum ada data.
+            </div>
+          ) : (
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
+              {recentOrders.map((o) => (
+                <div key={o.order_id} className="flex items-center justify-between py-3">
+                  <div className="min-w-0">
+                    <div className="truncate font-heading text-sm font-bold text-primary">
+                      {o.items?.[0]?.nama_produk ?? "Pesanan"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {o.order_id.slice(0, 8).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="border border-outline bg-surface-container-low px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
+                      {statusLabel[o.status_order ?? ""] ?? o.status_order ?? "-"}
+                    </span>
+                    <span className="font-heading text-sm font-bold text-primary">
+                      {formatRp(o.total ?? 0)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-            <SectionTitle eyebrow="Top Products" title="Produk Terlaris" className="mb-0" />
-            <a
-              href="#"
+            <SectionTitle eyebrow="Top Products" title="Produk" className="mb-0" />
+            <Link
+              href="/inventory"
               className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
             >
               Kelola <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
-            </a>
+            </Link>
           </div>
-          {/* TODO: list produk terlaris — ganti dengan data asli */}
-          <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
-            Belum ada data.
-          </div>
+          {topProducts.length === 0 ? (
+            <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+              Belum ada data.
+            </div>
+          ) : (
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
+              {topProducts.map((p) => (
+                <div key={p.product_id} className="flex items-center justify-between py-3">
+                  <div className="truncate font-heading text-sm font-bold text-primary">
+                    {p.nama_produk}
+                  </div>
+                  <span className="text-xs font-bold text-muted-foreground uppercase">
+                    Stok {p.stok}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -209,13 +266,13 @@ function MonthlySalesChart({
 }: {
   data: { month: string; value: number; isCurrent?: boolean }[]
 }) {
-  const max = Math.max(...data.map((d) => d.value))
+  const max = Math.max(...data.map((d) => d.value), 1)
 
   return (
     <div className="flex h-40 items-end justify-between gap-3">
       {data.map((d) => (
         <div key={d.month} className="flex flex-1 flex-col items-center gap-2">
-          <span className="text-xs font-bold text-primary">{d.value}</span>
+          <span className="text-xs font-bold text-primary">{d.value}%</span>
           <div
             className={[
               "w-full",
@@ -268,7 +325,7 @@ function TrustGauge({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center font-heading text-lg leading-6 font-black text-primary">
-        {score}
+        {score || "-"}
       </div>
     </div>
   )

@@ -1,23 +1,43 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, Lock, ShieldCheck } from "lucide-react"
+import { AlertCircle, Lock, ShieldCheck } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
-import { useCartStore } from "@/lib/cart-store"
-
-// ponytail: fixed fee + flat rate until there's a payment backend
-const AUTH_FEE = 15
-const TAX_RATE = 0.08
-
-const steps = ["Shipping Address", "Shipping Method", "Payment Details"]
+import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
+import { useAddresses, useCart, useCheckout } from "@/lib/hooks"
 
 export default function CheckoutPage() {
-  const items = useCartStore((s) => s.items)
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
-  const tax = subtotal * TAX_RATE
-  const total = subtotal + AUTH_FEE + tax
+  const { data: cart } = useCart()
+  const { data: addresses } = useAddresses()
+  const checkout = useCheckout()
+  const [addressId, setAddressId] = useState("")
+  const [method, setMethod] = useState("EWALLET")
+  const [error, setError] = useState("")
+
+  const items = cart?.items ?? []
+  const subtotal = cart?.total ?? 0
+  const chosenAddress = addresses?.find((a) => a.address_id === addressId) ?? addresses?.[0]
+
+  async function onCheckout() {
+    setError("")
+    if (!chosenAddress) {
+      setError("Pilih atau buat alamat pengiriman dulu.")
+      return
+    }
+    try {
+      const data = await checkout.mutateAsync({
+        address_id: chosenAddress.address_id,
+        metode_pembayaran: method,
+      })
+      // ponytail: mode mock/backend — payment_url diarahkan ke halaman bayar server
+      if (data.payment_url) window.location.href = data.payment_url
+    } catch (e) {
+      setError(errMessage(e))
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -48,7 +68,7 @@ export default function CheckoutPage() {
 
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
           <div className="w-full space-y-6 lg:w-2/3">
-            {/* Step 1: active form */}
+            {/* Step 1: Alamat */}
             <div className="relative border border-primary bg-surface-container-lowest p-6">
               <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
               <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -57,88 +77,91 @@ export default function CheckoutPage() {
                 </span>
                 Shipping Address
               </h2>
-              {/* ponytail: static form, no validation until there's a backend */}
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {["First Name", "Last Name"].map((label, i) => (
-                    <div key={label}>
-                      <label className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-on-surface-variant uppercase">
-                        {label}
-                      </label>
+              {addresses && addresses.length > 0 ? (
+                <div className="space-y-3">
+                  {addresses.map((a) => (
+                    <label
+                      key={a.address_id}
+                      className="flex cursor-pointer items-start gap-3 border border-outline bg-background p-4 transition-colors has-[:checked]:border-primary has-[:checked]:bg-surface-container-low"
+                    >
                       <input
-                        type="text"
-                        placeholder={["John", "Doe"][i]}
-                        className="w-full border border-outline bg-background p-3 font-sans text-base transition-colors outline-none placeholder:text-muted-foreground focus:border-t-outline focus:border-r-outline focus:border-b-2 focus:border-l-outline focus:border-b-on-tertiary-container"
+                        type="radio"
+                        name="address"
+                        checked={addressId === a.address_id || (!addressId && a === chosenAddress)}
+                        onChange={() => setAddressId(a.address_id)}
+                        className="mt-1 accent-primary"
                       />
-                    </div>
+                      <span>
+                        <span className="block font-heading text-base font-bold text-primary">
+                          {a.nama_penerima} • {a.nomor_telepon}
+                          {a.is_default ? (
+                            <span className="ml-2 border border-primary px-1 py-0.5 text-[10px] font-bold uppercase">
+                              Default
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {a.alamat}, {a.kota}, {a.provinsi} {a.kode_pos}
+                        </span>
+                      </span>
+                    </label>
                   ))}
                 </div>
-                <div>
-                  <label className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-on-surface-variant uppercase">
-                    Street Address
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="123 Sneaker St, Apt 4B"
-                    className="w-full border border-outline bg-background p-3 font-sans text-base transition-colors outline-none placeholder:text-muted-foreground focus:border-t-outline focus:border-r-outline focus:border-b-2 focus:border-l-outline focus:border-b-on-tertiary-container"
-                  />
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div className="md:col-span-2">
-                    <label className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-on-surface-variant uppercase">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="New York"
-                      className="w-full border border-outline bg-background p-3 font-sans text-base transition-colors outline-none placeholder:text-muted-foreground focus:border-t-outline focus:border-r-outline focus:border-b-2 focus:border-l-outline focus:border-b-on-tertiary-container"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-on-surface-variant uppercase">
-                      ZIP Code
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="10001"
-                      className="w-full border border-outline bg-background p-3 font-sans text-base transition-colors outline-none placeholder:text-muted-foreground focus:border-t-outline focus:border-r-outline focus:border-b-2 focus:border-l-outline focus:border-b-on-tertiary-container"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-on-surface-variant uppercase">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full border border-outline bg-background p-3 font-sans text-base transition-colors outline-none placeholder:text-muted-foreground focus:border-t-outline focus:border-r-outline focus:border-b-2 focus:border-l-outline focus:border-b-on-tertiary-container"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  className="mt-6 h-auto w-full rounded-none border border-primary bg-primary px-8 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary md:w-auto"
-                >
-                  Continue to Shipping
-                </Button>
-              </form>
+              ) : (
+                <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
+                  Belum ada alamat. Tambahkan alamat dari halaman profil dulu.
+                </p>
+              )}
             </div>
 
-            {/* Steps 2-3: collapsed (mockup state) */}
-            {steps.slice(1).map((step, i) => (
-              <div
-                key={step}
-                className="flex cursor-pointer items-center justify-between border border-outline bg-surface-container-lowest p-6 opacity-70 transition-colors hover:border-primary"
-              >
-                <h2 className="flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-on-surface-variant uppercase">
-                  <span className="flex size-8 items-center justify-center border border-outline text-xs leading-4 font-bold text-on-surface-variant">
-                    0{i + 2}
-                  </span>
-                  {step}
-                </h2>
-                <ChevronDown className="size-5 text-on-surface-variant" />
+            {/* Step 2: Metode pembayaran */}
+            <div className="relative border border-primary bg-surface-container-lowest p-6">
+              <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
+              <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                <span className="flex size-8 items-center justify-center bg-primary text-xs leading-4 font-bold text-white">
+                  02
+                </span>
+                Payment Details
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {[
+                  { value: "EWALLET", label: "E-Wallet (QRIS)" },
+                  { value: "BANK_TRANSFER", label: "Bank Transfer / VA" },
+                ].map((m) => (
+                  <label
+                    key={m.value}
+                    className="flex cursor-pointer items-center gap-3 border border-outline bg-background p-4 transition-colors has-[:checked]:border-primary has-[:checked]:bg-surface-container-low"
+                  >
+                    <input
+                      type="radio"
+                      name="method"
+                      value={m.value}
+                      checked={method === m.value}
+                      onChange={() => setMethod(m.value)}
+                      className="accent-primary"
+                    />
+                    <span className="font-heading text-sm font-bold text-primary uppercase">
+                      {m.label}
+                    </span>
+                  </label>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {error ? (
+              <p className="flex items-center gap-2 bg-error/10 px-3 py-2 text-xs font-bold text-error">
+                <AlertCircle className="size-4 shrink-0" /> {error}
+              </p>
+            ) : null}
+
+            <Button
+              type="button"
+              onClick={onCheckout}
+              disabled={checkout.isPending || items.length === 0}
+              className="mt-6 h-auto w-full rounded-none border border-primary bg-primary px-8 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary md:w-auto"
+            >
+              {checkout.isPending ? "Memproses…" : "Bayar Sekarang"}
+            </Button>
           </div>
 
           <div className="w-full lg:w-1/3">
@@ -161,50 +184,38 @@ export default function CheckoutPage() {
               ) : (
                 <>
                   <div className="mb-6 space-y-4">
-                    {items.map((item) => (
-                      <div key={item.id} className="flex gap-4">
-                        <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
-                          <img
-                            src={item.image}
-                            alt={item.alt}
-                            className="h-full w-full object-cover"
-                          />
-                          <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                            {item.qty}
-                          </span>
-                        </div>
-                        <div className="flex grow flex-col justify-between">
-                          <div>
-                            <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                              {item.name}
-                            </p>
-                            <p className="font-mono text-sm font-medium text-on-surface-variant">
-                              Size: {item.size}
+                    {items.map((item) => {
+                      const p = item.product
+                      return (
+                        <div key={item.cart_item_id} className="flex gap-4">
+                          <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
+                            <img
+                              src={p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE}
+                              alt={p?.nama_produk ?? "Produk"}
+                              className="h-full w-full object-cover"
+                            />
+                            <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                              {item.jumlah}
+                            </span>
+                          </div>
+                          <div className="flex grow flex-col justify-between">
+                            <div>
+                              <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
+                                {p?.nama_produk ?? "Produk"}
+                              </p>
+                            </div>
+                            <p className="font-heading text-2xl leading-7 font-semibold text-primary">
+                              {formatRp((p?.harga ?? 0) * item.jumlah)}
                             </p>
                           </div>
-                          <p className="font-heading text-2xl leading-7 font-semibold text-primary">
-                            ${(item.price * item.qty).toFixed(2)}
-                          </p>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                   <div className="mb-6 space-y-3 border-t border-outline pt-4 text-base leading-6 text-on-surface-variant">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>${subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shipping (Calculated next step)</span>
-                      <span>--</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Authentication Fee</span>
-                      <span>${AUTH_FEE.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Tax</span>
-                      <span>${tax.toFixed(2)}</span>
+                      <span>{formatRp(subtotal)}</span>
                     </div>
                   </div>
                   <div className="mb-6 flex items-end justify-between border-t border-primary pt-4">
@@ -212,7 +223,7 @@ export default function CheckoutPage() {
                       Total
                     </span>
                     <span className="font-heading text-[36px] leading-9 font-bold text-primary">
-                      ${total.toFixed(2)}
+                      {formatRp(subtotal)}
                     </span>
                   </div>
                   <div className="flex items-start gap-3 border border-outline bg-surface p-4">

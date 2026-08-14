@@ -6,47 +6,34 @@ import { BadgeCheck } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import {
-  bestSellers,
-  parsePrice,
-  personalizedProducts,
-  trendingProducts,
-  type Product,
-} from "@/lib/products"
+import { formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
+import { useProducts } from "@/lib/hooks"
 
-const catalog: Product[] = [...trendingProducts, ...bestSellers, ...personalizedProducts]
-const MIN_PRICE = 100
-const MAX_PRICE = 1150
+// ponytail: skor match/delta masih disintesis dari condition_score & harga —
+// API nggak punya data valuation per produk
+const matchScore = (p: ApiProduct) => Math.min(99, Math.max(70, Math.round((p.condition_score ?? 8) * 10) + (p.harga % 7)))
+const valuationDelta = (p: ApiProduct) => (((p.harga / 1000) % 24) - 6)
+const authConfidence = (p: ApiProduct) => 99 - (p.harga % 3)
 
-// ponytail: no per-product purpose/size data yet; synthesized match scores
-const matchScore = (id: number) => 84 + ((id * 7) % 15)
-const valuationDelta = (id: number) => ((id * 13) % 24) - 3
-const authConfidence = (id: number) => 99 - (id % 3)
-
-const brands = ["Nike", "Adidas", "Jordan", "New Balance"]
-const conditions = ["Brand New", "Refurbished", "Used - Excellent", "9.0+ (Near Mint)", "8.0+ (Very Good)"]
-const purposes = ["Daily", "Sports", "Collection"]
-
-const conditionOf = (p: Product) =>
-  p.badge === "New" ? "DS (Brand New)" : (p.badge ?? "Used - Excellent")
-
-const matchesCondition = (c: string, p: Product): boolean => {
-  const badge = p.badge ?? ""
-  if (c === "Brand New") return badge.includes("New")
-  if (c === "Refurbished") return badge.includes("Refurbished")
-  if (c === "Used - Excellent") return !badge
-  const score = Number(badge.match(/(\d+)\/100/)?.[1] ?? NaN) / 10
-  if (c === "9.0+ (Near Mint)") return score >= 9
-  if (c === "8.0+ (Very Good)") return score >= 8
-  return false
-}
+const conditions = ["new", "used"]
 
 export default function SmartFindPage() {
-  const [budget, setBudget] = useState<[number, number]>([MIN_PRICE, MAX_PRICE])
+  const { data } = useProducts({ limit: 50 })
+  const catalog = useMemo(() => data?.items ?? [], [data])
+
+  const maxPrice = useMemo(
+    () => Math.max(0, ...catalog.map((p) => p.harga)),
+    [catalog],
+  )
+  const brands = useMemo(
+    () => Array.from(new Set(catalog.map((p) => p.seller?.nama_toko ?? "SneakHub"))),
+    [catalog],
+  )
+
+  const [budget, setBudget] = useState<[number, number]>([0, maxPrice || 1])
   const [size, setSize] = useState("Any Size")
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedConditions, setSelectedConditions] = useState<string[]>([])
-  const [purpose, setPurpose] = useState("Sports")
   // ponytail: draft state so "Apply Filters" matches the mockup; filters are live either way
   const [applied, setApplied] = useState({ budget, brands: selectedBrands, conditions: selectedConditions })
   const [sort, setSort] = useState("Match Score")
@@ -56,19 +43,20 @@ export default function SmartFindPage() {
 
   const results = useMemo(() => {
     const list = catalog.filter((p) => {
-      const price = parsePrice(p.price)
-      if (price < applied.budget[0] || price > applied.budget[1]) return false
-      if (applied.brands.length > 0 && !applied.brands.includes(p.brand)) return false
-      if (applied.conditions.length > 0 && !applied.conditions.some((c) => matchesCondition(c, p)))
+      if (p.harga < applied.budget[0] || p.harga > applied.budget[1]) return false
+      if (applied.brands.length > 0 && !applied.brands.includes(p.seller?.nama_toko ?? "SneakHub"))
         return false
+      if (applied.conditions.length > 0 && !applied.conditions.includes(p.kondisi.toLowerCase()))
+        return false
+      if (size !== "Any Size" && !p.ukuran_tersedia.includes(size)) return false
       return true
     })
     return list.sort((a, b) => {
-      if (sort === "Price: Low to High") return parsePrice(a.price) - parsePrice(b.price)
-      if (sort === "Price: High to Low") return parsePrice(b.price) - parsePrice(a.price)
-      return matchScore(b.id) - matchScore(a.id)
+      if (sort === "Price: Low to High") return a.harga - b.harga
+      if (sort === "Price: High to Low") return b.harga - a.harga
+      return matchScore(b) - matchScore(a)
     })
-  }, [applied, sort])
+  }, [applied, sort, catalog, size])
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
@@ -96,17 +84,17 @@ export default function SmartFindPage() {
                 <div
                   className="absolute top-1/2 h-1 -translate-y-1/2 bg-primary"
                   style={{
-                    left: `${((budget[0] - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100}%`,
-                    right: `${100 - ((budget[1] - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100}%`,
+                    left: `${maxPrice ? (budget[0] / maxPrice) * 100 : 0}%`,
+                    right: `${100 - (maxPrice ? (budget[1] / maxPrice) * 100 : 100)}%`,
                   }}
                 />
                 {([0, 1] as const).map((i) => (
                   <input
                     key={i}
                     type="range"
-                    min={MIN_PRICE}
-                    max={MAX_PRICE}
-                    step={10}
+                    min={0}
+                    max={maxPrice || 1}
+                    step={Math.max(1, Math.round(maxPrice / 100))}
                     value={budget[i]}
                     aria-label={i === 0 ? "Minimum budget" : "Maximum budget"}
                     onChange={(e) =>
@@ -122,25 +110,29 @@ export default function SmartFindPage() {
                 ))}
               </div>
               <div className="flex justify-between text-sm leading-5 font-medium">
-                <span className="text-muted-foreground">${budget[0]}</span>
-                <span className="text-muted-foreground">${budget[1]}</span>
+                <span className="text-muted-foreground">{formatRp(budget[0])}</span>
+                <span className="text-muted-foreground">{formatRp(budget[1])}</span>
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Size (US)
+                Size
               </label>
-              {/* ponytail: decorative until products carry size data */}
-              <select
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                className="w-full border border-outline-variant bg-transparent p-2 text-base leading-6 focus:border-on-tertiary-container focus:ring-0"
-              >
-                {["Any Size", "8.0", "8.5", "9.0", "9.5", "10.0"].map((s) => (
-                  <option key={s}>{s}</option>
-                ))}
-              </select>
+              {(() => {
+                const allSizes = Array.from(new Set(catalog.flatMap((p) => p.ukuran_tersedia)))
+                return (
+                  <select
+                    value={size}
+                    onChange={(e) => setSize(e.target.value)}
+                    className="w-full border border-outline-variant bg-transparent p-2 text-base leading-6 focus:border-on-tertiary-container focus:ring-0"
+                  >
+                    {["Any Size", ...allSizes].map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
+                  </select>
+                )
+              })()}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -186,28 +178,6 @@ export default function SmartFindPage() {
                 ))}
               </div>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Purpose
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {purposes.map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPurpose(p)}
-                    className={
-                      purpose === p
-                        ? "border border-primary bg-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase"
-                        : "border border-outline-variant bg-surface-container px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
-                    }
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           <button
@@ -246,7 +216,7 @@ export default function SmartFindPage() {
           {results.length > 0 ? (
             <div className="grid grid-cols-1 gap-0 border-t border-l border-outline-variant sm:grid-cols-2 lg:grid-cols-3">
               {results.map((product) => (
-                <SmartFindCard key={product.id} product={product} />
+                <SmartFindCard key={product.product_id} product={product} />
               ))}
             </div>
           ) : (
@@ -259,17 +229,6 @@ export default function SmartFindPage() {
               </p>
             </div>
           )}
-
-          {results.length > 0 ? (
-            <div className="mt-4 flex justify-center">
-              <button
-                type="button"
-                className="border border-primary bg-transparent px-8 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase shadow-[4px_4px_0px_0px_#000] transition-all hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-primary hover:text-white hover:shadow-none"
-              >
-                Load More Results
-              </button>
-            </div>
-          ) : null}
         </section>
       </main>
 
@@ -278,13 +237,14 @@ export default function SmartFindPage() {
   )
 }
 
-function SmartFindCard({ product }: { product: Product }) {
-  const score = matchScore(product.id)
-  const delta = valuationDelta(product.id)
+function SmartFindCard({ product }: { product: ApiProduct }) {
+  const score = matchScore(product)
+  const delta = valuationDelta(product)
+  const image = product.images?.[0]?.image_url || product.image_url || PLACEHOLDER_IMAGE
 
   return (
     <article className="group relative overflow-hidden border-b border-r border-outline-variant bg-white transition-all duration-200 hover:shadow-[4px_4px_0px_0px_#000]">
-      <Link href={`/product/${product.id}`} className="flex h-full flex-col">
+      <Link href={`/product/${product.product_id}`} className="flex h-full flex-col">
         <div className="relative aspect-square overflow-hidden bg-surface-container-high">
           <div className="absolute top-2 right-2 z-10 border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase shadow-[4px_4px_0px_0px_#000]"
             style={{ background: "linear-gradient(135deg,#2b82f4 0%,#00458f 100%)" }}
@@ -292,11 +252,11 @@ function SmartFindCard({ product }: { product: Product }) {
             {score}% Match
           </div>
           <div className="absolute top-2 left-2 z-10 border border-outline bg-surface-container px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-            {conditionOf(product)}
+            {product.kondisi}
           </div>
           <img
-            src={product.image}
-            alt={product.alt}
+            src={image}
+            alt={product.nama_produk}
             loading="lazy"
             className="h-full w-full object-cover p-8 transition-transform duration-300 group-hover:scale-105"
           />
@@ -306,10 +266,10 @@ function SmartFindCard({ product }: { product: Product }) {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                {product.brand}
+                {product.seller?.nama_toko ?? "SneakHub"}
               </p>
               <h3 className="font-heading text-xl leading-6 font-semibold text-primary">
-                {product.name}
+                {product.nama_produk}
               </h3>
             </div>
           </div>
@@ -327,13 +287,13 @@ function SmartFindCard({ product }: { product: Product }) {
               <span className="text-[10px] leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
                 Auth. Confidence
               </span>
-              <span className="text-sm leading-5 font-bold">{authConfidence(product.id)}%</span>
+              <span className="text-sm leading-5 font-bold">{authConfidence(product)}%</span>
             </div>
           </div>
 
           <div className="mt-2 flex items-end justify-between">
             <p className="font-heading text-3xl leading-8 font-bold tracking-tighter text-primary">
-              {product.price}
+              {formatRp(product.harga)}
             </p>
             <span className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
               <BadgeCheck className="size-4" />

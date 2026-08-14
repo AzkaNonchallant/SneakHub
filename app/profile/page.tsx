@@ -1,24 +1,12 @@
-import {
-  BadgeCheck,
-  Bell,
-  Heart,
-  Lock,
-  MapPin,
-  Package,
-  Settings,
-  Star,
-} from "lucide-react"
+"use client"
+
+import { BadgeCheck, Bell, Heart, Lock, MapPin, Package, Settings, Star } from "lucide-react"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-
-// ponytail: static seed until there's a backend
-const user = {
-  initial: "A",
-  name: "Andi Pratama",
-  email: "andi@email.com",
-}
+import { formatRp, isSellerRole } from "@/lib/api"
+import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
 
 const menuItems = [
   { label: "Pesanan Saya", href: "#", icon: Package, active: true },
@@ -30,51 +18,23 @@ const menuItems = [
   { label: "Alamat Saya", href: "#", icon: MapPin },
 ]
 
-// ponytail: static seed until there's a backend
-const orders = [
-  {
-    id: "ORD-2024-001",
-    status: "Dikirim",
-    statusClass: "bg-surface-container border-outline text-primary",
-    name: "Nike Air Force 1 Low",
-    size: "Ukuran 42",
-    date: "8 Agu 2026",
-    price: "Rp1.200.000",
-    canReview: false,
-  },
-  {
-    id: "ORD-2024-002",
-    status: "Selesai",
-    statusClass: "bg-surface-container border-outline text-primary",
-    name: "Adidas Forum Low",
-    size: "Ukuran 39",
-    date: "7 Agu 2026",
-    price: "Rp850.000",
-    canReview: true,
-  },
-  {
-    id: "ORD-2024-003",
-    status: "Diproses",
-    statusClass: "bg-primary border-primary text-white",
-    name: "Nike Dunk Low Panda",
-    size: "Ukuran 43",
-    date: "6 Agu 2026",
-    price: "Rp1.650.000",
-    canReview: false,
-  },
-  {
-    id: "ORD-2024-004",
-    status: "Pending",
-    statusClass: "bg-surface-container border-outline text-primary",
-    name: "Nike Air Max 90",
-    size: "Ukuran 40",
-    date: "5 Agu 2026",
-    price: "Rp950.000",
-    canReview: false,
-  },
-]
+const statusLabel: Record<string, string> = {
+  pending: "Pending",
+  diproses: "Diproses",
+  dikirim: "Dikirim",
+  selesai: "Selesai",
+  dibatalkan: "Dibatalkan",
+}
 
 export default function ProfilePage() {
+  const { data: user } = useMe()
+  const { data: ordersData } = useOrders({ limit: 10 })
+  const activate = useSellerActivation()
+
+  const orders = ordersData?.items ?? []
+  const initial = user?.nama?.charAt(0).toUpperCase() ?? "S"
+  const isSeller = isSellerRole(user?.peran)
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
       <SiteHeader />
@@ -83,16 +43,31 @@ export default function ProfilePage() {
         <aside className="flex w-full shrink-0 flex-col gap-6 md:w-64">
           <div className="flex flex-col items-center border border-outline bg-surface-container-lowest p-6 text-center shadow-[4px_4px_0px_0px_#000]">
             <div className="mb-4 flex h-20 w-20 items-center justify-center bg-primary font-heading text-5xl leading-none font-bold text-white">
-              {user.initial}
+              {initial}
             </div>
             <h2 className="font-heading text-2xl leading-7 font-semibold text-primary">
-              {user.name}
+              {user?.nama ?? "Pengguna"}
             </h2>
-            <p className="mb-4 text-base leading-6 text-muted-foreground">{user.email}</p>
+            <p className="mb-4 text-base leading-6 text-muted-foreground">{user?.email ?? ""}</p>
             <span className="inline-flex items-center gap-1 border border-outline bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
               <BadgeCheck className="size-4 text-on-tertiary-container" />
-              Terverifikasi
+              {user?.status_akun ?? "aktif"}
             </span>
+            {!isSeller ? (
+              <Button
+                type="button"
+                disabled={activate.isPending}
+                onClick={() =>
+                  activate.mutate({
+                    nama_toko: `${user?.nama ?? "Toko"} Store`,
+                    deskripsi_toko: "Toko resmi SneakHub.",
+                  })
+                }
+                className="mt-4 h-auto rounded-none border border-primary bg-primary px-4 py-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+              >
+                {activate.isPending ? "Mengaktifkan…" : "Jadi Seller"}
+              </Button>
+            ) : null}
           </div>
 
           <nav className="flex flex-col border border-outline bg-surface-container-low py-4 shadow-[4px_4px_0px_0px_#000]">
@@ -122,55 +97,51 @@ export default function ProfilePage() {
             Pesanan Saya
           </h1>
 
-          <div className="flex flex-col gap-4">
-            {orders.map((order) => (
-              <article
-                key={order.id}
-                className="flex flex-col items-start justify-between gap-4 border border-outline bg-surface-container-lowest p-6 transition-shadow hover:shadow-[4px_4px_0px_0px_#000] md:flex-row md:items-center"
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-medium text-muted-foreground">
-                      {order.id}
-                    </span>
-                    <span
-                      className={`border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${order.statusClass}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                  <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                    {order.name}
-                  </h3>
-                  <div className="flex gap-4 text-base leading-6 text-muted-foreground">
-                    <span>{order.size}</span>
-                    <span>{order.date}</span>
-                  </div>
-                </div>
-                <div className="flex w-full flex-col gap-3 md:w-auto md:items-end">
-                  <span className="font-heading text-2xl leading-7 font-black tracking-tight text-primary">
-                    {order.price}
-                  </span>
-                  <div className="flex w-full gap-2 md:w-auto">
-                    <Button
-                      type="button"
-                      className="h-auto flex-1 rounded-none border border-primary bg-primary px-6 py-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary md:flex-none"
-                    >
-                      Lacak
-                    </Button>
-                    {order.canReview && (
-                      <Button
-                        type="button"
-                        className="h-auto flex-1 rounded-none border border-outline bg-surface-container-lowest px-6 py-2 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:border-primary md:flex-none"
+          {orders.length === 0 ? (
+            <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
+              Belum ada pesanan.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {orders.map((order) => (
+                <article
+                  key={order.order_id}
+                  className="flex flex-col items-start justify-between gap-4 border border-outline bg-surface-container-lowest p-6 transition-shadow hover:shadow-[4px_4px_0px_0px_#000] md:flex-row md:items-center"
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-sm font-medium text-muted-foreground">
+                        {order.order_id.slice(0, 8).toUpperCase()}
+                      </span>
+                      <span
+                        className={`border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
+                          order.status_order === "diproses"
+                            ? "bg-primary border-primary text-white"
+                            : "bg-surface-container border-outline text-primary"
+                        }`}
                       >
-                        Ulas
-                      </Button>
-                    )}
+                        {statusLabel[order.status_order ?? ""] ?? order.status_order ?? "-"}
+                      </span>
+                    </div>
+                    <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                      {(order.items?.[0]?.nama_produk ?? "Pesanan") +
+                        (order.items && order.items.length > 1 ? ` +${order.items.length - 1}` : "")}
+                    </h3>
+                    <div className="flex gap-4 text-base leading-6 text-muted-foreground">
+                      <span>
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString("id-ID") : ""}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="flex w-full flex-col gap-3 md:w-auto md:items-end">
+                    <span className="font-heading text-2xl leading-7 font-black tracking-tight text-primary">
+                      {formatRp(order.total ?? 0)}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 

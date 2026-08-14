@@ -7,31 +7,34 @@ import { useDropzone } from "react-dropzone"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
-import { useInventoryStore } from "@/lib/inventory-store"
+import { errMessage } from "@/lib/api"
+import { useCreateProduct, useUploadProductImage } from "@/lib/hooks"
 
 const schema = z.object({
   name: z.string().trim().min(1, "Nama produk wajib diisi"),
-  brand: z.string().trim().min(1, "Brand wajib diisi"),
-  colorway: z.string().trim().optional(),
   price: z.coerce.number().positive("Harga harus lebih dari 0"),
-  size: z.string().trim().min(1, "Ukuran wajib diisi"),
+  sizes: z.string().trim().min(1, "Ukuran wajib diisi"),
   condition: z.string().trim().min(1, "Kondisi wajib diisi"),
   stock: z.coerce.number().int().nonnegative("Stok tidak boleh negatif"),
-  alt: z.string().trim().optional(),
+  description: z.string().trim().optional(),
 })
 
 export function TambahProdukButton() {
-  const add = useInventoryStore((s) => s.add)
+  const create = useCreateProduct()
+  const upload = useUploadProductImage()
   const [open, setOpen] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [image, setImage] = useState<string>("")
+  const [file, setFile] = useState<File | null>(null)
+  const [formError, setFormError] = useState("")
 
   const onDrop = useCallback((accepted: File[]) => {
-    const file = accepted[0]
-    if (!file) return
+    const f = accepted[0]
+    if (!f) return
+    setFile(f)
     const reader = new FileReader()
     reader.onload = () => setImage(reader.result as string)
-    reader.readAsDataURL(file) // ponytail: data URL until there's an upload API
+    reader.readAsDataURL(f)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -40,18 +43,17 @@ export function TambahProdukButton() {
     multiple: false,
   })
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setFormError("")
     const fd = new FormData(e.currentTarget)
     const parsed = schema.safeParse({
       name: fd.get("name"),
-      brand: fd.get("brand"),
-      colorway: fd.get("colorway"),
       price: fd.get("price"),
-      size: fd.get("size"),
+      sizes: fd.get("sizes"),
       condition: fd.get("condition"),
       stock: fd.get("stock"),
-      alt: fd.get("alt"),
+      description: fd.get("description"),
     })
     if (!parsed.success) {
       const next: Record<string, string> = {}
@@ -64,20 +66,30 @@ export function TambahProdukButton() {
       return
     }
     const v = parsed.data
-    add({
-      brand: v.brand,
-      name: v.name,
-      colorway: v.colorway ?? "",
-      price: v.price,
-      size: v.size,
-      condition: v.condition,
-      stock: v.stock,
-      alt: v.alt || `${v.brand} ${v.name}`,
-      image: image || fallbackImage(v.brand),
-    })
-    setImage("")
-    setErrors({})
-    setOpen(false)
+    try {
+      const product = await create.mutateAsync({
+        nama_produk: v.name,
+        kondisi: v.condition,
+        deskripsi: v.description ?? "",
+        harga: v.price,
+        stok: v.stock,
+        status_publikasi: "aktif",
+        ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
+        condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
+      })
+      if (file) {
+        const img = new FormData()
+        img.append("gambar", file)
+        img.append("urutan_tampil", "1")
+        await upload.mutateAsync({ productId: product.product_id, fd: img })
+      }
+      setImage("")
+      setFile(null)
+      setErrors({})
+      setOpen(false)
+    } catch (err) {
+      setFormError(errMessage(err))
+    }
   }
 
   return (
@@ -134,13 +146,11 @@ export function TambahProdukButton() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Nama Produk" name="name" placeholder="Jordan 1 Retro High" />
-              <Field label="Brand" name="brand" placeholder="Nike" />
-              <Field label="Colorway" name="colorway" placeholder="Lost & Found" />
               <Field label="Harga (Rp)" name="price" type="number" min={1} placeholder="4500000" />
-              <Field label="Ukuran" name="size" placeholder="US 10.5" />
-              <Field label="Kondisi" name="condition" placeholder="DS / 9.8/10" />
+              <Field label="Ukuran (pisahkan koma)" name="sizes" placeholder="40, 41, 42" />
+              <Field label="Kondisi" name="condition" placeholder="new / used / 9.5" />
               <Field label="Stok" name="stock" type="number" min={0} defaultValue="1" />
-              <Field label="Deskripsi Gambar (opsional)" name="alt" placeholder="Sepatu hitam putih merah" />
+              <Field label="Deskripsi (opsional)" name="description" placeholder="Sepatu original 100%" />
             </div>
 
             {Object.keys(errors).length > 0 ? (
@@ -151,6 +161,9 @@ export function TambahProdukButton() {
                   </li>
                 ))}
               </ul>
+            ) : null}
+            {formError ? (
+              <p className="mt-4 bg-error/10 px-3 py-2 text-xs font-bold text-error">{formError}</p>
             ) : null}
 
             <div className="mt-6 flex justify-end gap-3">
@@ -167,9 +180,10 @@ export function TambahProdukButton() {
               />
               <Button
                 type="submit"
+                disabled={create.isPending}
                 className="h-auto rounded-none border border-primary bg-primary px-5 py-2.5 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
               >
-                Simpan Produk
+                {create.isPending ? "Menyimpan…" : "Simpan Produk"}
               </Button>
             </div>
           </form>
@@ -213,13 +227,4 @@ function Field({
       />
     </div>
   )
-}
-
-const fallbackImages: Record<string, string> = {
-  Nike: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxPMOvyNzilLTPzxyNkFxzjqnuO0BI4PzH6RFS99H1H-g5ttiOyASk0hNpWZk9IYthePNWXwt58oMCS7I9WF22K2IJnVa4a4_5HFYxmzNUSNXuBzZdu7nWeL5_PpBu30PHbVHHhzhl7kq18l4thUBzndw3hTMGvKfvu1tuKdgSW0a2qx0c7mRbh3J7WoEcdNneDuinBdDGt41EKtW7tDx5roAQIyqwh_l0sBNQZlxtVa-zLg3gYw67",
-}
-
-// ponytail: placeholder image per brand when none uploaded — replace with a real upload API
-function fallbackImage(brand: string): string {
-  return fallbackImages[brand] ?? fallbackImages.Nike
 }

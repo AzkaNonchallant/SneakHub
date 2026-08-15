@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 import { AdminSidebar } from "@/components/admin-sidebar"
-import { SiteHeader } from "@/components/site-header"
 import { isAdminRole } from "@/lib/api"
 import { useMe } from "@/lib/hooks"
 
@@ -24,11 +23,11 @@ export default function AdminLayout({
   if (isLoading || !isAdminRole(me?.peran)) return null
 
   return (
-    <div className="flex h-screen bg-surface-container-low">
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <SiteHeader />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 flex-col md:flex-row">
+        <AdminSidebar />
+
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
       </div>
     </div>
   )

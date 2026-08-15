@@ -4,10 +4,12 @@ import Link from "next/link"
 import { Lock, Minus, Plus, ShieldCheck, X } from "lucide-react"
 import { motion } from "motion/react"
 
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { formatRp, PLACEHOLDER_IMAGE, type ApiCartItem } from "@/lib/api"
 import { useCart, useDeleteCartItem, useUpdateCartItem } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 function CartItemRow({
   item,
@@ -18,7 +20,8 @@ function CartItemRow({
   onChange: (qty: number) => void
   onRemove: () => void
 }) {
-  const name = item.nama_produk ?? "Produk"
+  const t = useT()
+  const name = item.nama_produk ?? t("Product")
   const image = item.image_url || PLACEHOLDER_IMAGE
   const price = item.harga ?? 0
   const size = "-"
@@ -66,7 +69,7 @@ function CartItemRow({
           <div className="mt-4 flex flex-wrap gap-3">
             <div className="inline-flex items-center gap-2 border border-outline bg-surface-container-highest px-3 py-1">
               <span className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                Ukuran
+                {t("Size")}
               </span>
               <span className="font-heading text-[18px] font-semibold leading-7 text-primary">
                 {size}
@@ -104,6 +107,7 @@ function CartItemRow({
 }
 
 export default function CartPage() {
+  const t = useT()
   const { data: cart } = useCart()
   const updateItem = useUpdateCartItem()
   const deleteItem = useDeleteCartItem()
@@ -113,6 +117,7 @@ export default function CartPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Cart" />
       {/* ponytail: transactional header — nav suppressed per mockup */}
       <header className="sticky top-0 z-50 w-full border-b border-outline bg-background">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-4 md:px-10">
@@ -120,10 +125,10 @@ export default function CartPage() {
             href="/home"
             className="font-heading text-4xl leading-10 font-bold tracking-tighter text-primary uppercase md:text-5xl md:leading-[48px]"
           >
-            Sneakhub
+            SNEAKHUB
           </Link>
           <span className="inline-flex items-center gap-2 text-xs leading-4 font-bold tracking-widest text-muted-foreground uppercase">
-            <Lock className="size-4" /> Secure Checkout
+            <Lock className="size-4" /> {t("Secure Checkout")}
           </span>
         </div>
       </header>
@@ -136,23 +141,23 @@ export default function CartPage() {
           className="mb-8"
         >
           <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
-            Cart
+            {t("Cart")}
           </h1>
           <p className="mt-2 text-lg leading-7 text-muted-foreground">
-            {items.length} {items.length === 1 ? "Item" : "Items"} in your cart.
+            {items.length} {items.length === 1 ? t("Item") : t("Items")} {t("in your cart.")}
           </p>
         </motion.div>
 
         {items.length === 0 ? (
           <div className="border border-outline bg-surface-container-lowest p-16 text-center">
             <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-              Your cart is empty
+              {t("Your cart is empty")}
             </p>
             <Link
               href="/home"
               className="mt-4 inline-block border-b-2 border-primary pb-1 font-heading text-xs font-bold tracking-widest text-primary uppercase hover:border-ring hover:text-ring"
             >
-              Back to Shop
+              {t("Back to Shop")}
             </Link>
           </div>
         ) : (
@@ -171,21 +176,21 @@ export default function CartPage() {
             <div className="lg:sticky lg:top-[100px] lg:col-span-4">
               <div className="relative flex flex-col gap-6 border border-outline bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
                 <h2 className="border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  Order Summary
+                  {t("Order Summary")}
                 </h2>
                 <div className="flex flex-col gap-4 text-sm font-medium text-muted-foreground">
                   <div className="flex justify-between">
-                    <span>Subtotal</span>
+                    <span>{t("Subtotal")}</span>
                     <span className="font-bold text-primary">{formatRp(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span className="text-right">Calculated at next step</span>
+                    <span>{t("Shipping")}</span>
+                    <span className="text-right">{t("Calculated at next step")}</span>
                   </div>
                 </div>
                 <div className="flex items-end justify-between border-t border-outline pt-4">
                   <span className="font-heading text-[18px] font-semibold text-primary uppercase">
-                    Total
+                    {t("Total")}
                   </span>
                   <span className="font-heading text-[32px] leading-none font-bold text-primary">
                     {formatRp(subtotal)}
@@ -197,7 +202,7 @@ export default function CartPage() {
                   render={<Link href="/checkout" />}
                   className="mt-2 h-auto rounded-none border border-primary bg-primary py-4 text-xs leading-4 font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary"
                 >
-                  Checkout
+                  {t("Checkout")}
                 </Button>
                 <div className="mt-4 flex items-start gap-3 border border-outline bg-surface-container-low p-4">
                   <ShieldCheck
@@ -206,10 +211,10 @@ export default function CartPage() {
                   />
                   <div>
                     <h4 className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                      Authentication Process
+                      {t("Authentication Process")}
                     </h4>
                     <p className="mt-1 text-xs leading-tight text-muted-foreground">
-                      Every item passes rigorous multi-point verification before shipping.
+                      {t("Every item passes rigorous multi-point verification before shipping.")}
                     </p>
                   </div>
                 </div>

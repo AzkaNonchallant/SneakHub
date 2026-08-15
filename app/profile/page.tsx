@@ -5,31 +5,26 @@ import Link from "next/link"
 
 import { AddressSection } from "@/components/address-manager"
 import { EditProfilButton } from "@/components/edit-profil-dialog"
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { formatRp, isSellerRole } from "@/lib/api"
 import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const menuItems = [
-  { label: "Pesanan Saya", href: "/profile", icon: Package, active: true },
+  { label: "My Orders", href: "/profile", icon: Package, active: true },
   { label: "Wishlist", href: "/profile/wishlist", icon: Heart },
-  { label: "Ulasan Saya", href: "#", icon: Star },
-  { label: "Preferensi", href: "#", icon: Settings },
-  { label: "Notifikasi", href: "/profile/notifications", icon: Bell },
-  { label: "Keamanan", href: "#", icon: Lock },
-  { label: "Alamat Saya", href: "#alamat", icon: MapPin },
+  { label: "My Reviews", href: "#", icon: Star },
+  { label: "Preferences", href: "#", icon: Settings },
+  { label: "Notifications", href: "/profile/notifications", icon: Bell },
+  { label: "Security", href: "#", icon: Lock },
+  { label: "My Addresses", href: "#alamat", icon: MapPin },
 ]
 
-const statusLabel: Record<string, string> = {
-  pending: "Pending",
-  diproses: "Diproses",
-  dikirim: "Dikirim",
-  selesai: "Selesai",
-  dibatalkan: "Dibatalkan",
-}
-
 export default function ProfilePage() {
+  const t = useT()
   const { data: user } = useMe()
   const { data: ordersData } = useOrders({ limit: 10 })
   const activate = useSellerActivation()
@@ -37,9 +32,17 @@ export default function ProfilePage() {
   const orders = ordersData?.items ?? []
   const initial = user?.nama?.charAt(0).toUpperCase() ?? "S"
   const isSeller = isSellerRole(user?.peran)
+  const statusLabel: Record<string, string> = {
+    pending: t("Pending"),
+    diproses: t("Processing"),
+    dikirim: t("Shipped"),
+    selesai: t("Completed"),
+    dibatalkan: t("Cancelled"),
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Profile" />
       <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-8 px-4 py-8 md:flex-row md:px-10 md:py-12">
@@ -49,12 +52,12 @@ export default function ProfilePage() {
               {initial}
             </div>
             <h2 className="font-heading text-2xl leading-7 font-semibold text-primary">
-              {user?.nama ?? "Pengguna"}
+              {user?.nama ?? t("User")}
             </h2>
             <p className="mb-4 text-base leading-6 text-muted-foreground">{user?.email ?? ""}</p>
             <span className="inline-flex items-center gap-1 border border-outline bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
               <BadgeCheck className="size-4 text-on-tertiary-container" />
-              {user?.status_akun ?? "aktif"}
+              {user?.status_akun ?? t("active")}
             </span>
             {!isSeller ? (
               <Button
@@ -62,13 +65,13 @@ export default function ProfilePage() {
                 disabled={activate.isPending}
                 onClick={() =>
                   activate.mutate({
-                    nama_toko: `${user?.nama ?? "Toko"} Store`,
-                    deskripsi_toko: "Toko resmi SneakHub.",
+                    nama_toko: `${user?.nama ?? t("Store")} ${t("Store")}`,
+                    deskripsi_toko: t("Official SneakHub store."),
                   })
                 }
                 className="mt-4 h-auto rounded-none border border-primary bg-primary px-4 py-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
               >
-                {activate.isPending ? "Mengaktifkan…" : "Jadi Seller"}
+                {activate.isPending ? t("Activating…") : t("Become a Seller")}
               </Button>
             ) : null}
             <EditProfilButton user={user} />
@@ -76,7 +79,7 @@ export default function ProfilePage() {
 
           <nav className="flex flex-col border border-outline bg-surface-container-low py-4 shadow-[4px_4px_0px_0px_#000]">
             <div className="mb-4 px-6 font-heading text-2xl leading-7 font-bold text-primary">
-              Akun Saya
+              {t("My Account")}
             </div>
             {/* ponytail: href="#" until those pages exist */}
             {menuItems.map(({ label, href, icon: Icon, active }) => (
@@ -90,7 +93,7 @@ export default function ProfilePage() {
                 }
               >
                 <Icon className="size-4" />
-                {label}
+                {t(label)}
               </a>
             ))}
           </nav>
@@ -98,12 +101,12 @@ export default function ProfilePage() {
 
         <div className="flex flex-1 flex-col gap-6">
           <h1 className="border-b-2 border-primary pb-4 font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase md:text-[72px] md:leading-[72px]">
-            Pesanan Saya
+            {t("My Orders")}
           </h1>
 
           {orders.length === 0 ? (
             <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
-              Belum ada pesanan.
+              {t("No orders yet.")}
             </p>
           ) : (
             <div className="flex flex-col gap-4">
@@ -129,7 +132,7 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                      {(order.items?.[0]?.nama_produk ?? "Pesanan") +
+                      {(order.items?.[0]?.nama_produk ?? t("Order")) +
                         (order.items && order.items.length > 1 ? ` +${order.items.length - 1}` : "")}
                     </h3>
                     <div className="flex gap-4 text-base leading-6 text-muted-foreground">

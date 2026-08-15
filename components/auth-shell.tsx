@@ -1,15 +1,16 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import Link from "next/link"
 import { Eye, EyeOff, Lock, type LucideIcon } from "lucide-react"
 import { motion } from "motion/react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useT } from "@/lib/i18n"
 
 export function AuthShell({ children }: { children: ReactNode }) {
+  const t = useT()
   return (
     <>
       <main className="bg-grid-pattern relative flex flex-1 items-center justify-center overflow-hidden px-4 py-16 md:px-10">
@@ -33,10 +34,10 @@ export function AuthShell({ children }: { children: ReactNode }) {
         >
           <div className="mb-10 text-center">
             <h1 className="font-heading text-[32px] leading-9 font-bold tracking-tighter text-primary uppercase md:text-[72px] md:leading-[72px]">
-              Sneakhub
+              SNEAKHUB
             </h1>
             <p className="mt-3 border-b border-primary pb-4 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Precision Resale Authentication
+              {t("Precision Resale Authentication")}
             </p>
           </div>
           {children}
@@ -66,6 +67,7 @@ export function TextField({
   placeholder: string
   icon: LucideIcon
 }) {
+  const t = useT()
   return (
     <div>
       {label ? (
@@ -73,7 +75,7 @@ export function TextField({
           htmlFor={id}
           className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase"
         >
-          {label}
+          {t(label)}
         </Label>
       ) : null}
       <div className="relative">
@@ -85,7 +87,7 @@ export function TextField({
           id={id}
           name={name}
           type={type}
-          placeholder={placeholder}
+          placeholder={t(placeholder)}
           className="h-11 rounded-none border-primary bg-surface-bright pl-10 placeholder:text-outline focus-visible:border-b-2"
         />
       </div>
@@ -98,33 +100,22 @@ export function PasswordField({
   name,
   label = "Password",
   placeholder = "••••••••",
-  forgot = false,
 }: {
   id: string
   name: string
   label?: string
   placeholder?: string
-  forgot?: boolean
 }) {
   const [show, setShow] = useState(false)
+  const t = useT()
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between">
-        <Label
-          htmlFor={id}
-          className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase"
-        >
-          {label}
-        </Label>
-        {forgot ? (
-          <Link
-            href="#"
-            className="text-xs font-medium text-muted-foreground hover:text-primary hover:underline"
-          >
-            Forgot?
-          </Link>
-        ) : null}
-      </div>
+      <Label
+        htmlFor={id}
+        className="mb-1 block text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase"
+      >
+        {t(label)}
+      </Label>
       <div className="relative">
         <Lock
           aria-hidden

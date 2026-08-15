@@ -42,7 +42,9 @@ function pageUrl(path: string, params: Record<string, string | number | undefine
 export function useLogin() {
   return useMutation({
     mutationFn: (body: { email: string; password: string }) =>
-      api.post<{ data: { access_token: string } }>("/auth/login", body).then((r) => r.data.data),
+      api.post<{ data: { access_token: string; user?: { peran?: string } } }>("/auth/login", body).then(
+        (r) => r.data.data,
+      ),
   });
 }
 

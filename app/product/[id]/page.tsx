@@ -7,6 +7,7 @@ import { ChevronRight, Heart, Info, LineChart, Plus } from "lucide-react"
 import { notFound } from "next/navigation"
 import { toast } from "sonner"
 
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,7 @@ import {
   useSubmitConditionScore,
   useWishlist,
 } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const kondisiBadge: Record<string, string> = {
   NEW: "bg-[#10B981]",
@@ -32,6 +34,7 @@ const kondisiBadge: Record<string, string> = {
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const t = useT()
   const id = String(params.id)
   const { data: product, isLoading } = useProduct(id)
   const { data: me } = useMe()
@@ -58,7 +61,7 @@ export default function ProductDetailPage() {
 
   const isSellerOrAdmin = me?.peran === "seller" || me?.peran === "admin" || me?.peran === "SELLER" || me?.peran === "ADMIN"
 
-  if (isLoading) return <div className="p-10 font-heading text-2xl text-primary uppercase">Loading…</div>
+  if (isLoading) return <div className="p-10 font-heading text-2xl text-primary uppercase">{t("Loading…")}</div>
   if (!product) notFound()
 
   const gallery =
@@ -69,12 +72,13 @@ export default function ProductDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title={product.nama_produk} />
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-12 md:px-10">
         <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
           <Link href="/home" className="transition-colors hover:text-primary">
-            Shop
+            {t("Shop")}
           </Link>
           <ChevronRight className="size-4" />
           <span className="text-primary">{product.nama_produk}</span>
@@ -84,7 +88,7 @@ export default function ProductDetailPage() {
           <div className="flex flex-col gap-4 lg:col-span-7">
             <div className="group relative flex aspect-square w-full items-center justify-center overflow-hidden border border-outline-variant bg-surface-container-low p-8">
               <span className={`absolute top-4 left-4 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${kondisiBadge[product.kondisi] ?? "bg-surface-container-highest text-primary"}`}>
-                Condition: {product.kondisi}
+                {t("Condition")}: {product.kondisi}
               </span>
               <img
                 src={gallery[activeImage]}
@@ -126,7 +130,7 @@ export default function ProductDetailPage() {
                   {formatRp(product.harga)}
                 </span>
                 <span className="text-xs leading-4 font-bold tracking-widest text-muted-foreground uppercase">
-                  Stok {product.stok} • {product.ukuran_tersedia.length} ukuran
+                  {t("Stock")} {product.stok} • {product.ukuran_tersedia.length} {t("sizes")}
                 </span>
               </div>
             </div>
@@ -137,7 +141,7 @@ export default function ProductDetailPage() {
                 onClick={() => addToCart.mutate([{ product_id: product.product_id, jumlah: 1 }])}
                 className="h-auto rounded-none border border-primary bg-primary py-4 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-background hover:text-primary"
               >
-                Add to Cart
+                {t("Add to Cart")}
               </Button>
               <Button
                 type="button"
@@ -145,7 +149,7 @@ export default function ProductDetailPage() {
                 className="h-auto rounded-none border border-primary bg-background py-4 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase transition-colors hover:bg-surface-container-low"
               >
                 <Heart className="size-4" fill={inWishlist ? "currentColor" : "none"} />
-                {inWishlist ? "In Wishlist" : "Wishlist"}
+                {inWishlist ? t("In Wishlist") : t("Wishlist")}
               </Button>
             </div>
 
@@ -153,7 +157,7 @@ export default function ProductDetailPage() {
 
             <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
               <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                Ukuran Tersedia
+                {t("Available Sizes")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {product.ukuran_tersedia.length > 0 ? (
@@ -166,7 +170,7 @@ export default function ProductDetailPage() {
                     </span>
                   ))
                 ) : (
-                  <span className="text-sm text-muted-foreground">Belum ada ukuran terdaftar.</span>
+                  <span className="text-sm text-muted-foreground">{t("No sizes registered yet.")}</span>
                 )}
               </div>
             </div>
@@ -187,7 +191,7 @@ export default function ProductDetailPage() {
                     {sellerName}
                   </h3>
                   <p className="font-mono text-sm font-medium text-muted-foreground">
-                    Verified Merchant
+                    {t("Verified Merchant")}
                   </p>
                 </div>
               </div>
@@ -196,7 +200,7 @@ export default function ProductDetailPage() {
                   {product.seller?.seller_trust_score ?? "-"}/100
                 </span>
                 <span className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
-                  TRUST SCORE <Info className="size-3" />
+                  {t("TRUST SCORE")} <Info className="size-3" />
                 </span>
               </div>
             </button>
@@ -209,36 +213,37 @@ export default function ProductDetailPage() {
   )
 }
 
-const kondisiMeta = (kondisi: string) =>
+const kondisiMeta = (kondisi: string, t: (s: string) => string) =>
   kondisi === "NEW"
-    ? { bg: "bg-[#10B981]", label: "BARU" }
+    ? { bg: "bg-[#10B981]", label: t("NEW") }
     : kondisi === "USED"
-      ? { bg: "bg-surface-container-highest", label: "SECOND" }
-      : { bg: "bg-outline", label: "REFURBISHED" }
+      ? { bg: "bg-surface-container-highest", label: t("USED") }
+      : { bg: "bg-outline", label: t("REFURBISHED") }
 
 function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; isSellerOrAdmin: boolean }) {
+  const t = useT()
   const { data: score, isLoading } = useConditionScores(productId)
   const [open, setOpen] = useState(false)
   const latest = score ?? undefined
 
   const skor = latest?.skor_akhir ?? 0
-  const meta = kondisiMeta("USED")
+  const meta = kondisiMeta("USED", t)
 
   return (
     <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-          Condition Score
+          {t("Condition Score")}
         </h3>
         {isLoading ? (
-          <span className="text-xs text-muted-foreground">Loading…</span>
+          <span className="text-xs text-muted-foreground">{t("Loading…")}</span>
         ) : latest ? (
           <span className={`flex items-center gap-2 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${meta.bg}`}>
-            Overall <span className="text-base font-bold">{skor}/100</span>
+            {t("Overall")} <span className="text-base font-bold">{skor}/100</span>
           </span>
         ) : (
           <span className="border border-outline bg-surface-container-highest px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase">
-            BELUM DINILAI
+            {t("NOT RATED")}
           </span>
         )}
       </div>
@@ -258,7 +263,7 @@ function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; 
         </>
       ) : (
         <p className="text-sm leading-6 text-muted-foreground">
-          Belum ada penilaian kondisi dari verifikator.
+          {t("No condition assessment from verifier yet.")}
         </p>
       )}
       {isSellerOrAdmin ? (
@@ -267,7 +272,7 @@ function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; 
           onClick={() => setOpen(true)}
           className="h-auto w-fit rounded-none border border-primary bg-primary px-5 py-2.5 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
         >
-          <Plus className="size-3.5" /> {latest ? "Nilai Ulang" : "Nilai Kondisi"}
+          <Plus className="size-3.5" /> {latest ? t("Re-rate") : t("Rate Condition")}
         </Button>
       ) : null}
       {open ? (
@@ -291,6 +296,7 @@ function ConditionScoreDialog({
   onClose: () => void
 }) {
   const submit = useSubmitConditionScore()
+  const t = useT()
   const [komponen, setKomponen] = useState({
     upper: initial?.detail.upper ?? 80,
     outsole: initial?.detail.outsole ?? 80,
@@ -304,7 +310,7 @@ function ConditionScoreDialog({
   const save = async () => {
     try {
       await submit.mutateAsync({ productId, body: { ...komponen, dinilai_oleh: "SELLER" } })
-      toast.success("Skor kondisi tersimpan")
+      toast.success(t("Condition score saved"))
       onClose()
     } catch (err) {
       toast.error(errMessage(err))
@@ -316,10 +322,10 @@ function ConditionScoreDialog({
       <div className="flex max-h-[90vh] w-full max-w-md flex-col border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
         <div className="mb-4 flex items-center justify-between border-b border-outline-variant pb-4">
           <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-            Nilai Kondisi
+            {t("Rate Condition")}
           </h3>
           <button type="button" onClick={onClose} className="cursor-pointer text-xs font-bold tracking-widest text-muted-foreground uppercase hover:text-primary">
-            Tutup
+            {t("Close")}
           </button>
         </div>
         <div className="flex flex-col gap-4 overflow-y-auto">
@@ -346,7 +352,7 @@ function ConditionScoreDialog({
           onClick={save}
           className="mt-6 h-auto rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
         >
-          {submit.isPending ? "Menyimpan…" : "Simpan Skor"}
+          {submit.isPending ? t("Saving…") : t("Save Score")}
         </Button>
       </div>
     </div>
@@ -354,6 +360,7 @@ function ConditionScoreDialog({
 }
 
 function PriceInsightBox({ productId, price }: { productId: string; price: number }) {
+  const t = useT()
   const { data: insight } = usePriceInsight(productId)
 
   const anomalyType = insight?.anomaly_type ?? ""
@@ -364,10 +371,10 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
 
   const tone =
     anomalyType === "CHEAP"
-      ? { chip: "bg-[#10B981]", text: "text-[#10B981]", label: "DI BAWAH PASAR" }
+      ? { chip: "bg-[#10B981]", text: "text-[#10B981]", label: t("BELOW MARKET") }
       : anomalyType === "OVERPRICED"
-        ? { chip: "bg-[#f59e0b]", text: "text-[#f59e0b]", label: "DI ATAS PASAR" }
-        : { chip: "bg-surface-container-highest", text: "text-muted-foreground", label: "SESUAI PASAR" }
+        ? { chip: "bg-[#f59e0b]", text: "text-[#f59e0b]", label: t("ABOVE MARKET") }
+        : { chip: "bg-surface-container-highest", text: "text-muted-foreground", label: t("AT MARKET") }
 
   const rel = marketAvg ? (price / marketAvg - 1) * 100 : 0
   const markerLeft = Math.min(90, Math.max(10, 10 + rel * 8))
@@ -378,7 +385,7 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
         <div className="flex items-center gap-2">
           <LineChart className="size-5 text-on-tertiary-container" fill="currentColor" />
           <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-            Price Insight
+            {t("Price Insight")}
           </h3>
         </div>
         <span className={`border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${tone.chip}`}>
@@ -388,10 +395,10 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {[
-          { label: "Harga Listing", value: formatRp(price) },
-          { label: "Rata-rata Pasar", value: formatRp(marketAvg) },
-          { label: "Range Pasar", value: `${formatRp(insight?.market_price_min ?? price)} – ${formatRp(insight?.market_price_max ?? price)}` },
-          { label: "Selisih", value: `${diffPct >= 0 ? "+" : ""}${diffPct}%`, cls: tone.text },
+          { label: t("Listing Price"), value: formatRp(price) },
+          { label: t("Market Average"), value: formatRp(marketAvg) },
+          { label: t("Market Range"), value: `${formatRp(insight?.market_price_min ?? price)} – ${formatRp(insight?.market_price_max ?? price)}` },
+          { label: t("Difference"), value: `${diffPct >= 0 ? "+" : ""}${diffPct}%`, cls: tone.text },
         ].map((s) => (
           <div key={s.label} className="border border-outline-variant bg-surface-container-lowest p-3">
             <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{s.label}</div>
@@ -416,14 +423,14 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
           <div className="h-0 w-0 border-t-8 border-l-6 border-r-6 border-t-primary border-l-transparent border-r-transparent" />
         </div>
         <span className="absolute right-0 bottom-2 font-mono text-[10px] text-muted-foreground">
-          AVG {formatRp(marketAvg)}
+          {t("AVG")} {formatRp(marketAvg)}
         </span>
       </div>
 
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        {insight?.message ?? "Memuat data pasar…"}
-        {isBelow ? " Daftar ini ~" + Math.abs(Math.round(rel)) + "% di bawah rata-rata pasar." : ""}
-        {isAbove ? " Daftar ini ~" + Math.abs(Math.round(rel)) + "% di atas rata-rata pasar." : ""}
+        {insight?.message ?? t("Loading market data…")}
+        {isBelow ? ` ${t("This listing is")} ~${Math.abs(Math.round(rel))}% ${t("below market average.")}` : ""}
+        {isAbove ? ` ${t("This listing is")} ~${Math.abs(Math.round(rel))}% ${t("above market average.")}` : ""}
       </p>
     </div>
   )

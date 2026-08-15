@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation"
 import { Bell, BellOff, Heart, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
 import { useAddCartItems, usePriceAlert, useRemoveWishlist, useRestockAlert, useWishlist } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export default function WishlistPage() {
+  const t = useT()
   const router = useRouter()
   const { data, isLoading } = useWishlist()
   const removeWishlist = useRemoveWishlist()
@@ -41,7 +44,7 @@ export default function WishlistPage() {
     } else {
       const target = Number(targets[wId])
       if (!target || target <= 0) {
-        toast.error("Masukkan target harga dulu.")
+        toast.error(t("Enter a target price first."))
         return
       }
       mutate(() => priceAlert.mutateAsync({ productId: wId, body: { target_price: target } }), wId)
@@ -53,6 +56,7 @@ export default function WishlistPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Wishlist" />
       <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col px-4 py-8 md:px-10 md:py-12">
@@ -61,7 +65,7 @@ export default function WishlistPage() {
             Wishlist
           </h1>
           <span className="hidden font-mono text-sm font-medium text-muted-foreground md:block">
-            {items.length} ITEMS TRACKED
+            {items.length} {t("ITEMS TRACKED")}
           </span>
         </header>
 
@@ -72,10 +76,10 @@ export default function WishlistPage() {
         ) : items.length === 0 ? (
           <div className="border border-primary bg-surface-container-low p-12 text-center">
             <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-              Belum ada wishlist
+              {t("No wishlist yet")}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Tambahkan produk dari halaman produk untuk mulai melacak harga.
+              {t("Add products from product pages to start tracking prices.")}
             </p>
           </div>
         ) : (
@@ -94,7 +98,7 @@ export default function WishlistPage() {
                         item.price_alert?.enabled ? "bg-[#f59e0b] text-white" : "bg-on-tertiary-container text-white"
                       }`}
                     >
-                      {item.price_alert?.enabled ? "PRICE ALERT ON" : "TRACKED"}
+                      {item.price_alert?.enabled ? t("PRICE ALERT ON") : t("TRACKED")}
                     </span>
                     <div className="flex aspect-square items-center justify-center border-b border-primary bg-surface-container p-6">
                       <img
@@ -110,11 +114,11 @@ export default function WishlistPage() {
                             {item.nama_produk}
                           </h3>
                           <p className="mt-1 font-mono text-sm font-medium text-muted-foreground">
-                            Stok: {item.status_stok_terakhir ?? "-"}
+                            {t("Stock:")} {item.status_stok_terakhir ?? "-"}
                           </p>
                         </div>
                         <Heart
-                          aria-label="In wishlist"
+                          aria-label={t("In wishlist")}
                           className="size-5 shrink-0 cursor-pointer text-on-tertiary-container"
                           fill="currentColor"
                           onClick={(e) => {
@@ -129,7 +133,7 @@ export default function WishlistPage() {
                         </span>
                         {item.price_alert?.target_price ? (
                           <span className="mb-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#f59e0b] uppercase">
-                            Alert ≤ {formatRp(item.price_alert.target_price)}
+                            {t("Alert")} ≤ {formatRp(item.price_alert.target_price)}
                           </span>
                         ) : null}
                       </div>
@@ -140,9 +144,9 @@ export default function WishlistPage() {
                             type="number"
                             value={targets[item.product_id] ?? ""}
                             onChange={(e) =>
-                              setTargets((t) => ({ ...t, [item.product_id]: e.target.value }))
+                              setTargets((prev) => ({ ...prev, [item.product_id]: e.target.value }))
                             }
-                            placeholder="Harga target"
+                            placeholder={t("Target price")}
                             onClick={(e) => e.stopPropagation()}
                             className="min-w-0 flex-1 border border-outline bg-surface-container-low px-3 py-2 font-mono text-sm focus:border-on-tertiary-container focus:ring-0"
                           />
@@ -172,7 +176,7 @@ export default function WishlistPage() {
                             }}
                             className="h-auto rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary disabled:opacity-40"
                           >
-                            Move to Cart
+                            {t("Move to Cart")}
                           </Button>
                           <Button
                             type="button"
@@ -188,7 +192,7 @@ export default function WishlistPage() {
                             }
                           >
                             <RefreshCw className="size-3.5" />
-                            {item.restock_alert?.enabled ? "Restock On" : "Restock Alert"}
+                            {item.restock_alert?.enabled ? t("Restock On") : t("Restock Alert")}
                           </Button>
                         </div>
                       </div>
@@ -201,22 +205,22 @@ export default function WishlistPage() {
             <aside className="order-2 mt-8 lg:order-1 lg:col-span-3 lg:mt-0">
               <div className="sticky top-24 border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
                 <h2 className="mb-2 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  Price Alerts
+                  {t("Price Alerts")}
                 </h2>
                 <p className="mb-4 text-xs leading-4 text-muted-foreground">
-                  Set harga target per produk. Kamu akan dinotifikasi saat harga turun di bawah target.
+                  {t("Set a target price per product. You will be notified when the price drops below it.")}
                 </p>
                 <div className="flex flex-col gap-4 border-t border-outline-variant pt-4">
                   <div className="flex items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] uppercase">
                     {items.some((i) => i.price_alert?.enabled) ? (
                       <>
                         <Bell className="size-4 text-[#f59e0b]" />
-                        <span className="text-[#f59e0b]">{items.filter((i) => i.price_alert?.enabled).length} aktif</span>
+                        <span className="text-[#f59e0b]">{items.filter((i) => i.price_alert?.enabled).length} {t("active")}</span>
                       </>
                     ) : (
                       <>
                         <BellOff className="size-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Tidak ada alert aktif</span>
+                        <span className="text-muted-foreground">{t("No active alerts")}</span>
                       </>
                     )}
                   </div>
@@ -225,11 +229,12 @@ export default function WishlistPage() {
                       <>
                         <RefreshCw className="size-4 text-on-tertiary-container" />
                         <span className="text-on-tertiary-container">
-                          {items.filter((i) => i.restock_alert?.enabled).length} restock alert
+                          {items.filter((i) => i.restock_alert?.enabled).length}{" "}
+                          {t(items.filter((i) => i.restock_alert?.enabled).length === 1 ? "restock alert" : "restock alerts")}
                         </span>
                       </>
                     ) : (
-                      <span className="text-muted-foreground">Tidak ada restock alert</span>
+                      <span className="text-muted-foreground">{t("No restock alerts")}</span>
                     )}
                   </div>
                 </div>

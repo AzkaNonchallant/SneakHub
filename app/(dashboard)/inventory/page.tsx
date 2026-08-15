@@ -5,20 +5,15 @@ import { ChevronLeft, ChevronRight, Trash2, TrendingUp } from "lucide-react"
 import { toast } from "sonner"
 
 import { EditProdukButton } from "@/components/edit-produk-dialog"
+import { PageMeta } from "@/components/page-meta"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
 import { useDeleteProduct, useProducts } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const PAGE_SIZE = 6
 
 type SortKey = "newest" | "price-asc" | "price-desc" | "name"
-
-const sortLabels: Record<SortKey, string> = {
-  newest: "Sort: Terbaru",
-  "price-asc": "Harga: Termurah",
-  "price-desc": "Harga: Termahal",
-  name: "Nama: A-Z",
-}
 
 function sortItems(items: ApiProduct[], key: SortKey): ApiProduct[] {
   switch (key) {
@@ -36,6 +31,13 @@ function sortItems(items: ApiProduct[], key: SortKey): ApiProduct[] {
 }
 
 export default function InventoryPage() {
+  const t = useT()
+  const sortLabels: Record<SortKey, string> = {
+    newest: t("Sort: Newest"),
+    "price-asc": t("Price: Cheapest"),
+    "price-desc": t("Price: Most Expensive"),
+    name: t("Name: A-Z"),
+  }
   const { data } = useProducts({ limit: 100 })
   const items = data?.items ?? []
   const remove = useDeleteProduct()
@@ -43,10 +45,10 @@ export default function InventoryPage() {
   const [page, setPage] = useState(1)
 
   const onDelete = async (item: ApiProduct) => {
-    if (!window.confirm(`Hapus produk "${item.nama_produk}"?`)) return
+    if (!window.confirm(`${t("Delete product")} "${item.nama_produk}"?`)) return
     try {
       await remove.mutateAsync(item.product_id)
-      toast.success("Produk dihapus")
+      toast.success(t("Product deleted"))
     } catch (err) {
       toast.error(errMessage(err))
     }
@@ -59,17 +61,18 @@ export default function InventoryPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
+      <PageMeta title="Inventory" />
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase">
-            Seller Center
+            {t("Seller Center")}
           </div>
           <h1 className="font-heading text-4xl font-black tracking-tighter text-primary">
-            Inventory
+            {t("Inventory")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {items.length} produk terverifikasi.
+            {items.length} {t("verified products")}.
           </p>
         </div>
         <TambahProdukButton />
@@ -79,7 +82,7 @@ export default function InventoryPage() {
       <div className="mb-8 flex items-center justify-between border-b border-outline-variant pb-4">
         <div className="flex gap-2">
           <span className="inline-flex items-center gap-1 border border-primary bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest text-primary uppercase">
-            <TrendingUp className="size-3" aria-hidden /> Aktif
+            <TrendingUp className="size-3" aria-hidden /> {t("Active")}
           </span>
         </div>
         <select
@@ -100,7 +103,7 @@ export default function InventoryPage() {
 
       {items.length === 0 ? (
         <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
-          Belum ada produk. Klik &quot;Tambah Produk&quot; untuk mulai berjualan.
+          {t("No products yet")}. {t("Click")} &quot;{t("Add Product")}&quot; {t("to start selling")}.
         </p>
       ) : (
         <>
@@ -116,7 +119,7 @@ export default function InventoryPage() {
             <div className="mt-12 flex items-center justify-center gap-2">
               <button
                 type="button"
-                aria-label="Halaman sebelumnya"
+                aria-label={t("Previous page")}
                 onClick={() => paginate(page - 1)}
                 disabled={page === 1}
                 className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
@@ -138,7 +141,7 @@ export default function InventoryPage() {
               ))}
               <button
                 type="button"
-                aria-label="Halaman berikutnya"
+                aria-label={t("Next page")}
                 onClick={() => paginate(page + 1)}
                 disabled={page === pages}
                 className="flex size-10 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white disabled:pointer-events-none disabled:opacity-40"
@@ -154,6 +157,7 @@ export default function InventoryPage() {
 }
 
 function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: ApiProduct) => void }) {
+  const t = useT()
   const image = item.images?.[0]?.image_url || item.image_url || PLACEHOLDER_IMAGE
   return (
     <article className="group relative flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000]">
@@ -175,19 +179,19 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
           {item.nama_produk}
         </h3>
         <p className="mt-1 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          {item.seller?.nama_toko ?? "SneakHub"}
+          {item.seller?.nama_toko ?? "SNEAKHUB"}
         </p>
         <div className="mt-auto flex items-end justify-between border-t border-outline-variant pt-3">
           <div>
             <span className="block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-              Harga
+              {t("Price")}
             </span>
             <span className="font-heading text-2xl leading-7 font-black text-primary">
               {formatRp(item.harga)}
             </span>
           </div>
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            Stok {item.stok} • {item.ukuran_tersedia.join(", ") || "-"}
+            {t("Stock")} {item.stok} • {item.ukuran_tersedia.join(", ") || "-"}
           </span>
         </div>
       </div>
@@ -199,7 +203,7 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
           onClick={() => onDelete(item)}
           className="flex flex-1 items-center justify-center gap-2 border border-primary bg-white py-2 text-xs font-bold tracking-widest text-error uppercase transition-colors hover:bg-error hover:text-white"
         >
-          <Trash2 className="size-3.5" /> Hapus
+          <Trash2 className="size-3.5" /> {t("Delete")}
         </button>
       </div>
     </article>

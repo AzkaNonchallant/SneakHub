@@ -6,11 +6,13 @@ import { Camera, LoaderCircle, ScanSearch, Search, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
 import { ProductCard } from "@/components/product-card"
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { formatRp, PLACEHOLDER_IMAGE, toCard, type ProductCardData } from "@/lib/api"
 import { useProducts, useRecommendations, useSearchByImage } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
 
 type MatchPhase = "analyzing" | "done"
@@ -19,6 +21,7 @@ type Match = { file: File; preview: string; phase: MatchPhase }
 
 export function SearchView({ initialQuery }: { initialQuery: string }) {
   const router = useRouter()
+  const t = useT()
   const [query, setQuery] = useState(initialQuery)
   const [match, setMatch] = useState<Match | null>(() => {
     // ponytail: photo handed over from the header camera menu
@@ -41,7 +44,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
     price: formatRp(r.harga),
     image: r.image_url || PLACEHOLDER_IMAGE,
     alt: r.nama_produk,
-    badge: `SCORE ${Math.round(r.score)}`,
+    badge: `${t("SCORE")} ${Math.round(r.score)}`,
     trend: r.reason,
     harga: r.harga,
     kondisi: "",
@@ -50,7 +53,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
 
   useEffect(() => {
     if (match?.phase !== "analyzing") return
-    const t = setTimeout(async () => {
+    const timeoutId = setTimeout(async () => {
       if (!match) return
       setMatch((m) => (m ? { ...m, phase: "done" } : m))
       const fd = new FormData()
@@ -60,11 +63,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
         const data = await searchByImage.mutateAsync(fd)
         setMatchResults(data.items.map(toCard))
       } catch {
-        setVisualError("Gambar tidak dikenali, coba foto lain.")
+        setVisualError(t("Image not recognized, try another photo."))
       }
     }, 1400)
-    return () => clearTimeout(t)
-  }, [match?.phase, match, searchByImage])
+    return () => clearTimeout(timeoutId)
+  }, [match?.phase, match, searchByImage, t])
 
   const applyFile = (file: File) => {
     if (!file.type.startsWith("image/")) return
@@ -96,18 +99,19 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Search" />
       <SiteHeader />
 
       <section className="border-b border-outline-variant bg-surface-container-lowest py-14">
         <div className="mx-auto w-full max-w-[1280px] px-5 md:px-10">
           <span className="mb-4 inline-block bg-on-tertiary-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase">
-            Smart Find
+            {t("Smart Find")}
           </span>
           <h1 className="font-heading text-[32px] leading-8 font-bold text-primary uppercase md:text-6xl">
-            Search The Market
+            {t("Search The Market")}
           </h1>
           <p className="mt-2 max-w-xl text-base leading-6 text-muted-foreground">
-            Find sneakers by keyword, silhouette, or a photo of the pair you&apos;re after.
+            {t("Find sneakers by keyword, silhouette, or a photo of the pair you're after.")}
           </p>
 
           <form
@@ -129,7 +133,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               name="q"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search brands, models, colorways..."
+              placeholder={t("Search brands, models, colorways...")}
               autoFocus
               className="w-full border border-primary bg-white py-4 pr-24 pl-14 text-lg text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container md:pr-32"
             />
@@ -147,7 +151,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                 type="submit"
                 className="h-10 rounded-none border border-primary bg-primary px-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary md:px-4"
               >
-                <span className="hidden md:inline">Search</span>
+                <span className="hidden md:inline">{t("Search")}</span>
                 <Search className="size-4 md:hidden" />
               </Button>
             </div>
@@ -163,12 +167,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               <div className="flex items-center gap-3">
                 <Camera className="size-8 text-on-tertiary-container" />
                 <h2 className="font-heading text-4xl leading-9 font-bold text-primary uppercase">
-                  Visual Match
+                  {t("Visual Match")}
                 </h2>
               </div>
               <p className="mt-2 max-w-xl text-base leading-6 text-muted-foreground">
-                Upload a photo or snap one with your camera — AI matches the silhouette,
-                colorway, and brand.
+                {t("Upload a photo or snap one with your camera — AI matches the silhouette, colorway, and brand.")}
               </p>
             </div>
             {match ? (
@@ -177,7 +180,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                 onClick={clearMatch}
                 className="inline-flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase hover:text-on-tertiary-container"
               >
-                Clear <X className="size-4" />
+                {t("Clear")} <X className="size-4" />
               </button>
             ) : null}
           </div>
@@ -192,10 +195,10 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                 <ScanSearch className="size-8" />
               </div>
               <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                Drag &amp; drop your sneaker photo
+                {t("Drag & drop your sneaker photo")}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                or tap to browse your files
+                {t("or tap to browse your files")}
               </p>
               <div className="mt-6 flex items-center gap-6">
                 <Button
@@ -211,7 +214,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                   <Camera />
                 </Button>
                 <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                  Or use camera
+                  {t("Or use camera")}
                 </span>
               </div>
               <input
@@ -240,20 +243,20 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                     <>
                       <span className="inline-flex items-center gap-2 bg-on-tertiary-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase">
                         <LoaderCircle className="size-3.5 animate-spin" />
-                        Analyzing Silhouette
+                        {t("Analyzing Silhouette")}
                       </span>
                       <p className="mt-4 max-w-md text-base leading-6 text-muted-foreground">
-                        Matching shape, colorway, and branding against the catalog…
+                        {t("Matching shape, colorway, and branding against the catalog…")}
                       </p>
                     </>
                   ) : (
                     <>
                       <span className="inline-flex items-center gap-2 bg-on-tertiary-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase">
-                        Match Found
+                        {t("Match Found")}
                       </span>
                       <p className="mt-4 max-w-md text-base leading-6 text-muted-foreground">
                         {/* ponytail: static "matches" until a real image-recognition API exists */}
-                        Top matches ranked by silhouette and colorway confidence.
+                        {t("Top matches ranked by silhouette and colorway confidence.")}
                       </p>
                     </>
                   )}
@@ -273,9 +276,9 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                   <MatchRow key={product.id} product={product} rank={i + 1} />
                 ))
               ) : searchByImage.isPending ? (
-                <p className="p-4 text-sm text-muted-foreground">Mencari produk serupa…</p>
+                <p className="p-4 text-sm text-muted-foreground">{t("Searching for similar products…")}</p>
               ) : (
-                <p className="p-4 text-sm text-muted-foreground">Tidak ada produk serupa ditemukan.</p>
+                <p className="p-4 text-sm text-muted-foreground">{t("No similar products found.")}</p>
               )}
             </div>
           ) : null}
@@ -289,7 +292,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
             <>
               <div className="mb-8 flex items-end justify-between">
                 <h2 className="font-heading text-4xl leading-9 font-bold text-primary uppercase">
-                  {results.length} Result{results.length === 1 ? "" : "s"} For &quot;{query}&quot;
+                  {results.length} {results.length === 1 ? t("Result") : t("Results")} {t("For")} &quot;{query}&quot;
                 </h2>
               </div>
               {results.length > 0 ? (
@@ -306,10 +309,10 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               ) : (
                 <div className="border border-primary bg-surface-container-low p-10 text-center">
                   <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                    No matches for &quot;{query}&quot;
+                    {t("No matches for")} &quot;{query}&quot;
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Try another model, brand, or use Visual Match above.
+                    {t("Try another model, brand, or use Visual Match above.")}
                   </p>
                 </div>
               )}
@@ -318,11 +321,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
             <>
               <div className="mb-8 flex items-center gap-4">
                 <h2 className="font-heading text-4xl leading-9 font-bold text-primary uppercase">
-                  Rekomendasi Untuk Kamu
+                  {t("Recommended for You")}
                 </h2>
                 <div className="h-px flex-1 bg-primary" />
                 <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                  Algorithm Generated
+                  {t("Algorithm Generated")}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-3">
@@ -337,7 +340,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                   ))
                 ) : (
                   <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
-                    Belum ada rekomendasi — perbanyak aktivitas belanja & wishlist.
+                    {t("No recommendations yet — boost your shopping & wishlist activity.")}
                   </div>
                 )}
               </div>

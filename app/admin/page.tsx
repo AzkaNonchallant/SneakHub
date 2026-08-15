@@ -3,16 +3,10 @@
 import Link from "next/link"
 import { AlertTriangle, ArrowUpRight, Package, ShieldCheck, ShoppingBag, Users } from "lucide-react"
 
+import { PageMeta } from "@/components/page-meta"
 import { formatRp } from "@/lib/api"
 import { useAdminOrders, useAdminProducts, useAdminReports, useAdminUsers } from "@/lib/hooks"
-
-const statusLabel: Record<string, string> = {
-  PENDING: "Pending",
-  PROCESSING: "Diproses",
-  SHIPPED: "Dikirim",
-  COMPLETED: "Selesai",
-  CANCELLED: "Dibatalkan",
-}
+import { useT } from "@/lib/i18n"
 
 const tone: Record<string, string> = {
   PENDING: "bg-[#f59e0b]",
@@ -23,10 +17,19 @@ const tone: Record<string, string> = {
 }
 
 export default function AdminDashboardPage() {
+  const t = useT()
   const { data: report } = useAdminReports({ period: "monthly" })
   const { data: pending } = useAdminProducts({ status: "PENDING", limit: 5 })
   const { data: orders } = useAdminOrders({ limit: 5 })
   const { data: users } = useAdminUsers({ limit: 5 })
+
+  const statusLabel: Record<string, string> = {
+    PENDING: "Pending",
+    PROCESSING: t("Processing"),
+    SHIPPED: t("Shipped"),
+    COMPLETED: t("Completed"),
+    CANCELLED: t("Cancelled"),
+  }
 
   const stats = [
     { icon: Users, label: "Total Users", value: report?.total_users ?? "-" },
@@ -37,12 +40,13 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <PageMeta title="Admin Dashboard" />
       <div className="mb-6 border-b border-primary pb-4">
         <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
           Command Center
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Oversight operasional platform — periode {report?.period ?? "-"}.
+          {t("Platform oversight")} — {t("period")} {report?.period ?? "-"}.
         </p>
       </div>
 
@@ -56,7 +60,7 @@ export default function AdminDashboardPage() {
               </span>
               <s.icon className="size-4 text-primary" aria-hidden />
             </div>
-            <div className="mt-3 font-heading text-4xl leading-10 font-black text-primary">{s.value}</div>
+            <div className="mt-3 font-heading text-4xl leading-10 font-black text-primary tabular-nums">{s.value}</div>
           </div>
         ))}
       </div>
@@ -68,7 +72,7 @@ export default function AdminDashboardPage() {
           </span>
           <ArrowUpRight className="size-4 text-on-tertiary-container" aria-hidden />
         </div>
-        <div className="mt-3 font-heading text-4xl leading-10 font-black text-on-tertiary-container">
+        <div className="mt-3 font-heading text-4xl leading-10 font-black text-on-tertiary-container tabular-nums">
           {formatRp(report?.total_revenue ?? 0)}
         </div>
       </div>
@@ -79,18 +83,18 @@ export default function AdminDashboardPage() {
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-black tracking-wide text-primary uppercase">
-              Antrian Moderasi (PENDING)
+              {t("Moderation Queue")} (PENDING)
             </h2>
             <Link
               href="/admin/inventory"
               className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-on-tertiary-container uppercase hover:text-primary"
             >
-              Lihat semua <ArrowUpRight className="size-3.5 rotate-45" />
+              {t("View all")} <ArrowUpRight className="size-3.5 rotate-45" />
             </Link>
           </div>
           {(pending?.items ?? []).length === 0 ? (
             <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
-              Tidak ada produk menunggu moderasi.
+              {t("No products awaiting moderation.")}
             </div>
           ) : (
             <div className="divide-y divide-outline-variant border-t border-outline-variant">
@@ -109,12 +113,12 @@ export default function AdminDashboardPage() {
         {/* Recent orders */}
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-black tracking-wide text-primary uppercase">Pesanan Terbaru</h2>
-            <span className="font-mono text-xs text-muted-foreground">Semua seller</span>
+            <h2 className="text-sm font-black tracking-wide text-primary uppercase">{t("Recent Orders")}</h2>
+            <span className="font-mono text-xs text-muted-foreground">{t("All sellers")}</span>
           </div>
           {(orders?.items ?? []).length === 0 ? (
             <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
-              Belum ada pesanan.
+              {t("No orders yet.")}
             </div>
           ) : (
             <div className="divide-y divide-outline-variant border-t border-outline-variant">
@@ -143,17 +147,17 @@ export default function AdminDashboardPage() {
       {/* User activity */}
       <div className="mt-6 border border-outline-variant bg-surface-container-lowest p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-black tracking-wide text-primary uppercase">Aktivitas User</h2>
+          <h2 className="text-sm font-black tracking-wide text-primary uppercase">{t("User Activity")}</h2>
           <Link
             href="/admin/users"
             className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-on-tertiary-container uppercase hover:text-primary"
           >
-            Kelola <ArrowUpRight className="size-3.5 rotate-45" />
+            {t("Manage")} <ArrowUpRight className="size-3.5 rotate-45" />
           </Link>
         </div>
         {(users?.items ?? []).length === 0 ? (
           <div className="flex items-center justify-center border border-dashed border-outline-variant py-8 text-sm text-muted-foreground">
-            Belum ada data.
+            {t("No data yet.")}
           </div>
         ) : (
           <div className="divide-y divide-outline-variant border-t border-outline-variant">
@@ -179,7 +183,7 @@ export default function AdminDashboardPage() {
 
       <div className="mt-6 flex items-center gap-2 border border-outline-variant bg-surface-container-lowest p-4 text-xs text-muted-foreground">
         <AlertTriangle className="size-4 text-[#f59e0b]" />
-        Laporan diperbarui otomatis dari endpoint /admin/reports.
+        {t("Reports update automatically from the /admin/reports endpoint.")}
       </div>
     </div>
   )

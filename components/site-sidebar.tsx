@@ -11,40 +11,42 @@ import {
   Store,
 } from "lucide-react";
 
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutGrid },
-  { label: "Profil Toko", href: "/seller-profile", icon: Store },
-  { label: "Inventory", href: "/inventory", icon: Package },
-  { label: "Price Predictor", href: "/price-predictor", icon: LineChart },
-  { label: "Analytics", href: "/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/settings", icon: Settings },
-];
+import { useT } from "@/lib/i18n";
 
 const isActive = (pathname: string, href: string) =>
   pathname === href || pathname?.startsWith(href + "/");
 
 export function SiteSidebar() {
   const pathname = usePathname() ?? "";
+  const t = useT();
+  const navItems = [
+    { label: t("Dashboard"), href: "/dashboard", icon: LayoutGrid },
+    { label: t("Store Profile"), href: "/seller-profile", icon: Store },
+    { label: t("Inventory"), href: "/inventory", icon: Package },
+    { label: t("Price Predictor"), href: "/price-predictor", icon: LineChart },
+    { label: t("Analytics"), href: "/analytics", icon: BarChart3 },
+    { label: t("Settings"), href: "/settings", icon: Settings },
+  ];
 
   return (
     <>
       {/* Mobile top bar: brand + storefront, nav lives in the bottom tab bar */}
       <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-outline-variant bg-background px-4 md:hidden">
         <div className="font-heading text-xl leading-6 font-black tracking-tighter text-primary uppercase">
-          SELLER HUB
+          {t("SELLER HUB")}
         </div>
         <div className="flex items-center gap-4">
           <Link
             href="/seller-profile"
             className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-primary uppercase transition-colors hover:text-on-tertiary-container"
           >
-            <Store className="size-3.5" /> Toko
+            <Store className="size-3.5" /> {t("Store")}
           </Link>
           <Link
             href="/home"
             className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
           >
-            <Store className="size-3.5" /> Storefront
+            <Store className="size-3.5" /> {t("Storefront")}
           </Link>
         </div>
       </div>
@@ -66,7 +68,7 @@ export function SiteSidebar() {
             ].join(" ")}
           >
             <Icon className="size-5" />
-            {label === "Price Predictor" ? "Predictor" : label}
+            {label === t("Price Predictor") ? t("Predictor") : label}
           </Link>
         ))}
       </nav>
@@ -75,10 +77,10 @@ export function SiteSidebar() {
         {/* Brand */}
         <div className="mb-6 px-2">
           <div className="font-heading text-lg leading-6 font-black tracking-tighter text-primary uppercase">
-            SELLER HUB
+            {t("SELLER HUB")}
           </div>
           <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            PRO STATUS
+            {t("PRO STATUS")}
           </div>
         </div>
 

@@ -7,8 +7,10 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { DEFAULT_BRAND_ID, errMessage, formatRp, type PricePrediction } from "@/lib/api"
 import { useCategories, usePricePrediction } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export function PricePredictionButton() {
+  const t = useT()
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -18,7 +20,7 @@ export function PricePredictionButton() {
         className="h-auto gap-2 rounded-none border border-on-tertiary-container bg-on-tertiary-container px-5 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-on-tertiary-container"
       >
         <BrainCircuit className="size-4" />
-        Calculate Price Prediction
+        {t("Calculate Price Prediction")}
       </Button>
       {open ? <PricePredictionDialog onClose={() => setOpen(false)} /> : null}
     </>
@@ -26,6 +28,7 @@ export function PricePredictionButton() {
 }
 
 function PricePredictionDialog({ onClose }: { onClose: () => void }) {
+  const t = useT()
   const { data: categories } = useCategories()
   const predict = usePricePrediction()
   const [form, setForm] = useState({
@@ -62,20 +65,20 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
       <div className="flex max-h-[90vh] w-full max-w-md flex-col border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
         <div className="mb-4 flex items-center justify-between border-b border-outline-variant pb-4">
           <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-            Price Prediction
+            {t("Price Prediction")}
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="cursor-pointer text-xs font-bold tracking-widest text-muted-foreground uppercase hover:text-primary"
           >
-            Tutup
+            {t("Close")}
           </button>
         </div>
 
         <div className="flex flex-col gap-4 overflow-y-auto">
           <label className="flex flex-col gap-1">
-            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">Kondisi</span>
+            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">{t("Condition")}</span>
             <select
               value={form.kondisi}
               onChange={(e) => set("kondisi", e.target.value)}
@@ -89,11 +92,10 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
 
           <label className="flex flex-col gap-1">
             <span className="flex items-center justify-between text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-              Condition Score
+              {t("Condition Score")}
               <span className="font-heading text-base font-bold text-on-tertiary-container">
                 {form.condition_score}
-              </span>
-            </span>
+              </span>            </span>
             <input
               type="range"
               min={0}
@@ -105,7 +107,7 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">Ukuran</span>
+            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">{t("Size")}</span>
             <input
               type="text"
               value={form.ukuran}
@@ -115,18 +117,18 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">Model</span>
+            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">{t("Model")}</span>
             <input
               type="text"
               value={form.model}
               onChange={(e) => set("model", e.target.value)}
-              placeholder="cth: Air Jordan 1 High"
+              placeholder={t("e.g. Air Jordan 1 High")}
               className="border border-outline-variant bg-transparent p-2 focus:border-on-tertiary-container focus:ring-0"
             />
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">Tahun Rilis</span>
+            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">{t("Release Year")}</span>
             <input
               type="number"
               min={1900}
@@ -137,13 +139,13 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">Kategori</span>
+            <span className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">{t("Category")}</span>
             <select
               value={form.category_id}
               onChange={(e) => set("category_id", e.target.value)}
               className="border border-outline-variant bg-transparent p-2 focus:border-on-tertiary-container focus:ring-0"
             >
-              <option value="">— Pilih —</option>
+              <option value="">{t("— Select —")}</option>
               {(categories ?? []).map((c) => (
                 <option key={c.cateogry_id} value={c.cateogry_id}>
                   {c.nama_kategori}
@@ -156,7 +158,7 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
             <div className="flex flex-col gap-3 border border-on-tertiary-container bg-on-tertiary-container/5 p-4">
               <div className="flex items-center justify-between border-b border-on-tertiary-container/20 pb-2">
                 <span className="text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
-                  Rekomendasi Harga
+                  {t("Recommended Price")}
                 </span>
                 <span className="font-heading text-2xl leading-7 font-bold text-on-tertiary-container">
                   {formatRp(result.recommended_price)}
@@ -164,17 +166,17 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="border border-outline-variant bg-white p-2">
-                  <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Min Pasar</div>
+                  <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{t("Market Min")}</div>
                   <div className="font-heading font-bold text-primary">{formatRp(result.estimated_market_price_min)}</div>
                 </div>
                 <div className="border border-outline-variant bg-white p-2">
-                  <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Max Pasar</div>
+                  <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{t("Market Max")}</div>
                   <div className="font-heading font-bold text-primary">{formatRp(result.estimated_market_price_max)}</div>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                  Confidence
+                  {t("Confidence")}
                 </span>
                 <div className="flex flex-1 items-center gap-2 pl-4">
                   <div className="h-1.5 flex-1 bg-surface-container">
@@ -198,7 +200,7 @@ function PricePredictionDialog({ onClose }: { onClose: () => void }) {
           onClick={submit}
           className="mt-6 h-auto rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
         >
-          {predict.isPending ? "Menghitung…" : "Hitung Prediksi"}
+          {predict.isPending ? t("Calculating…") : t("Run Prediction")}
         </Button>
       </div>
     </div>

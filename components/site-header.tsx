@@ -4,25 +4,31 @@ import { useEffect, useDeferredValue, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "motion/react"
-import { Bell, Camera, CircleUser, Heart, Image, LogOut, Menu, Package, ScanSearch, Search, ShoppingCart, X } from "lucide-react"
+import { Bell, Camera, CircleUser, Heart, Image, Languages, LogOut, Menu, Package, ScanSearch, Search, ShoppingCart, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { isSellerRole, setToken, toCard } from "@/lib/api"
 import { useMe, useProducts } from "@/lib/hooks"
+import { useLang, useT } from "@/lib/i18n"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
 import { cn } from "@/lib/utils"
 
 const navLinks = ["Smart Find", "Shop", "Market Insights", "Seller Hub"]
 
+const navHref: Record<string, string> = {
+  "Smart Find": "/smart-find",
+  Shop: "/search",
+  "Market Insights": "/smart-find",
+  "Seller Hub": "/seller-profile",
+}
+
 const navLinksFor = (isSeller: boolean) =>
   navLinks.filter((label) => isSeller || label !== "Seller Hub")
 
-const mobileLinks: { label: string; href: string }[] = [
-  { label: "Smart Find", href: "/smart-find" },
-  { label: "Shop", href: "/search" },
-  { label: "Market Insights", href: "/home" },
-  { label: "Seller Hub", href: "/seller-profile" },
-]
+const mobileLinks: { label: string; href: string }[] = navLinks.map((label) => ({
+  label,
+  href: navHref[label],
+}))
 
 const accountLinks: { label: string; href: string; icon: typeof CircleUser }[] = [
   { label: "Profile", href: "/profile", icon: CircleUser },
@@ -43,6 +49,8 @@ const mobileActions: { label: string; href: string; icon: typeof CircleUser }[] 
 export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useT()
+  const { lang, toggleLang } = useLang()
   const [query, setQuery] = useState("")
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(-1)
@@ -138,7 +146,7 @@ export function SiteHeader() {
                 setMenuOpen(false)
               }}
               onKeyDown={onKeyDown}
-              placeholder="Search brands, models, styles..."
+              placeholder={t("Search brands, models, styles...")}
               className="w-80 rounded-sm border border-outline-variant bg-surface-container-low py-2 pr-12 pl-10 text-base text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-on-tertiary-container focus:ring-1 focus:ring-on-tertiary-container"
             />
             <Button
@@ -170,7 +178,7 @@ export function SiteHeader() {
                   className="flex w-full items-center gap-3 px-3 py-3 text-sm leading-5 transition-colors hover:bg-surface-container"
                 >
                   <Camera className="size-4 text-on-tertiary-container" />
-                  Ambil Foto
+                  {t("Take Photo")}
                 </button>
                 <button
                   type="button"
@@ -178,7 +186,7 @@ export function SiteHeader() {
                   className="flex w-full items-center gap-3 px-3 py-3 text-sm leading-5 transition-colors hover:bg-surface-container"
                 >
                   <Image className="size-4 text-on-tertiary-container" />
-                  Dari Galeri
+                  {t("From Gallery")}
                 </button>
               </div>
             ) : null}
@@ -220,7 +228,7 @@ export function SiteHeader() {
                   ))
                 ) : (
                   <p className="px-3 py-3 text-sm text-muted-foreground">
-                    Tidak ada hasil untuk &quot;{query}&quot;
+                    {t("No results for")} &quot;{query}&quot;
                   </p>
                 )}
                 <button
@@ -229,7 +237,7 @@ export function SiteHeader() {
                   onMouseEnter={() => setActive(-1)}
                   className="flex w-full items-center justify-between bg-surface-container-low px-3 py-2.5 text-xs leading-4 font-bold tracking-widest text-on-tertiary-container uppercase transition-colors hover:bg-surface-container-highest"
                 >
-                  Lihat semua hasil untuk &quot;{query}&quot;
+                  {t("View all results for")} &quot;{query}&quot;
                   <Search className="size-4" />
                 </button>
               </div>
@@ -237,37 +245,20 @@ export function SiteHeader() {
           </form>
         </div>
         <nav className="hidden items-center gap-8 md:flex">
-          {navLinksFor(isSeller).map((label) =>
-            label === "Seller Hub" ? (
-              <Link
-                key={label}
-                href="/seller-profile"
-                className="border-b-2 border-primary text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase transition-colors hover:text-on-tertiary-container"
-              >
-                {label}
-              </Link>
-            ) : label === "Smart Find" ? (
-              <Link
-                key={label}
-                href="/smart-find"
-                className={`pb-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:text-on-tertiary-container ${
-                  pathname.startsWith("/smart-find")
-                    ? "border-b-2 border-on-tertiary-container pb-1 text-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {label}
-              </Link>
-            ) : (
-              <Link
-                key={label}
-                href="#"
-                className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase transition-colors hover:text-on-tertiary-container"
-              >
-                {label}
-              </Link>
-            ),
-          )}
+          {navLinksFor(isSeller).map((label) => (
+            <Link
+              key={label}
+              href={navHref[label]}
+              className={cn(
+                "pb-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:text-on-tertiary-container",
+                pathname.startsWith(navHref[label])
+                  ? "border-b-2 border-primary pb-1 text-primary"
+                  : "text-muted-foreground",
+              )}
+            >
+              {t(label)}
+            </Link>
+          ))}
         </nav>
         <div className="flex items-center gap-4">
           <Button
@@ -328,7 +319,7 @@ export function SiteHeader() {
                   />
                   <div className="absolute top-full right-0 z-50 mt-2 w-56 border border-primary bg-white shadow-[4px_4px_0px_0px_#000]">
                     <span className="block border-b border-outline-variant px-3 py-2 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                      My Account
+                      {t("My Account")}
                     </span>
                     {accountLinks.map(({ label, href, icon: Icon }) => (
                       <Link
@@ -338,7 +329,7 @@ export function SiteHeader() {
                         className="flex w-full items-center gap-3 px-3 py-3 text-sm leading-5 text-primary transition-colors hover:bg-surface-container"
                       >
                         <Icon className="size-4 text-muted-foreground" />
-                        {label}
+                        {t(label)}
                       </Link>
                     ))}
                     <Link
@@ -350,12 +341,23 @@ export function SiteHeader() {
                       className="flex w-full items-center gap-3 border-t border-outline-variant px-3 py-3 text-sm leading-5 text-error transition-colors hover:bg-surface-container"
                     >
                       <LogOut className="size-4" />
-                      Sign Out
+                      {t("Sign Out")}
                     </Link>
                   </div>
                 </>
               ) : null}
             </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("Language")}
+              title={t("Language")}
+              onClick={toggleLang}
+              className="rounded-none"
+            >
+              <Languages />
+            </Button>
           </div>
         </div>
       </div>
@@ -405,7 +407,7 @@ export function SiteHeader() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search brands, models, styles..."
+                  placeholder={t("Search brands, models, styles...")}
                   className="w-full border border-white bg-transparent py-3 pr-4 pl-10 text-base text-white outline-none transition-colors placeholder:text-white/50 focus:border-b-2 focus:border-on-tertiary-container"
                 />
               </form>
@@ -436,12 +438,21 @@ export function SiteHeader() {
                             : "text-white",
                         )}
                       >
-                        {label}
+                        {t(label)}
                       </span>
                     </Link>
                   </motion.div>
                 ))}
               </nav>
+
+              <button
+                type="button"
+                onClick={toggleLang}
+                className="mt-8 flex items-center gap-3 border border-white/30 px-4 py-3 text-xs font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-white hover:text-primary"
+              >
+                <Languages className="size-4" />
+                {t("Language")}: {lang === "en" ? "Bahasa Indonesia" : "English"}
+              </button>
 
               <motion.div
                 initial={{ opacity: 0 }}
@@ -459,7 +470,7 @@ export function SiteHeader() {
                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 border border-white py-3 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-primary"
                   >
                     <Camera className="size-4 text-on-tertiary-container" />
-                    Ambil Foto
+                    {t("Take Photo")}
                   </button>
                   <button
                     type="button"
@@ -467,7 +478,7 @@ export function SiteHeader() {
                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 border border-white py-3 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-primary"
                   >
                     <Image className="size-4 text-on-tertiary-container" />
-                    Galeri
+                    {t("Gallery")}
                   </button>
                 </div>
               </motion.div>
@@ -487,7 +498,7 @@ export function SiteHeader() {
                   className="flex flex-col items-center gap-1.5 bg-primary py-4 text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-white/10"
                 >
                   <Icon className="size-5" />
-                  {label}
+                  {t(label)}
                 </Link>
               ))}
             </motion.div>

@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { PageMeta } from "@/components/page-meta"
 import { errMessage, formatRp, type AdminProduct } from "@/lib/api"
 import { useAdminProducts, useUpdateProductStatus } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const statuses = ["ACTIVE", "DRAFT", "INACTIVE", "PENDING"]
 
@@ -16,6 +18,7 @@ const statusTone: Record<string, string> = {
 }
 
 export default function AdminInventoryPage() {
+  const t = useT()
   const { data, isLoading } = useAdminProducts({ limit: 50 })
   const update = useUpdateProductStatus()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -23,11 +26,11 @@ export default function AdminInventoryPage() {
   const save = async (p: AdminProduct) => {
     const next = drafts[p.product_id] ?? p.status_publikasi
     if (next === p.status_publikasi) return
-    const catatan = window.prompt(`Catatan moderasi untuk "${p.nama_produk}":`, "Produk lolos moderasi")
+    const catatan = window.prompt(`${t("Moderation note for")} "${p.nama_produk}":`, t("Product passed moderation"))
     if (catatan === null) return
     try {
       await update.mutateAsync({ productId: p.product_id, body: { status_publikasi: next, catatan } })
-      toast.success("Status produk diperbarui")
+      toast.success(t("Product status updated"))
     } catch (err) {
       toast.error(errMessage(err))
     }
@@ -37,12 +40,13 @@ export default function AdminInventoryPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <PageMeta title="Inventory" />
       <div className="mb-6 border-b border-primary pb-4">
         <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
           Inventory
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Moderasi produk: setujui (ACTIVE) atau nonaktifkan listing.
+          {t("Moderate products: approve (ACTIVE) or deactivate listings.")}
         </p>
       </div>
 
@@ -50,10 +54,10 @@ export default function AdminInventoryPage() {
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-outline-variant text-left text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
-              <th className="px-4 py-3 font-bold">Produk</th>
-              <th className="px-4 py-3 font-bold">Harga</th>
-              <th className="px-4 py-3 font-bold">Status</th>
-              <th className="px-4 py-3 font-bold">Aksi</th>
+              <th className="px-4 py-3 font-bold">{t("Product")}</th>
+              <th className="px-4 py-3 font-bold">{t("Price")}</th>
+              <th className="px-4 py-3 font-bold">{t("Status")}</th>
+              <th className="px-4 py-3 font-bold">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -66,7 +70,7 @@ export default function AdminInventoryPage() {
             ) : products.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                  Belum ada data.
+                  {t("No data yet.")}
                 </td>
               </tr>
             ) : (

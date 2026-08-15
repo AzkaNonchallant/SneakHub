@@ -2,10 +2,13 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
+import { PageMeta } from "@/components/page-meta"
 import { formatRp } from "@/lib/api"
 import { useAdminReports } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export default function AdminAnalyticsPage() {
+  const t = useT()
   const { data, isLoading } = useAdminReports({ period: "monthly" })
 
   const rows = data
@@ -20,11 +23,14 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <PageMeta title="Analytics" />
       <div className="mb-6 border-b border-primary pb-4">
         <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
           Analytics
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Laporan agregat platform (periode {data?.period ?? "-"}).</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("Aggregate platform report")} ({t("period")} {data?.period ?? "-"}).
+        </p>
       </div>
 
       {isLoading ? (
@@ -36,14 +42,14 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-2 gap-5 lg:col-span-1 lg:grid-cols-1">
             {rows.slice(0, 4).map((r) => (
               <div key={r.label} className="border border-outline-variant bg-surface-container-lowest p-5">
-                <div className="font-heading text-3xl leading-9 font-black text-primary">{r.value}</div>
+                <div className="font-heading text-3xl leading-9 font-black text-primary tabular-nums">{r.value}</div>
                 <div className="mt-1 text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
                   {r.label}
                 </div>
               </div>
             ))}
             <div className="border border-on-tertiary-container bg-on-tertiary-container/5 p-5">
-              <div className="font-heading text-3xl leading-9 font-black text-on-tertiary-container">
+              <div className="font-heading text-3xl leading-9 font-black text-on-tertiary-container tabular-nums">
                 {formatRp(data.total_revenue)}
               </div>
               <div className="mt-1 text-[10px] leading-4 font-bold tracking-widest text-on-tertiary-container uppercase">
@@ -76,7 +82,7 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : (
         <div className="border border-primary bg-surface-container-low p-10 text-center text-muted-foreground">
-          Belum ada data laporan.
+          {t("No report data yet.")}
         </div>
       )}
     </div>

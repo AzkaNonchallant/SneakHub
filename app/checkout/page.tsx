@@ -5,12 +5,15 @@ import Link from "next/link"
 import { AlertCircle, Lock, Plus, ShieldCheck } from "lucide-react"
 
 import { AddressDialog } from "@/components/address-manager"
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
 import { useAddresses, useCart, useCheckout } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export default function CheckoutPage() {
+  const t = useT()
   const { data: cart } = useCart()
   const { data: addresses } = useAddresses()
   const checkout = useCheckout()
@@ -25,7 +28,7 @@ export default function CheckoutPage() {
   async function onCheckout() {
     setError("")
     if (!chosenAddress) {
-      setError("Pilih atau buat alamat pengiriman dulu.")
+      setError(t("Choose or create a shipping address first."))
       return
     }
     try {
@@ -42,17 +45,18 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Checkout" />
       <header className="sticky top-0 z-50 w-full border-b border-outline-variant bg-surface-container-lowest">
         <div className="relative mx-auto flex max-w-[1280px] items-center justify-center px-5 py-4 md:px-10">
           <Link
             href="/home"
             className="font-heading text-[32px] leading-8 font-bold tracking-tighter text-primary uppercase"
           >
-            Sneakhub
+            SNEAKHUB
           </Link>
           <span className="absolute right-5 flex items-center gap-2 text-sm font-medium text-on-surface-variant md:right-10">
             <Lock className="size-4" fill="currentColor" />
-            Encrypted
+            {t("Encrypted")}
           </span>
         </div>
       </header>
@@ -60,10 +64,10 @@ export default function CheckoutPage() {
       <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-10 md:py-12">
         <div className="mb-8">
           <h1 className="font-heading text-[32px] leading-8 font-bold text-primary uppercase md:text-[48px] md:leading-12">
-            Checkout
+            {t("Checkout")}
           </h1>
           <p className="mt-2 text-base leading-6 text-on-surface-variant">
-            Complete your technical transaction.
+            {t("Complete your technical transaction.")}
           </p>
         </div>
 
@@ -76,12 +80,12 @@ export default function CheckoutPage() {
                 <span className="flex size-8 items-center justify-center bg-primary text-xs leading-4 font-bold text-white">
                   01
                 </span>
-                Shipping Address
+                {t("Shipping Address")}
               </h2>
               <AddressDialog
                 trigger={
                   <>
-                    <Plus className="size-4" /> Tambah Alamat
+                    <Plus className="size-4" /> {t("Add Address")}
                   </>
                 }
               />
@@ -117,7 +121,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
-                  Belum ada alamat. Klik &quot;Tambah Alamat&quot; di atas untuk buat alamat pengiriman.
+                  {t('No address yet. Click "Add Address" above to create a shipping address.')}
                 </p>
               )}
             </div>
@@ -129,9 +133,8 @@ export default function CheckoutPage() {
                 <span className="flex size-8 items-center justify-center bg-primary text-xs leading-4 font-bold text-white">
                   02
                 </span>
-                Payment Details
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {t("Payment Details")}
+              </h2>              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   { value: "EWALLET", label: "E-Wallet (QRIS)" },
                   { value: "BANK_TRANSFER", label: "Bank Transfer / VA" },
@@ -168,25 +171,25 @@ export default function CheckoutPage() {
               disabled={checkout.isPending || items.length === 0}
               className="mt-6 h-auto w-full rounded-none border border-primary bg-primary px-8 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary md:w-auto"
             >
-              {checkout.isPending ? "Memproses…" : "Bayar Sekarang"}
+              {checkout.isPending ? t("Processing…") : t("Pay Now")}
             </Button>
           </div>
 
           <div className="w-full lg:w-1/3">
             <div className="sticky top-8 border border-outline bg-surface-container-lowest p-6">
               <h3 className="mb-4 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                Order Summary
+                {t("Order Summary")}
               </h3>
               {items.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="font-heading text-xl leading-7 font-semibold text-primary uppercase">
-                    Your cart is empty
+                    {t("Your cart is empty")}
                   </p>
                   <Link
                     href="/cart"
                     className="mt-3 inline-block border-b-2 border-primary pb-1 font-heading text-xs font-bold tracking-widest text-primary uppercase hover:border-ring hover:text-ring"
                   >
-                    Back to Cart
+                    {t("Back to Cart")}
                   </Link>
                 </div>
               ) : (
@@ -197,7 +200,7 @@ export default function CheckoutPage() {
                         <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
                           <img
                             src={item.image_url || PLACEHOLDER_IMAGE}
-                            alt={item.nama_produk ?? "Produk"}
+                            alt={item.nama_produk ?? t("Product")}
                             className="h-full w-full object-cover"
                           />
                           <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
@@ -207,7 +210,7 @@ export default function CheckoutPage() {
                         <div className="flex grow flex-col justify-between">
                           <div>
                             <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                              {item.nama_produk ?? "Produk"}
+                              {item.nama_produk ?? t("Product")}
                             </p>
                           </div>
                           <p className="font-heading text-2xl leading-7 font-semibold text-primary">
@@ -235,11 +238,10 @@ export default function CheckoutPage() {
                     <ShieldCheck className="mt-0.5 size-5 shrink-0 text-on-tertiary-container" />
                     <div>
                       <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                        SneakHub Verified
+                        {t("SneakHub Verified")}
                       </p>
                       <p className="mt-1 text-sm leading-tight text-on-surface-variant">
-                        Every item passes our strict, multi-point physical and technical
-                        authentication protocol before shipping.
+                        {t("Every item passes our strict, multi-point physical and technical authentication protocol before shipping.")}
                       </p>
                     </div>
                   </div>

@@ -11,15 +11,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { errMessage, type User } from "@/lib/api"
 import { useUpdateMe } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
-const profileSchema = z.object({
-  nama: z.string().trim().min(1, "Nama wajib diisi"),
-  nomor_telepon: z.string().trim().min(6, "Nomor telepon tidak valid"),
-  preferensi_ukuran: z.string().trim().optional(),
-  brand_favorit: z.string().trim().optional(),
-})
-
-type ProfileForm = z.infer<typeof profileSchema>
+type ProfileForm = {
+  nama: string
+  nomor_telepon: string
+  preferensi_ukuran?: string
+  brand_favorit?: string
+}
 
 function Field({
   label,
@@ -42,6 +41,13 @@ function Field({
 }
 
 export function EditProfilButton({ user }: { user?: User }) {
+  const t = useT()
+  const profileSchema = z.object({
+    nama: z.string().trim().min(1, t("Name is required")),
+    nomor_telepon: z.string().trim().min(6, t("Invalid phone number")),
+    preferensi_ukuran: z.string().trim().optional(),
+    brand_favorit: z.string().trim().optional(),
+  })
   const update = useUpdateMe()
   const [open, setOpen] = useState(false)
   const [errors, setErrors] = useState<Partial<ProfileForm>>({})
@@ -80,7 +86,7 @@ export function EditProfilButton({ user }: { user?: User }) {
           ? parsed.data.brand_favorit.split(",").map((s) => s.trim()).filter(Boolean)
           : [],
       })
-      toast.success("Profil diperbarui")
+      toast.success(t("Profile updated"))
       setOpen(false)
     } catch (err) {
       toast.error(errMessage(err))
@@ -93,7 +99,7 @@ export function EditProfilButton({ user }: { user?: User }) {
         render={
           <Button className="mt-4 h-auto w-full gap-2 rounded-none border border-primary bg-primary px-4 py-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary">
             <Pencil className="size-4" />
-            Edit Profil
+            {t("Edit Profile")}
           </Button>
         }
       />
@@ -101,32 +107,32 @@ export function EditProfilButton({ user }: { user?: User }) {
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/40" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 border border-outline bg-surface-container-lowest shadow-[4px_4px_0px_0px_#000]">
           <Dialog.Title className="border-b border-outline px-6 py-4 font-heading text-2xl leading-7 font-bold text-primary uppercase">
-            Edit Profil
+            {t("Edit Profile")}
           </Dialog.Title>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Nama" error={errors.nama}>
+              <Field label={t("Name")} error={errors.nama}>
                 <Input {...register("nama")} />
               </Field>
-              <Field label="Nomor Telepon" error={errors.nomor_telepon}>
+              <Field label={t("Phone Number")} error={errors.nomor_telepon}>
                 <Input {...register("nomor_telepon")} />
               </Field>
             </div>
             <Field
-              label="Preferensi Ukuran (pisahkan dengan koma)"
+              label={t("Size Preference (comma separated)")}
               error={errors.preferensi_ukuran}
             >
               <Input {...register("preferensi_ukuran")} placeholder="40, 41, 42" />
             </Field>
-            <Field label="Brand Favorit (pisahkan dengan koma)" error={errors.brand_favorit}>
+            <Field label={t("Favorite Brand (comma separated)")} error={errors.brand_favorit}>
               <Input {...register("brand_favorit")} placeholder="Nike, Adidas" />
             </Field>
             <div className="mt-2 flex justify-end gap-3">
               <Dialog.Close render={<Button type="button" variant="outline" className="rounded-none" />}>
-                Batal
+                {t("Cancel")}
               </Dialog.Close>
               <Button type="submit" disabled={update.isPending} className="rounded-none">
-                Simpan
+                {t("Save")}
               </Button>
             </div>
           </form>

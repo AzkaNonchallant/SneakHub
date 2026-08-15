@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import type { ProductCardData } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { useAddCartItems } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export function ProductCard({
   product,
@@ -22,6 +23,7 @@ export function ProductCard({
   className?: string
 }) {
   const router = useRouter()
+  const t = useT()
   const addToCart = useAddCartItems()
   const [adding, setAdding] = useState(false)
 
@@ -74,7 +76,7 @@ export function ProductCard({
         <div className="mt-auto flex items-end justify-between border-t border-outline-variant pt-4">
           <div>
             <span className="block text-xs font-bold tracking-widest text-muted-foreground uppercase">
-              Current Ask
+              {t("Current Ask")}
             </span>
             <span className="font-heading text-2xl leading-7 font-bold text-primary">
               {product.price}

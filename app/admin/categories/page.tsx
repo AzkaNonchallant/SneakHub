@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react"
 
+import { PageMeta } from "@/components/page-meta"
 import { errMessage } from "@/lib/api"
 import {
   useCategories,
@@ -10,16 +11,18 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div className="mb-4 border border-error bg-error/5 px-4 py-3 text-sm text-error">
       {message}
     </div>
   )
 }
 
 export default function AdminCategoriesPage() {
+  const t = useT()
   const { data: categories, isLoading } = useCategories()
   const create = useCreateCategory()
   const update = useUpdateCategory()
@@ -56,7 +59,7 @@ export default function AdminCategoriesPage() {
   }
 
   const onDelete = async (id: string, namaKategori: string) => {
-    if (!window.confirm(`Hapus kategori "${namaKategori}"?`)) return
+    if (!window.confirm(`${t("Delete category")} "${namaKategori}"?`)) return
     setError("")
     try {
       await remove.mutateAsync(id)
@@ -66,11 +69,14 @@ export default function AdminCategoriesPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-8 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight text-neutral-900">CATEGORIES</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Kelola kategori produk platform.
+    <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
+      <PageMeta title="Categories" />
+      <div className="mb-6 border-b border-primary pb-4">
+        <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
+          Categories
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("Manage the platform's product categories.")}
         </p>
       </div>
 
@@ -78,49 +84,49 @@ export default function AdminCategoriesPage() {
 
       <form
         onSubmit={onCreate}
-        className="mb-6 flex items-center gap-3 rounded-lg border border-neutral-200 bg-white p-4"
+        className="mb-6 flex flex-col gap-3 border border-outline-variant bg-surface-container-lowest p-4 sm:flex-row sm:items-center"
       >
         <input
           type="text"
           value={nama}
           onChange={(e) => setNama(e.target.value)}
-          placeholder="Nama kategori baru (mis. Sepatu Lari)"
-          className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-blue-600"
+          placeholder={t("New category name (e.g. Running Shoes)")}
+          className="flex-1 border border-outline-variant bg-transparent px-3 py-2 text-sm text-primary focus:border-on-tertiary-container focus:ring-0"
         />
         <button
           type="submit"
           disabled={create.isPending}
-          className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 border border-primary bg-primary px-4 py-2 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
         >
           <Plus className="size-4" aria-hidden />
-          {create.isPending ? "Menyimpan…" : "Tambah"}
+          {create.isPending ? t("Saving…") : t("Add")}
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto border border-outline-variant bg-surface-container-lowest">
+        <table className="w-full min-w-[480px] text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-left text-[11px] font-semibold tracking-wide text-neutral-400 uppercase">
-              <th className="px-4 py-3 font-semibold">Nama Kategori</th>
-              <th className="w-40 px-4 py-3 text-right font-semibold">Aksi</th>
+            <tr className="border-b border-outline-variant text-left text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+              <th className="px-4 py-3 font-bold">{t("Category Name")}</th>
+              <th className="w-44 px-4 py-3 text-right font-bold">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={2} className="px-4 py-8 text-center text-neutral-400">
-                  Memuat…
+                <td colSpan={2} className="px-4 py-8 text-center text-muted-foreground">
+                  {t("Loading…")}
                 </td>
               </tr>
             ) : categories?.length === 0 ? (
               <tr>
-                <td colSpan={2} className="px-4 py-8 text-center text-neutral-400">
-                  Belum ada kategori.
+                <td colSpan={2} className="px-4 py-8 text-center text-muted-foreground">
+                  {t("No categories yet.")}
                 </td>
               </tr>
             ) : (
               categories?.map((cat) => (
-                <tr key={cat.cateogry_id} className="border-b border-neutral-100 last:border-b-0">
+                <tr key={cat.cateogry_id} className="border-b border-outline-variant last:border-0">
                   <td className="px-4 py-3">
                     {editingId === cat.cateogry_id ? (
                       <input
@@ -128,10 +134,10 @@ export default function AdminCategoriesPage() {
                         value={editNama}
                         onChange={(e) => setEditNama(e.target.value)}
                         autoFocus
-                        className="w-full max-w-sm rounded-md border border-neutral-300 px-2 py-1 text-sm text-neutral-900 outline-none focus:border-blue-600"
+                        className="w-full max-w-sm border border-outline-variant bg-transparent px-2 py-1 text-sm text-primary focus:border-on-tertiary-container focus:ring-0"
                       />
                     ) : (
-                      <span className="text-neutral-900">{cat.nama_kategori}</span>
+                      <span className="font-heading font-bold text-primary">{cat.nama_kategori}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -142,15 +148,15 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={() => onSave(cat.cateogry_id)}
                             disabled={update.isPending}
-                            className="flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                            className="flex items-center gap-1 border border-primary bg-primary px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
                           >
                             <Check className="size-3.5" aria-hidden />
-                            Simpan
+                            {t("Save")}
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditingId(null)}
-                            className="flex items-center gap-1 rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100"
+                            className="flex items-center gap-1 border border-outline-variant px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:bg-surface-container hover:text-primary"
                           >
                             <X className="size-3.5" aria-hidden />
                           </button>
@@ -163,7 +169,7 @@ export default function AdminCategoriesPage() {
                               setEditingId(cat.cateogry_id)
                               setEditNama(cat.nama_kategori)
                             }}
-                            className="flex items-center gap-1 rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100"
+                            className="flex items-center gap-1 border border-primary bg-primary px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
                           >
                             <Pencil className="size-3.5" aria-hidden />
                             Edit
@@ -172,10 +178,10 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={() => onDelete(cat.cateogry_id, cat.nama_kategori)}
                             disabled={remove.isPending}
-                            className="flex items-center gap-1 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                            className="flex items-center gap-1 border border-error bg-error px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-error disabled:opacity-40"
                           >
                             <Trash2 className="size-3.5" aria-hidden />
-                            Hapus
+                            {t("Delete")}
                           </button>
                         </>
                       )}

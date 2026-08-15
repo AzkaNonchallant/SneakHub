@@ -29,7 +29,7 @@ export default function DashboardLayout({
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         <SiteSidebar />
 
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">

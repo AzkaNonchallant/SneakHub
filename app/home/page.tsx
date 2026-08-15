@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "motion/react"
 import Link from "next/link"
 import {
@@ -11,12 +12,15 @@ import {
   TrendingUp,
 } from "lucide-react"
 
+import { PageMeta } from "@/components/page-meta"
+import { PricePredictionButton } from "@/components/price-prediction-dialog"
 import { ProductCard } from "@/components/product-card"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { formatRp, PLACEHOLDER_IMAGE, type ProductCardData } from "@/lib/api"
 import { useBestSellerWeekly, useHomePersonalized, useProducts, useTrending } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -26,24 +30,26 @@ const fadeUp = {
 }
 
 export default function HomePage() {
+  const t = useT()
   const { data: trendingData } = useTrending({ period: "weekly", limit: 8 })
-  const { data: bestSellerData } = useBestSellerWeekly(4)
+  const [bestLimit, setBestLimit] = useState(4)
+  const { data: bestSellerData } = useBestSellerWeekly(bestLimit)
   const { data: personalizedData } = useHomePersonalized()
   const { data: productsData } = useProducts({ limit: 50, sort: "terbaru" })
 
   const catalog = new Map((productsData?.items ?? []).map((p) => [p.product_id, p]))
 
-  const trending: ProductCardData[] = (trendingData?.items ?? []).map((t) => {
-    const p = catalog.get(t.product_id)
+  const trending: ProductCardData[] = (trendingData?.items ?? []).map((ti) => {
+    const p = catalog.get(ti.product_id)
     return {
-      id: t.product_id,
+      id: ti.product_id,
       brand: p?.brand ?? p?.seller?.nama_toko ?? "",
-      name: t.nama_produk,
+      name: ti.nama_produk,
       price: p ? formatRp(p.harga) : "",
       image: p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE,
-      alt: t.nama_produk,
+      alt: ti.nama_produk,
       badge: "TRENDING",
-      trend: `${t.trend_score} SCORE`,
+      trend: `${ti.trend_score} ${t("SCORE")}`,
       harga: p?.harga ?? 0,
       kondisi: "",
       ukuran: [],
@@ -58,8 +64,8 @@ export default function HomePage() {
       price: p ? formatRp(p.harga) : "",
       image: p?.images?.[0]?.image_url || p?.image_url || PLACEHOLDER_IMAGE,
       alt: b.nama_produk,
-      badge: `#${b.rank} BEST SELLER`,
-      trend: `${b.total_terjual} TERJUAL`,
+      badge: `#${b.rank} ${t("BEST SELLER")}`,
+      trend: `${b.total_terjual} ${t("SOLD")}`,
       harga: p?.harga ?? 0,
       kondisi: "",
       ukuran: [],
@@ -83,6 +89,7 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Home" />
       <SiteHeader />
 
       {/* Hero */}
@@ -104,21 +111,24 @@ export default function HomePage() {
             className="max-w-2xl border border-outline-variant bg-white/80 p-8 shadow-[4px_4px_0px_0px_#000] backdrop-blur-sm"
           >
             <span className="mb-4 inline-block border border-outline-variant bg-surface-container px-3 py-1 text-xs leading-4 font-bold tracking-widest text-primary uppercase">
-              Latest Drop
+              {t("Latest Drop")}
             </span>
             <h1 className="font-heading text-[32px] leading-8 font-bold tracking-tight text-primary uppercase sm:text-[56px] sm:leading-[56px] md:text-[72px] md:leading-[72px]">
-              Technical
+              {t("Technical")}
               <br />
-              Precision
+              {t("Precision")}
               <br />
-              In Resale.
+              {t("In Resale.")}
             </h1>
             <p className="mb-8 mt-4 max-w-md text-lg leading-7 text-muted-foreground">
-              Access verified, authenticated, and high-performance footwear. Navigate the market
-              with AI-driven insights.
+              {t("Access verified, authenticated, and high-performance footwear. Navigate the market with AI-driven insights.")}
             </p>
-            <Button className="h-auto rounded-none border border-primary bg-primary px-8 py-4 text-xs leading-4 font-bold tracking-widest text-primary-foreground uppercase shadow-[4px_4px_0px_0px_#000] transition-all hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-surface-container-lowest hover:text-primary hover:shadow-none">
-              Explore the Collection
+            <Button
+              className="h-auto rounded-none border border-primary bg-primary px-8 py-4 text-xs leading-4 font-bold tracking-widest text-primary-foreground uppercase shadow-[4px_4px_0px_0px_#000] transition-all hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-surface-container-lowest hover:text-primary hover:shadow-none"
+              nativeButton={false}
+              render={<Link href="/search" />}
+            >
+              {t("Explore the Collection")}
               <ArrowRight className="size-4" />
             </Button>
           </motion.div>
@@ -131,15 +141,15 @@ export default function HomePage() {
           <motion.div {...fadeUp} className="mb-8 flex items-end justify-between">
             <div>
               <h2 className="font-heading text-[32px] leading-8 font-bold text-primary uppercase md:text-5xl md:leading-[48px]">
-                Trending Shoes
+                {t("Trending Shoes")}
               </h2>
-              <p className="mt-2 text-base leading-6 text-muted-foreground">High-growth popular sneakers.</p>
+              <p className="mt-2 text-base leading-6 text-muted-foreground">{t("High-growth popular sneakers.")}</p>
             </div>
             <Link
-              href="#"
+              href="/smart-find"
               className="inline-flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase transition-colors hover:text-primary"
             >
-              View All Market Data
+              {t("View All Market Data")}
               <TrendingUp className="size-4" />
             </Link>
           </motion.div>
@@ -151,7 +161,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
-              Belum ada data trending periode ini.
+              {t("No trending data for this period yet.")}
             </div>
           )}
         </div>
@@ -164,7 +174,7 @@ export default function HomePage() {
             {...fadeUp}
             className="font-heading mb-8 text-5xl leading-[48px] font-bold text-primary uppercase"
           >
-            Technical Advantage
+            {t("Technical Advantage")}
           </motion.h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-12 md:grid-rows-[400px_200px]">
             {/* AI Price Predictor */}
@@ -179,21 +189,20 @@ export default function HomePage() {
               <div className="relative z-10 flex h-full flex-col justify-between">
                 <div>
                   <span className="mb-4 inline-flex items-center gap-1 bg-primary px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase">
-                    <BrainCircuit className="size-3.5" /> AI Engine
+                    <BrainCircuit className="size-3.5" /> {t("AI Engine")}
                   </span>
                   <h3 className="font-heading text-5xl leading-[48px] font-bold text-primary uppercase">
-                    Price Predictor
+                    {t("Price Predictor")}
                   </h3>
                   <p className="mt-2 max-w-sm text-base leading-6 text-muted-foreground">
-                    Leverage machine learning models to forecast market trends and determine optimal
-                    listing prices with technical precision.
+                    {t("Leverage machine learning models to forecast market trends and determine optimal listing prices with technical precision.")}
                   </p>
                 </div>
                 <div className="mt-8 flex flex-col gap-6 items-end justify-between sm:flex-row sm:items-end">
                   <div className="w-full max-w-md border border-outline-variant bg-white p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                        Confidence Score
+                        {t("Confidence Score")}
                       </span>
                       <span className="text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container">
                         98.4%
@@ -203,9 +212,7 @@ export default function HomePage() {
                       <div className="h-full w-[98.4%] bg-on-tertiary-container" />
                     </div>
                   </div>
-                  <Button className="h-auto rounded-none border border-on-tertiary-container bg-on-tertiary-container px-6 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-on-tertiary-container">
-                    Calculate Now
-                  </Button>
+                  <PricePredictionButton />
                 </div>
               </div>
             </motion.div>
@@ -227,20 +234,19 @@ export default function HomePage() {
               <div className="relative z-10">
                 <ShieldCheck className="mb-4 size-9 text-on-tertiary-container" />
                 <h3 className="font-heading text-2xl leading-7 font-semibold uppercase">
-                  Rigorous
+                  {t("Rigorous")}
                   <br />
-                  Authentication
+                  {t("Authentication")}
                 </h3>
                 <p className="mt-2 text-base leading-6 text-secondary-fixed-dim">
-                  Every item passes a multi-point inspection by certified experts before it reaches
-                  you.
+                  {t("Every item passes a multi-point inspection by certified experts before it reaches you.")}
                 </p>
               </div>
               <Link
-                href="#"
+                href="/process"
                 className="relative z-10 mt-8 inline-flex items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:text-on-tertiary-container"
               >
-                Process Details <ArrowRight className="size-4" />
+                {t("Process Details")} <ArrowRight className="size-4" />
               </Link>
             </motion.div>
 
@@ -251,10 +257,10 @@ export default function HomePage() {
             >
               <div>
                 <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  Visual Search
+                  {t("Visual Search")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Find exactly what you&apos;re looking for using image recognition.
+                  {t("Find exactly what you're looking for using image recognition.")}
                 </p>
               </div>
               <Button
@@ -276,10 +282,10 @@ export default function HomePage() {
             >
               <div>
                 <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  Weekly Digest
+                  {t("Weekly Digest")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Get the latest market fluctuations delivered directly.
+                  {t("Get the latest market fluctuations delivered directly.")}
                 </p>
               </div>
               <Button
@@ -287,6 +293,8 @@ export default function HomePage() {
                 size="icon"
                 aria-label="Weekly digest"
                 className="size-12 rounded-none border border-primary bg-primary text-white shadow-[2px_2px_0px_0px_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-white hover:text-primary hover:shadow-none"
+                nativeButton={false}
+                render={<Link href="/profile/notifications" />}
               >
                 <Newspaper />
               </Button>
@@ -302,7 +310,7 @@ export default function HomePage() {
             {...fadeUp}
             className="font-heading mb-8 text-5xl leading-[48px] font-bold text-primary uppercase"
           >
-            Weekly Best Sellers
+            {t("Weekly Best Sellers")}
           </motion.h2>
           <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
             {bestSellers.length > 0 ? (
@@ -317,18 +325,21 @@ export default function HomePage() {
               ))
             ) : (
               <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
-                Belum ada data best seller minggu ini.
+                {t("No best seller data this week yet.")}
               </div>
             )}
           </div>
-          <div className="mt-8 flex justify-center">
-            <Button
-              type="button"
-              className="h-auto rounded-none border border-primary bg-white px-8 py-3 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white"
-            >
-              Load More Data
-            </Button>
-          </div>
+          {bestSellers.length >= bestLimit ? (
+            <div className="mt-8 flex justify-center">
+              <Button
+                type="button"
+                onClick={() => setBestLimit((l) => l + 4)}
+                className="h-auto rounded-none border border-primary bg-white px-8 py-3 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+              >
+                {t("Load More Data")}
+              </Button>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -337,11 +348,11 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.div {...fadeUp} className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2">
             <h2 className="font-heading text-5xl leading-[48px] font-bold text-primary uppercase">
-              Cocok untuk Kamu
+              {t("Made for You")}
             </h2>
             <div className="h-px flex-1 bg-primary" />
             <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Algorithm Generated
+              {t("Algorithm Generated")}
             </span>
           </motion.div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -382,7 +393,7 @@ export default function HomePage() {
             ))
           ) : (
             <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
-              Lengkapi preferensi kamu di profil untuk rekomendasi personal.
+              {t("Complete your preferences in your profile for personal recommendations.")}
             </div>
           )}
           </div>

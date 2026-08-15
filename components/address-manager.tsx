@@ -15,17 +15,16 @@ import {
   useDeleteAddress,
   useUpdateAddress,
 } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
-const addressSchema = z.object({
-  nama_penerima: z.string().min(1, "Nama penerima wajib diisi"),
-  nomor_telepon: z.string().min(6, "Nomor telepon tidak valid"),
-  alamat: z.string().min(1, "Alamat wajib diisi"),
-  kota: z.string().min(1, "Kota wajib diisi"),
-  provinsi: z.string().min(1, "Provinsi wajib diisi"),
-  kode_pos: z.string().min(3, "Kode pos tidak valid"),
-})
-
-type AddressForm = z.infer<typeof addressSchema>
+type AddressForm = {
+  nama_penerima: string
+  nomor_telepon: string
+  alamat: string
+  kota: string
+  provinsi: string
+  kode_pos: string
+}
 
 const emptyForm: AddressForm = {
   nama_penerima: "",
@@ -45,10 +44,11 @@ function Field({
   error?: string
   children: React.ReactNode
 }) {
+  const t = useT()
   return (
     <label className="flex flex-col gap-1">
       <span className="text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
-        {label}
+        {t(label)}
       </span>
       {children}
       {error ? <span className="text-xs leading-4 text-error">{error}</span> : null}
@@ -65,6 +65,15 @@ export function AddressDialog({
 }) {
   const create = useCreateAddress()
   const update = useUpdateAddress()
+  const t = useT()
+  const addressSchema = z.object({
+    nama_penerima: z.string().min(1, t("Recipient name is required")),
+    nomor_telepon: z.string().min(6, t("Invalid phone number")),
+    alamat: z.string().min(1, t("Address is required")),
+    kota: z.string().min(1, t("City is required")),
+    provinsi: z.string().min(1, t("Province is required")),
+    kode_pos: z.string().min(3, t("Invalid postal code")),
+  })
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<AddressForm>(emptyForm)
   const [errors, setErrors] = useState<Partial<AddressForm>>({})
@@ -102,7 +111,7 @@ export function AddressDialog({
       const body = { ...parsed.data, is_default: address?.is_default ?? false }
       if (address) await update.mutateAsync({ id: address.address_id, body })
       else await create.mutateAsync(body)
-      toast.success(address ? "Alamat diperbarui" : "Alamat ditambahkan")
+      toast.success(address ? t("Address updated") : t("Address added"))
       setOpen(false)
     } catch (err) {
       toast.error(errMessage(err))
@@ -131,7 +140,7 @@ export function AddressDialog({
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/40" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 border border-outline bg-surface-container-lowest shadow-[4px_4px_0px_0px_#000]">
           <Dialog.Title className="border-b border-outline px-6 py-4 font-heading text-2xl leading-7 font-bold text-primary uppercase">
-            {address ? "Ubah Alamat" : "Tambah Alamat"}
+            {address ? t("Edit Address") : t("Add Address")}
           </Dialog.Title>
           <form onSubmit={submit} className="flex flex-col gap-4 p-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -160,14 +169,13 @@ export function AddressDialog({
               <Dialog.Close
                 render={<Button type="button" variant="outline" className="rounded-none" />}
               >
-                Batal
-              </Dialog.Close>
-              <Button
+                {t("Cancel")}
+              </Dialog.Close>              <Button
                 type="submit"
                 disabled={create.isPending || update.isPending}
                 className="rounded-none"
               >
-                Simpan
+                {t("Save")}
               </Button>
             </div>
           </form>
@@ -178,14 +186,15 @@ export function AddressDialog({
 }
 
 export function AddressSection() {
+  const t = useT()
   const { data: addresses } = useAddresses()
   const remove = useDeleteAddress()
 
   const onDelete = async (a: ApiAddress) => {
-    if (!window.confirm(`Hapus alamat "${a.nama_penerima}"?`)) return
+    if (!window.confirm(`${t("Delete address")} "${a.nama_penerima}"?`)) return
     try {
       await remove.mutateAsync(a.address_id)
-      toast.success("Alamat dihapus")
+      toast.success(t("Address deleted"))
     } catch (err) {
       toast.error(errMessage(err))
     }
@@ -195,12 +204,12 @@ export function AddressSection() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-          Alamat Saya
+          {t("My Addresses")}
         </h2>
         <AddressDialog
           trigger={
             <>
-              <Plus className="size-4" /> Tambah
+              <Plus className="size-4" /> {t("Add")}
             </>
           }
         />
@@ -208,7 +217,7 @@ export function AddressSection() {
 
       {addresses && addresses.length === 0 ? (
         <p className="border border-dashed border-outline-variant p-6 text-center text-sm text-muted-foreground">
-          Belum ada alamat.
+          {t("No addresses yet.")}
         </p>
       ) : (
         <div className="flex flex-col gap-3">
@@ -236,7 +245,7 @@ export function AddressSection() {
                   address={a}
                   trigger={
                     <>
-                      <Pencil className="size-3.5" /> Ubah
+                      <Pencil className="size-3.5" /> {t("Edit")}
                     </>
                   }
                 />
@@ -246,7 +255,7 @@ export function AddressSection() {
                   className="gap-2 rounded-none text-error hover:border-error"
                   onClick={() => onDelete(a)}
                 >
-                  <Trash2 className="size-3.5" /> Hapus
+                  <Trash2 className="size-3.5" /> {t("Delete")}
                 </Button>
               </div>
             </div>

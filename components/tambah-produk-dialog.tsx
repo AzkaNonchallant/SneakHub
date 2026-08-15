@@ -9,18 +9,19 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { DEFAULT_BRAND_ID, errMessage } from "@/lib/api"
 import { useCategories, useCreateProduct, useUploadProductImage } from "@/lib/hooks"
-
-const schema = z.object({
-  name: z.string().trim().min(1, "Nama produk wajib diisi"),
-  price: z.coerce.number().positive("Harga harus lebih dari 0"),
-  sizes: z.string().trim().min(1, "Ukuran wajib diisi"),
-  condition: z.string().trim().min(1, "Kondisi wajib diisi"),
-  stock: z.coerce.number().int().nonnegative("Stok tidak boleh negatif"),
-  description: z.string().trim().min(10, "Deskripsi minimal 10 karakter"),
-  category_id: z.string().optional(),
-})
+import { useT } from "@/lib/i18n"
 
 export function TambahProdukButton() {
+  const t = useT()
+  const schema = z.object({
+    name: z.string().trim().min(1, t("Product name is required")),
+    price: z.coerce.number().positive(t("Price must be greater than 0")),
+    sizes: z.string().trim().min(1, t("Size is required")),
+    condition: z.string().trim().min(1, t("Condition is required")),
+    stock: z.coerce.number().int().nonnegative(t("Stock cannot be negative")),
+    description: z.string().trim().min(10, t("Description must be at least 10 characters")),
+    category_id: z.string().optional(),
+  })
   const create = useCreateProduct()
   const upload = useUploadProductImage()
   const { data: categories } = useCategories()
@@ -102,7 +103,7 @@ export function TambahProdukButton() {
       <Dialog.Trigger
         render={
           <Button className="h-auto rounded-none border border-primary bg-primary px-6 py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary">
-            Tambah Produk
+            {t("Add Product")}
           </Button>
         }
       />
@@ -111,7 +112,7 @@ export function TambahProdukButton() {
         <Dialog.Popup className="fixed top-1/2 left-1/2 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 border border-primary bg-surface-container-lowest focus:outline-none">
           <div className="flex items-center justify-between border-b border-primary px-5 py-4">
             <Dialog.Title className="font-heading text-xl leading-6 font-black text-primary uppercase">
-              Tambah Produk
+              {t("Add Product")}
             </Dialog.Title>
             <Dialog.Close className="flex size-8 items-center justify-center border border-primary transition-colors hover:bg-primary hover:text-white">
               <X className="size-4" aria-hidden />
@@ -122,7 +123,7 @@ export function TambahProdukButton() {
             {/* Image upload */}
             <div className="mb-5">
               <label className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                Gambar Produk
+                {t("Product Image")}
               </label>
               <div
                 {...getRootProps()}
@@ -135,14 +136,14 @@ export function TambahProdukButton() {
                 {image ? (
                   <img
                     src={image}
-                    alt="Preview produk"
+                    alt={t("Product preview")}
                     className="h-full w-full object-contain mix-blend-multiply"
                   />
                 ) : (
                   <>
                     <ImagePlus className="size-6 text-muted-foreground" aria-hidden />
                     <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                      Seret gambar atau klik untuk upload
+                      {t("Drag an image or click to upload")}
                     </span>
                   </>
                 )}
@@ -150,24 +151,24 @@ export function TambahProdukButton() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Nama Produk" name="name" placeholder="Jordan 1 Retro High" />
-              <Field label="Harga (Rp)" name="price" type="number" min={1} placeholder="4500000" />
-              <Field label="Ukuran (pisahkan koma)" name="sizes" placeholder="40, 41, 42" />
-              <Field label="Kondisi" name="condition" placeholder="new / used / 9.5" />
-              <Field label="Stok" name="stock" type="number" min={0} defaultValue="1" />
+              <Field label={t("Product Name")} name="name" placeholder="Jordan 1 Retro High" />
+              <Field label={t("Price (Rp)")} name="price" type="number" min={1} placeholder="4500000" />
+              <Field label={t("Sizes (comma separated)")} name="sizes" placeholder="40, 41, 42" />
+              <Field label={t("Condition")} name="condition" placeholder="new / used / 9.5" />
+              <Field label={t("Stock")} name="stock" type="number" min={0} defaultValue="1" />
               <div>
                 <label
                   htmlFor="category_id"
                   className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase"
                 >
-                  Kategori
+                  {t("Category")}
                 </label>
                 <select
                   id="category_id"
                   name="category_id"
                   className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
                 >
-                  <option value="">Pilih kategori…</option>
+                  <option value="">{t("Select category…")}</option>
                   {categories?.map((c) => (
                     <option key={c.cateogry_id} value={c.cateogry_id}>
                       {c.nama_kategori}
@@ -175,7 +176,7 @@ export function TambahProdukButton() {
                   ))}
                 </select>
               </div>
-              <Field label="Deskripsi (min. 10 karakter)" name="description" placeholder="Sepatu original 100% (min. 10 karakter)" />
+              <Field label={t("Description (min. 10 characters)")} name="description" placeholder={t("100% original sneakers (min. 10 characters)")} />
             </div>
 
             {Object.keys(errors).length > 0 ? (
@@ -199,7 +200,7 @@ export function TambahProdukButton() {
                     variant="outline"
                     className="h-auto rounded-none border border-primary bg-background px-5 py-2.5 text-xs font-bold tracking-widest uppercase"
                   >
-                    Batal
+                    {t("Cancel")}
                   </Button>
                 }
               />
@@ -208,7 +209,7 @@ export function TambahProdukButton() {
                 disabled={create.isPending}
                 className="h-auto rounded-none border border-primary bg-primary px-5 py-2.5 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
               >
-                {create.isPending ? "Menyimpan…" : "Simpan Produk"}
+                {create.isPending ? t("Saving…") : t("Save Product")}
               </Button>
             </div>
           </form>

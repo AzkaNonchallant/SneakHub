@@ -4,14 +4,17 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { BadgeCheck } from "lucide-react"
 
+import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { formatRp, PLACEHOLDER_IMAGE, type SmartFilterItem } from "@/lib/api"
 import { useProducts, useSmartFilter, type SmartFilterParams } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 const conditions = ["NEW", "USED", "REFURBISHED"]
 
 export default function SmartFindPage() {
+  const t = useT()
   const { data } = useProducts({ limit: 50 })
   const filter = useSmartFilter()
   const catalog = useMemo(() => data?.items ?? [], [data])
@@ -58,6 +61,7 @@ export default function SmartFindPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <PageMeta title="Smart Find" />
       <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-5 px-5 py-8 md:flex-row md:px-10">
@@ -65,17 +69,17 @@ export default function SmartFindPage() {
         <aside className="flex w-full shrink-0 flex-col gap-6 md:w-64">
           <div>
             <h1 className="font-heading text-2xl leading-7 font-bold text-primary">
-              Find Your Perfect Match
+              {t("Find Your Perfect Match")}
             </h1>
             <p className="mt-1 text-base leading-6 text-muted-foreground">
-              Dial in your specifications.
+              {t("Dial in your specifications.")}
             </p>
           </div>
 
           <div className="flex flex-col gap-6 border border-outline-variant bg-white p-4">
             <div className="flex flex-col gap-2">
               <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Budget Range
+                {t("Budget Range")}
               </label>
               <div className="relative h-4 w-full">
                 <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 bg-surface-container-highest" />
@@ -115,7 +119,7 @@ export default function SmartFindPage() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Size
+                {t("Size")}
               </label>
               {(() => {
                 const allSizes = Array.from(new Set(catalog.flatMap((p) => p.ukuran_tersedia)))
@@ -126,7 +130,7 @@ export default function SmartFindPage() {
                     className="w-full border border-outline-variant bg-transparent p-2 text-base leading-6 focus:border-on-tertiary-container focus:ring-0"
                   >
                     {["Any Size", ...allSizes].map((s) => (
-                      <option key={s}>{s}</option>
+                      <option key={s}>{s === "Any Size" ? t("Any Size") : s}</option>
                     ))}
                   </select>
                 )
@@ -135,7 +139,7 @@ export default function SmartFindPage() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Brand
+                {t("Brand")}
               </label>
               <div className="flex flex-col gap-1 text-base leading-6">
                 {brands.map((brand) => (
@@ -161,7 +165,7 @@ export default function SmartFindPage() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
-                Condition
+                {t("Condition")}
               </label>
               <div className="flex flex-col gap-1 text-base leading-6">
                 {conditions.map((c) => (
@@ -192,7 +196,7 @@ export default function SmartFindPage() {
             disabled={filter.isPending}
             className="w-full border border-primary bg-primary px-4 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
           >
-            {filter.isPending ? "Memproses…" : "Apply Filters"}
+            {filter.isPending ? t("Processing…") : t("Apply Filters")}
           </button>
         </aside>
 
@@ -200,11 +204,13 @@ export default function SmartFindPage() {
         <section className="flex flex-1 flex-col gap-6">
           <div className="flex flex-wrap items-end justify-between gap-2 border-b border-outline-variant pb-2">
             <span className="text-base leading-6 text-muted-foreground">
-              {filter.data ? `Top ${results.length} match untuk filter kamu` : "Tekan Apply Filters untuk mendapat match score"}
+              {filter.data
+                ? `${t("Top")} ${results.length} ${results.length === 1 ? t("match") : t("matches")} ${t("for your filters")}`
+                : t("Press Apply Filters to get match scores")}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-xs leading-4 font-bold tracking-[0.05em] text-muted-foreground uppercase">
-                Sort By:
+                {t("Sort By:")}
               </span>
               <select
                 value={sort}
@@ -212,7 +218,7 @@ export default function SmartFindPage() {
                 className="cursor-pointer border-none bg-transparent p-0 pr-3 text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase focus:ring-0"
               >
                 {["Match Score", "Price: Low to High", "Price: High to Low"].map((s) => (
-                  <option key={s}>{s}</option>
+                  <option key={s}>{t(s)}</option>
                 ))}
               </select>
             </div>
@@ -228,20 +234,20 @@ export default function SmartFindPage() {
             ) : (
               <div className="border border-primary bg-surface-container-low p-10 text-center">
                 <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
-                  No matches for these filters
+                  {t("No matches for these filters")}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Widen your budget or clear a few filters.
+                  {t("Widen your budget or clear a few filters.")}
                 </p>
               </div>
             )
           ) : (
             <div className="border border-outline-variant bg-surface-container-low p-10 text-center">
               <p className="font-heading text-xl leading-6 font-semibold text-primary uppercase">
-                Belum ada hasil
+                {t("No results yet")}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {filter.isPending ? "Memproses filter kamu…" : "Atur filter lalu tekan Apply Filters."}
+                {filter.isPending ? t("Processing your filters…") : t("Set your filters, then press Apply Filters.")}
               </p>
             </div>
           )}
@@ -254,6 +260,7 @@ export default function SmartFindPage() {
 }
 
 function SmartFindCard({ item }: { item: SmartFilterItem }) {
+  const t = useT()
   return (
     <article className="group relative overflow-hidden border-b border-r border-outline-variant bg-white transition-all duration-200 hover:shadow-[4px_4px_0px_0px_#000]">
       <Link href={`/product/${item.product_id}`} className="flex h-full flex-col">
@@ -262,7 +269,7 @@ function SmartFindCard({ item }: { item: SmartFilterItem }) {
             className="absolute top-2 right-2 z-10 border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase shadow-[4px_4px_0px_0px_#000]"
             style={{ background: "linear-gradient(135deg,#2b82f4 0%,#00458f 100%)" }}
           >
-            {item.match_score}% Match
+            {item.match_score}% {t("Match")}
           </div>
           <img
             src={item.image_url || PLACEHOLDER_IMAGE}
@@ -291,7 +298,7 @@ function SmartFindCard({ item }: { item: SmartFilterItem }) {
             </p>
             <span className="flex items-center gap-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase">
               <BadgeCheck className="size-4" />
-              Trusted
+              {t("Trusted")}
             </span>
           </div>
         </div>

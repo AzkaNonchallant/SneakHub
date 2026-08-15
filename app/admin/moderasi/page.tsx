@@ -1,5 +1,8 @@
 "use client";
 
+import { PageMeta } from "@/components/page-meta";
+import { useT } from "@/lib/i18n";
+
 interface ReportTag {
   label: string;
   className: string;
@@ -16,49 +19,52 @@ interface ReportCard {
   state: ReportState;
 }
 
-const REPORTS: ReportCard[] = [
-  {
-    id: "1",
-    tags: [
-      { label: "LAPORAN PRODUK", className: "bg-orange-100 text-orange-600" },
-      { label: "PENDING", className: "bg-amber-100 text-amber-600" },
-    ],
-    title: 'Nike Air Force 1 "Replika"',
-    reason: "Produk palsu",
-    reportedBy: "Anonymous",
-    state: "pending",
-  },
-  {
-    id: "2",
-    tags: [
-      { label: "LAPORAN SELLER", className: "bg-pink-100 text-pink-500" },
-      { label: "DIPROSES", className: "bg-blue-100 text-blue-500" },
-    ],
-    title: "FakeKicks.id",
-    reason: "Penjual tidak jujur",
-    reportedBy: "Budi S.",
-    state: "processed",
-  },
-  {
-    id: "3",
-    tags: [
-      { label: "LAPORAN PRODUK", className: "bg-orange-100 text-orange-600" },
-      { label: "SELESAI", className: "bg-emerald-100 text-emerald-600" },
-    ],
-    title: 'Adidas Ultra Boost "OG"',
-    reason: "Harga mencurigakan",
-    reportedBy: "Anonymous",
-    state: "done",
-  },
-];
-
 export default function ModerationPage() {
+  const t = useT();
+
+  const REPORTS: ReportCard[] = [
+    {
+      id: "1",
+      tags: [
+        { label: t("PRODUCT REPORT"), className: "bg-orange-100 text-orange-600" },
+        { label: "PENDING", className: "bg-amber-100 text-amber-600" },
+      ],
+      title: 'Nike Air Force 1 "Replika"',
+      reason: t("Counterfeit product"),
+      reportedBy: "Anonymous",
+      state: "pending",
+    },
+    {
+      id: "2",
+      tags: [
+        { label: t("SELLER REPORT"), className: "bg-pink-100 text-pink-500" },
+        { label: t("PROCESSED"), className: "bg-blue-100 text-blue-500" },
+      ],
+      title: "FakeKicks.id",
+      reason: t("Dishonest seller"),
+      reportedBy: "Budi S.",
+      state: "processed",
+    },
+    {
+      id: "3",
+      tags: [
+        { label: t("PRODUCT REPORT"), className: "bg-orange-100 text-orange-600" },
+        { label: t("DONE"), className: "bg-emerald-100 text-emerald-600" },
+      ],
+      title: 'Adidas Ultra Boost "OG"',
+      reason: t("Suspicious price"),
+      reportedBy: "Anonymous",
+      state: "done",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[#f4f4f2] px-10 py-10">
+      <PageMeta title="Moderation" />
       {/* Header */}
       <div className="mb-7">
         <h1 className="text-[32px] font-extrabold uppercase tracking-tight text-[#1a1a1a]">
-          Moderasi
+          {t("Moderation")}
         </h1>
         <p className="mt-1 text-[13.5px] text-gray-500">
           Manage user reports and flagged items.
@@ -87,10 +93,10 @@ export default function ModerationPage() {
                 {report.title}
               </h2>
               <p className="mt-1.5 text-[13px] text-gray-500">
-                Alasan: {report.reason}
+                {t("Reason")}: {report.reason}
               </p>
               <p className="text-[13px] text-gray-400">
-                Dilaporkan oleh: {report.reportedBy}
+                {t("Reported by")}: {report.reportedBy}
               </p>
             </div>
 
@@ -105,7 +111,7 @@ export default function ModerationPage() {
                     REVIEW
                   </button>
                   <button className="rounded-md border border-gray-300 bg-white px-6 py-2.5 text-[12px] font-semibold tracking-wide text-gray-600 hover:bg-gray-50">
-                    ABAIKAN
+                    {t("DISMISS")}
                   </button>
                 </>
               )}

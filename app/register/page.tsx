@@ -6,12 +6,15 @@ import { useRouter } from "next/navigation"
 import { AlertCircle, ArrowRight, Mail, Phone, UserRound } from "lucide-react"
 
 import { AuthShell, PasswordField, TextField } from "@/components/auth-shell"
+import { PageMeta } from "@/components/page-meta"
 import { Button } from "@/components/ui/button"
 import { errMessage, setToken } from "@/lib/api"
 import { useRegister } from "@/lib/hooks"
+import { useT } from "@/lib/i18n"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const t = useT()
   const register = useRegister()
   const [error, setError] = useState("")
 
@@ -20,7 +23,7 @@ export default function RegisterPage() {
     const fd = new FormData(e.currentTarget)
     const password = String(fd.get("password"))
     if (password !== String(fd.get("confirmPassword"))) {
-      setError("Konfirmasi password tidak cocok.")
+      setError(t("Password confirmation does not match."))
       return
     }
     try {
@@ -39,6 +42,7 @@ export default function RegisterPage() {
 
   return (
     <AuthShell>
+      <PageMeta title="Register" />
       <form className="space-y-6" onSubmit={onSubmit}>
         <div className="space-y-4">
           <TextField
@@ -77,19 +81,19 @@ export default function RegisterPage() {
           disabled={register.isPending}
           className="h-12 w-full rounded-none border border-primary bg-primary font-heading text-2xl font-semibold text-primary-foreground uppercase hover:bg-background hover:text-primary"
         >
-          {register.isPending ? "Creating..." : "Create Account"}
+          {register.isPending ? t("Creating...") : t("Create Account")}
           <ArrowRight className="size-5 transition-transform group-hover/button:translate-x-1" />
         </Button>
       </form>
       <div className="mt-8 border-t border-primary pt-6 text-center">
         <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-          Already have an account?
+          {t("Already have an account?")}
         </p>
         <Link
           href="/login"
           className="mt-2 inline-block border-b-2 border-primary pb-1 font-heading text-xs font-bold tracking-widest text-primary uppercase hover:border-ring hover:text-ring"
         >
-          Sign In
+          {t("Sign In")}
         </Link>
       </div>
     </AuthShell>

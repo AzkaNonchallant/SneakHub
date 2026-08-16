@@ -20,7 +20,7 @@ const menuItems = [
   { label: "Preferences", href: "#", icon: Settings },
   { label: "Notifications", href: "/profile/notifications", icon: Bell },
   { label: "Security", href: "#", icon: Lock },
-  { label: "My Addresses", href: "#alamat", icon: MapPin },
+
 ]
 
 export default function ProfilePage() {
@@ -81,7 +81,6 @@ export default function ProfilePage() {
             <div className="mb-4 px-6 font-heading text-2xl leading-7 font-bold text-primary">
               {t("My Account")}
             </div>
-            {/* ponytail: href="#" until those pages exist */}
             {menuItems.map(({ label, href, icon: Icon, active }) => (
               <a
                 key={label}

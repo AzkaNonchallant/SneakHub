@@ -11,16 +11,20 @@ import { DEFAULT_BRAND_ID, errMessage } from "@/lib/api"
 import { useCategories, useCreateProduct, useUploadProductImage } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
+const CONDITION_OPTIONS = ["new", "used", "refurbished"] as const
+
 export function TambahProdukButton() {
   const t = useT()
   const schema = z.object({
     name: z.string().trim().min(1, t("Product name is required")),
     price: z.coerce.number().positive(t("Price must be greater than 0")),
     sizes: z.string().trim().min(1, t("Size is required")),
-    condition: z.string().trim().min(1, t("Condition is required")),
+    condition: z.enum(CONDITION_OPTIONS, {
+      message: t("Condition is required"),
+    }),
     stock: z.coerce.number().int().nonnegative(t("Stock cannot be negative")),
     description: z.string().trim().min(10, t("Description must be at least 10 characters")),
-    category_id: z.string().optional(),
+    category_id: z.string().trim().min(1, t("Category is required")),
   })
   const create = useCreateProduct()
   const upload = useUploadProductImage()
@@ -80,8 +84,9 @@ export function TambahProdukButton() {
         stok: v.stock,
         status_publikasi: "aktif",
         ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-        condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
-        category_id: v.category_id || categories?.[0]?.cateogry_id,
+        condition_score:
+          v.condition === "new" ? 10.0 : v.condition === "refurbished" ? 8.0 : 7.0,
+        category_id: v.category_id,
       })
       if (file) {
         const img = new FormData()
@@ -154,7 +159,27 @@ export function TambahProdukButton() {
               <Field label={t("Product Name")} name="name" placeholder="Jordan 1 Retro High" />
               <Field label={t("Price (Rp)")} name="price" type="number" min={1} placeholder="4500000" />
               <Field label={t("Sizes (comma separated)")} name="sizes" placeholder="40, 41, 42" />
-              <Field label={t("Condition")} name="condition" placeholder="new / used / 9.5" />
+              <div>
+                <label
+                  htmlFor="condition"
+                  className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase"
+                >
+                  {t("Condition")}
+                </label>
+                <select
+                  id="condition"
+                  name="condition"
+                  defaultValue=""
+                  className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
+                >
+                  <option value="" disabled>
+                    {t("Select condition…")}
+                  </option>
+                  <option value="new">{t("New")}</option>
+                  <option value="used">{t("Used")}</option>
+                  <option value="refurbished">{t("Refurbished")}</option>
+                </select>
+              </div>
               <Field label={t("Stock")} name="stock" type="number" min={0} defaultValue="1" />
               <div>
                 <label
@@ -166,9 +191,12 @@ export function TambahProdukButton() {
                 <select
                   id="category_id"
                   name="category_id"
+                  defaultValue=""
                   className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
                 >
-                  <option value="">{t("Select category…")}</option>
+                  <option value="" disabled>
+                    {t("Select category…")}
+                  </option>
                   {categories?.map((c) => (
                     <option key={c.cateogry_id} value={c.cateogry_id}>
                       {c.nama_kategori}

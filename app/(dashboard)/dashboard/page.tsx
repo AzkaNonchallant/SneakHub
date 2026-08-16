@@ -15,11 +15,8 @@ import { useProducts, useSellerDashboard, useSellerOrders, useTrustScore, useUpd
 import { useT } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
-// ponytail: seller/orders balikin status UPPERCASE (PENDING/PROCESSING) —
-// normalisasi ke lowercase biar map statusLabel/nextStatus jalan
 const norm = (s?: string) => (s ?? "").toLowerCase()
 
-// ponytail: alur status maju satu langkah; dibatalkan/terminal tidak punya tombol
 const nextStatus: Record<string, string> = {
   pending: "diproses",
   processing: "dikirim",

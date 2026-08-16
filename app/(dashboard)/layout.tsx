@@ -17,8 +17,6 @@ export default function DashboardLayout({
   const router = useRouter();
   const { data: me, isLoading } = useMe();
 
-  // ponytail: guard client-side (token di localStorage, middleware nggak bisa baca);
-  // non-seller (customer/admin) dipantulkan ke /home
   useEffect(() => {
     if (!isLoading && !isSellerRole(me?.peran)) router.replace("/home");
   }, [isLoading, me?.peran, router]);

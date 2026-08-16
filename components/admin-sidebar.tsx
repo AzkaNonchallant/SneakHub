@@ -27,7 +27,6 @@ const navItems = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
-// ponytail: tab bar mobile 6 item terpenting; Authentication & System Logs tetap di sidebar desktop
 const tabItems = navItems.filter(({ href }) => href !== "/admin/authentication")
 
 const isActive = (pathname: string, href: string) =>

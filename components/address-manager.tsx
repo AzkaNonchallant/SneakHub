@@ -68,7 +68,10 @@ export function AddressDialog({
   const t = useT()
   const addressSchema = z.object({
     nama_penerima: z.string().min(1, t("Recipient name is required")),
-    nomor_telepon: z.string().min(6, t("Invalid phone number")),
+    nomor_telepon: z
+      .string()
+      .min(6, t("Invalid phone number"))
+      .regex(/^\d+$/, t("Phone number must contain numbers only")),
     alamat: z.string().min(1, t("Address is required")),
     kota: z.string().min(1, t("City is required")),
     provinsi: z.string().min(1, t("Province is required")),
@@ -79,6 +82,8 @@ export function AddressDialog({
   const [errors, setErrors] = useState<Partial<AddressForm>>({})
 
   const openDialog = () => {
+    // Kalau address sudah ada (mode edit), semua field termasuk nomor_telepon
+    // otomatis terisi dari data existing.
     setForm(
       address
         ? {
@@ -121,6 +126,8 @@ export function AddressDialog({
   const set = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }))
 
+  const setPhone = (value: string) => setForm((f) => ({ ...f, nomor_telepon: value }))
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
@@ -148,7 +155,43 @@ export function AddressDialog({
                 <Input value={form.nama_penerima} onChange={set("nama_penerima")} />
               </Field>
               <Field label="Nomor Telepon" error={errors.nomor_telepon}>
-                <Input value={form.nomor_telepon} onChange={set("nomor_telepon")} />
+                <Input
+                  value={form.nomor_telepon}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  onKeyDown={(e) => {
+                    const allowedKeys = [
+                      "Backspace",
+                      "Delete",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Tab",
+                      "Home",
+                      "End",
+                    ]
+                    if (
+                      allowedKeys.includes(e.key) ||
+                      e.metaKey ||
+                      e.ctrlKey ||
+                      /^[0-9]$/.test(e.key)
+                    ) {
+                      return
+                    }
+                    e.preventDefault()
+                  }}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                  onPaste={(e) => {
+                    e.preventDefault()
+                    const pasted = e.clipboardData.getData("text").replace(/\D/g, "")
+                    const input = e.currentTarget
+                    const start = input.selectionStart ?? form.nomor_telepon.length
+                    const end = input.selectionEnd ?? form.nomor_telepon.length
+                    const newValue =
+                      form.nomor_telepon.slice(0, start) + pasted + form.nomor_telepon.slice(end)
+                    setPhone(newValue)
+                  }}
+                />
               </Field>
             </div>
             <Field label="Alamat" error={errors.alamat}>

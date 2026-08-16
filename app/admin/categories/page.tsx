@@ -178,7 +178,7 @@ export default function AdminCategoriesPage() {
                             type="button"
                             onClick={() => onDelete(cat.cateogry_id, cat.nama_kategori)}
                             disabled={remove.isPending}
-                            className="flex items-center gap-1 border border-error bg-error px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-error disabled:opacity-40"
+                            className="flex items-center gap-1 border border-destructive bg-destructive px-2.5 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-destructive disabled:opacity-40"
                           >
                             <Trash2 className="size-3.5" aria-hidden />
                             {t("Delete")}

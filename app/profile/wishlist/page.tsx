@@ -21,7 +21,6 @@ export default function WishlistPage() {
   const priceAlert = usePriceAlert()
   const restockAlert = useRestockAlert()
   const addToCart = useAddCartItems()
-  const [targets, setTargets] = useState<Record<string, string>>({})
   const [pending, setPending] = useState<string | null>(null)
 
   const items = data ?? []
@@ -37,19 +36,8 @@ export default function WishlistPage() {
     }
   }
 
-  const onPriceAlert = (w: (typeof items)[number]) => {
-    const wId = w.product_id
-    if (w.price_alert?.enabled) {
-      mutate(() => priceAlert.mutateAsync({ productId: wId }), wId)
-    } else {
-      const target = Number(targets[wId])
-      if (!target || target <= 0) {
-        toast.error(t("Enter a target price first."))
-        return
-      }
-      mutate(() => priceAlert.mutateAsync({ productId: wId, body: { target_price: target } }), wId)
-    }
-  }
+  const onPriceAlert = (w: (typeof items)[number]) =>
+    mutate(() => priceAlert.mutateAsync({ productId: w.product_id }), w.product_id)
 
   const onRestockAlert = (w: (typeof items)[number]) =>
     mutate(() => restockAlert.mutateAsync({ productId: w.product_id }), w.product_id)
@@ -131,41 +119,25 @@ export default function WishlistPage() {
                         <span className="font-heading text-[32px] leading-none font-bold text-primary">
                           {formatRp(item.harga)}
                         </span>
-                        {item.price_alert?.target_price ? (
-                          <span className="mb-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#f59e0b] uppercase">
-                            {t("Alert")} ≤ {formatRp(item.price_alert.target_price)}
-                          </span>
-                        ) : null}
                       </div>
 
                       <div className="flex flex-col gap-2 border-t border-outline-variant pt-4">
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            value={targets[item.product_id] ?? ""}
-                            onChange={(e) =>
-                              setTargets((prev) => ({ ...prev, [item.product_id]: e.target.value }))
-                            }
-                            placeholder={t("Target price")}
-                            onClick={(e) => e.stopPropagation()}
-                            className="min-w-0 flex-1 border border-outline bg-surface-container-low px-3 py-2 font-mono text-sm focus:border-on-tertiary-container focus:ring-0"
-                          />
-                          <Button
-                            type="button"
-                            disabled={busy}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onPriceAlert(item)
-                            }}
-                            className={
-                              item.price_alert?.enabled
-                                ? "shrink-0 rounded-none border border-[#f59e0b] bg-[#f59e0b] px-3 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-[#f59e0b] disabled:opacity-40"
-                                : "shrink-0 rounded-none border border-primary bg-primary px-3 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
-                            }
-                          >
-                            <Bell className="size-3.5" />
-                          </Button>
-                        </div>
+                        <Button
+                          type="button"
+                          disabled={busy}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onPriceAlert(item)
+                          }}
+                          className={
+                            item.price_alert?.enabled
+                              ? "flex h-auto items-center justify-center gap-2 rounded-none border border-[#f59e0b] bg-[#f59e0b] py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-[#f59e0b] disabled:opacity-40"
+                              : "flex h-auto items-center justify-center gap-2 rounded-none border border-primary bg-primary py-3 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-surface-container-lowest hover:text-primary disabled:opacity-40"
+                          }
+                        >
+                          <Bell className="size-3.5" />
+                          {item.price_alert?.enabled ? t("Price Alert On") : t("Notify on Price Drop")}
+                        </Button>
                         <div className="grid grid-cols-2 gap-2">
                           <Button
                             type="button"
@@ -208,7 +180,7 @@ export default function WishlistPage() {
                   {t("Price Alerts")}
                 </h2>
                 <p className="mb-4 text-xs leading-4 text-muted-foreground">
-                  {t("Set a target price per product. You will be notified when the price drops below it.")}
+                  {t("Turn on alerts to get notified whenever the price drops, any amount.")}
                 </p>
                 <div className="flex flex-col gap-4 border-t border-outline-variant pt-4">
                   <div className="flex items-center gap-2 text-xs leading-4 font-bold tracking-[0.05em] uppercase">

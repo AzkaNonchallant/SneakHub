@@ -80,7 +80,7 @@ export function useSellerActivation() {
   });
 }
 
-/* ---------- Category (admin: create/update/delete) ---------- */
+
 
 export function useCategories() {
   return useQuery({
@@ -115,7 +115,7 @@ export function useDeleteCategory() {
   });
 }
 
-/* ---------- Products ---------- */
+
 
 export type ProductParams = {
   page?: number;

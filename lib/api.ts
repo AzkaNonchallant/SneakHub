@@ -60,7 +60,9 @@ api.interceptors.response.use(
 export function errMessage(e: unknown): string {
   if (axios.isAxiosError(e)) {
     const d = e.response?.data as Record<string, unknown> | undefined;
-    if (d?.message && typeof d.message === "string") return d.message;
+    // ponytail: backend kadang ngirim `errors` spesifik ("kesalahan password") DAN
+    // `message` generik ("terjadi kesalahan server") sekaligus di response yang sama.
+    // Prioritaskan errors/error yang lebih spesifik dulu, baru fallback ke message.
     const err = d?.error ?? d?.errors;
     if (typeof err === "string") return err;
     if (Array.isArray(err) && err[0] && typeof err[0] === "string") return err[0];
@@ -68,6 +70,7 @@ export function errMessage(e: unknown): string {
       const first = Object.values(err)[0];
       if (typeof first === "string") return first;
     }
+    if (d?.message && typeof d.message === "string") return d.message;
   }
   return "Terjadi kesalahan, coba lagi.";
 }

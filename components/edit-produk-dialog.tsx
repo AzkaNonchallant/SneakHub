@@ -117,7 +117,7 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
         render={
-          <Button className="h-auto gap-2 rounded-none border border-primary px-3 py-2 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white">
+          <Button className="h-auto gap-2 rounded-none border border-primary bg-white px-3 py-2 text-xs leading-4 font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white">
             <Pencil className="size-3.5" /> {t("Edit")}
           </Button>
         }

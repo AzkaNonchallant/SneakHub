@@ -59,6 +59,20 @@ export default function ProductDetailPage() {
     }
   }
 
+  // ponytail: sebelumnya pakai addToCart.mutate() tanpa try/catch, jadi
+  // error dari backend (misal stok kosong) ketelen dan gak ada toast
+  const handleAddToCart = async () => {
+    if (!product) return
+    try {
+      await addToCart.mutateAsync([{ product_id: product.product_id, jumlah: 1 }])
+      toast.success(t("Added to cart"))
+    } catch (err) {
+      const msg = errMessage(err)
+      // pesan backend nampilin UUID product mentah, sembunyiin di sini
+      toast.error(msg.toLowerCase().includes("stok") ? t("Sorry, this item is out of stock") : msg)
+    }
+  }
+
   const isSellerOrAdmin = me?.peran === "seller" || me?.peran === "admin" || me?.peran === "SELLER" || me?.peran === "ADMIN"
 
   if (isLoading) return <div className="p-10 font-heading text-2xl text-primary uppercase">{t("Loading…")}</div>
@@ -138,10 +152,11 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <Button
                 type="button"
-                onClick={() => addToCart.mutate([{ product_id: product.product_id, jumlah: 1 }])}
-                className="h-auto rounded-none border border-primary bg-primary py-4 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-background hover:text-primary"
+                onClick={handleAddToCart}
+                disabled={product.stok <= 0 || addToCart.isPending}
+                className="h-auto rounded-none border border-primary bg-primary py-4 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-background hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {t("Add to Cart")}
+                {product.stok <= 0 ? t("Out of Stock") : addToCart.isPending ? t("Adding…") : t("Add to Cart")}
               </Button>
               <Button
                 type="button"

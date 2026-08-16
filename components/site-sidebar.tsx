@@ -23,7 +23,6 @@ export function SiteSidebar() {
     { label: t("Dashboard"), href: "/dashboard", icon: LayoutGrid },
     { label: t("Store Profile"), href: "/seller-profile", icon: Store },
     { label: t("Inventory"), href: "/inventory", icon: Package },
-    { label: t("Price Predictor"), href: "/price-predictor", icon: LineChart },
     { label: t("Analytics"), href: "/analytics", icon: BarChart3 },
     { label: t("Settings"), href: "/settings", icon: Settings },
   ];

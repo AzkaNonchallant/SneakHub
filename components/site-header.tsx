@@ -4,7 +4,7 @@ import { useEffect, useDeferredValue, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "motion/react"
-import { Bell, Camera, CircleUser, Heart, Image, Languages, LogOut, Menu, Package, ScanSearch, Search, ShoppingCart, X } from "lucide-react"
+import { Bell, Camera, CircleUser, Heart, Image, Languages, LogOut, Menu, Package,  Search, ShoppingCart, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { isSellerRole, setToken, toCard } from "@/lib/api"
@@ -17,7 +17,7 @@ const navLinks = ["Smart Find", "Shop", "Market Insights", "Seller Hub"]
 
 const navHref: Record<string, string> = {
   "Smart Find": "/smart-find",
-  Shop: "/search",
+  Shop: "/home",
   "Market Insights": "/smart-find",
   "Seller Hub": "/seller-profile",
 }
@@ -38,7 +38,6 @@ const accountLinks: { label: string; href: string; icon: typeof CircleUser }[] =
 ]
 
 const mobileActions: { label: string; href: string; icon: typeof CircleUser }[] = [
-  { label: "Image Search", href: "/search", icon: ScanSearch },
   { label: "Cart", href: "/cart", icon: ShoppingCart },
   { label: "Profile", href: "/profile", icon: CircleUser },
   { label: "Wishlist", href: "/profile/wishlist", icon: Heart },
@@ -67,7 +66,6 @@ export function SiteHeader() {
   const { data: me } = useMe()
   const isSeller = isSellerRole(me?.peran)
 
-  // ponytail: plain scroll-lock + Esc listener, no portal lib for one overlay
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return
@@ -82,7 +80,6 @@ export function SiteHeader() {
     }
   }, [mobileOpen])
 
-  // ponytail: every menu action closes via onClick/onPhoto; no pathname watcher needed
   const onPhoto = (file: File | undefined) => {
     setMenuOpen(false)
     setMobileOpen(false)
@@ -272,16 +269,7 @@ export function SiteHeader() {
             <Menu />
           </Button>
           <div className="hidden items-center gap-4 md:flex">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Image search"
-              className="rounded-none"
-              nativeButton={false}
-              render={<Link href="/search" />}
-            >
-              <ScanSearch />
-            </Button>
+           
             <Button
               variant="ghost"
               size="icon"

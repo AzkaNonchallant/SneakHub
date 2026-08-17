@@ -283,6 +283,16 @@ export type AdminUser = {
   status_akun: string;
 };
 
+export type AdminSeller = {
+  seller_id: string;
+  user_id: string;
+  nama_toko: string;
+  status_verifikasi: string;
+  nama_user: string;
+  email: string;
+  created_at: string;
+};
+
 export type AdminProduct = {
   product_id: string;
   nama_produk: string;

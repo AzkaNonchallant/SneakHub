@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, ArrowRight, Mail } from "lucide-react"
 
 import { AuthShell, PasswordField, TextField } from "@/components/auth-shell"
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const router = useRouter()
   const t = useT()
   const login = useLogin()
+  const qc = useQueryClient()
   const [error, setError] = useState("")
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -31,6 +33,9 @@ export default function LoginPage() {
         password: String(fd.get("password")),
       })
       setToken(data.access_token)
+      // ponytail: buang cache user akun sebelumnya biar guard layout gak salah
+      // baca peran lama (replace /home padahal seller)
+      qc.clear()
       // ponytail: role-aware redirect — admin lgsung ke admin panel, seller ke dashboard
       const peran = data.user?.peran
       if (peran === "admin") router.push("/admin")

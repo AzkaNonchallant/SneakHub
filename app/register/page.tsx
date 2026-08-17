@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, ArrowRight, Mail, Phone, UserRound } from "lucide-react"
 
 import { AuthShell, PasswordField, TextField } from "@/components/auth-shell"
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const t = useT()
   const register = useRegister()
+  const qc = useQueryClient()
   const [error, setError] = useState("")
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -34,6 +36,8 @@ export default function RegisterPage() {
         nomor_telepon: String(fd.get("nomor_telepon")),
       })
       setToken(data.access_token)
+      // ponytail: buang cache user akun sebelumnya (sama kayak login)
+      qc.clear()
       router.push("/home")
     } catch (err) {
       setError(errMessage(err))

@@ -83,7 +83,7 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
           deskripsi: v.description ?? "",
           harga: v.price,
           stok: v.stock,
-          status_publikasi: product.status_publikasi ?? "aktif",
+          // ponytail: backend tolak status_publikasi ACTIVE; tanpa field status tidak berubah
           ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
           condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
           category_id: v.category_id || product.category_id || categories?.[0]?.cateogry_id,

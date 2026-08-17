@@ -5,6 +5,7 @@ import {
   type AdminOrder,
   type AdminProduct,
   type AdminReport,
+  type AdminSeller,
   type AdminUser,
   type ApiCart,
   type ApiList,
@@ -308,11 +309,22 @@ export function useCreateReview() {
   });
 }
 
+export type CheckoutResult = {
+  order_id: string;
+  status_order: string;
+  subtotal: number;
+  biaya_pengiriman: number;
+  total_pembayaran: number;
+  metode_pembayaran: string;
+  payment_url?: string;
+};
+
 export function useCheckout() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: { address_id: string; metode_pembayaran: string }) =>
-      api.post<{ data: { payment_url?: string; order_id?: string } }>("/checkout", body).then((r) => r.data.data),
+      // ponytail: backend kirim ARRAY (satu entry per seller); frontend pakai entry pertama
+      api.post<{ data: CheckoutResult[] }>("/checkout", body).then((r) => r.data.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
@@ -543,6 +555,23 @@ export function useUpdateUserStatus() {
     mutationFn: ({ userId, body }: { userId: string; body: { status_akun: string; alasan: string } }) =>
       api.patch(`/admin/users/${userId}/status`, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
+  });
+}
+
+export function useAdminSellers(params: { page?: number; limit?: number } = {}) {
+  return useQuery({
+    queryKey: ["admin-sellers", params],
+    queryFn: () =>
+      api.get<{ data: ApiList<AdminSeller> }>(pageUrl("/admin/sellers", params)).then((r) => r.data.data),
+  });
+}
+
+export function useUpdateSellerVerification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sellerId, body }: { sellerId: string; body: { status: string } }) =>
+      api.patch(`/admin/sellers/${sellerId}/verification`, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-sellers"] }),
   });
 }
 

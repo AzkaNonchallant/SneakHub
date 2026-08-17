@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { BadgeCheck, Bell, Heart, Lock, MapPin, Package, Settings, Star } from "lucide-react"
 import Link from "next/link"
 
@@ -9,7 +10,7 @@ import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { formatRp, isSellerRole } from "@/lib/api"
+import { errMessage, formatRp, isSellerRole } from "@/lib/api"
 import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const { data: user } = useMe()
   const { data: ordersData } = useOrders({ limit: 10 })
   const activate = useSellerActivation()
+  const [sellerError, setSellerError] = useState("")
 
   const orders = ordersData?.items ?? []
   const initial = user?.nama?.charAt(0).toUpperCase() ?? "S"
@@ -60,19 +62,31 @@ export default function ProfilePage() {
               {user?.status_akun ?? t("active")}
             </span>
             {!isSeller ? (
+              <>
               <Button
                 type="button"
                 disabled={activate.isPending}
-                onClick={() =>
-                  activate.mutate({
-                    nama_toko: `${user?.nama ?? t("Store")} ${t("Store")}`,
-                    deskripsi_toko: t("Official SneakHub store."),
-                  })
-                }
+                onClick={async () => {
+                  setSellerError("")
+                  try {
+                    await activate.mutateAsync({
+                      nama_toko: `${user?.nama ?? t("Store")} ${t("Store")}`,
+                      deskripsi_toko: t("Official SneakHub store."),
+                    })
+                  } catch (err) {
+                    setSellerError(errMessage(err))
+                  }
+                }}
                 className="mt-4 h-auto rounded-none border border-primary bg-primary px-4 py-2 text-xs leading-4 font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
               >
                 {activate.isPending ? t("Activating…") : t("Become a Seller")}
               </Button>
+              {sellerError ? (
+                <p className="mt-2 max-w-full bg-error/10 px-2 py-1 text-right text-[10px] leading-4 font-bold text-error">
+                  {sellerError}
+                </p>
+              ) : null}
+              </>
             ) : null}
             <EditProfilButton user={user} />
           </div>

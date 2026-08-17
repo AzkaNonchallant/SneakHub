@@ -82,7 +82,8 @@ export function TambahProdukButton() {
         deskripsi: v.description ?? "",
         harga: v.price,
         stok: v.stock,
-        status_publikasi: "aktif",
+        // ponytail: backend v2 tolak status_publikasi ACTIVE/aktif (400);
+        // tanpa field -> default "draft", moderasi admin yang naikin
         ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
         condition_score:
           v.condition === "new" ? 10.0 : v.condition === "refurbished" ? 8.0 : 7.0,

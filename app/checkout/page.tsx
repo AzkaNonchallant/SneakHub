@@ -36,8 +36,8 @@ export default function CheckoutPage() {
         address_id: chosenAddress.address_id,
         metode_pembayaran: method,
       })
-      // ponytail: mode mock/backend — payment_url diarahkan ke halaman bayar server
-      if (data.payment_url) window.location.href = data.payment_url
+      // ponytail: backend kirim ARRAY (satu entry per seller) — pakai entry pertama
+      if (data[0]?.payment_url) window.location.href = data[0].payment_url
     } catch (e) {
       setError(errMessage(e))
     }

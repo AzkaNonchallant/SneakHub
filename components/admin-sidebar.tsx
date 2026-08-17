@@ -11,6 +11,7 @@ import {
   Package,
   Settings,
   ShieldCheck,
+  Store,
   Users,
 } from "lucide-react"
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Categories", href: "/admin/categories", icon: FolderOpen },
   { label: "Analytics", href: "/admin/analytics", icon: LineChart },
   { label: "User Management", href: "/admin/users", icon: Users },
+  { label: "Sellers", href: "/admin/sellers", icon: Store },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ]
 

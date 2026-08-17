@@ -123,8 +123,8 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
         }
       />
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/60" />
-        <Dialog.Popup className="fixed top-1/2 left-1/2 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 border border-primary bg-surface-container-lowest focus:outline-none">
+        <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 border border-primary bg-surface-container-lowest focus:outline-none">
           <div className="flex items-center justify-between border-b border-primary px-5 py-4">
             <Dialog.Title className="font-heading text-xl leading-6 font-black text-primary uppercase">
               {t("Edit Product")}

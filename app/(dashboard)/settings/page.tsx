@@ -138,23 +138,33 @@ function StoreProfileForm() {
   const { data: seller, isLoading } = useSellerMe()
   const update = useUpdateSellerMe()
 
+  // ponytail: mirror aturan BE — validasi hanya field yang dikirim
+  const rules: Record<string, (v: string) => string | null> = {
+    nama_toko: (v) => (v.length >= 3 ? null : "Nama toko minimal 3 karakter"),
+    deskripsi_toko: (v) => (v.length >= 3 ? null : "Deskripsi toko minimal 3 karakter"),
+    kode_pos_asal: (v) => (/^\d{5}$/.test(v) ? null : "Kode pos asal harus 5 digit angka"),
+    kota_asal: (v) => (v.length >= 2 ? null : "Kota asal minimal 2 karakter"),
+    alamat_asal: (v) => (v.length >= 5 ? null : "Alamat asal minimal 5 karakter"),
+  }
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    // ponytail: partial update — backend hapus field yang dikirim kosong, jadi filter dulu
+    // ponytail: diff vs nilai awal — hanya field berubah yang dikirim; dikosongkan = kirim "" (hapus/NULL)
     const body: Record<string, string> = {}
-    for (const [key, value] of [
-      ["nama_toko", "nama_toko"],
-      ["deskripsi_toko", "deskripsi_toko"],
-      ["kode_pos_asal", "kode_pos_asal"],
-      ["kota_asal", "kota_asal"],
-      ["alamat_asal", "alamat_asal"],
-    ]) {
-      const v = String(fd.get(key) ?? "").trim()
-      if (v) body[value] = v
+    for (const name of Object.keys(rules)) {
+      const current = String(fd.get(name) ?? "").trim()
+      const initial = seller?.[name as keyof typeof seller] ?? ""
+      if (current === initial) continue
+      const error = rules[name](current)
+      if (error) {
+        toast.error(error)
+        return
+      }
+      body[name] = current
     }
     if (Object.keys(body).length === 0) {
-      toast.error(t("Fill in at least one store field."))
+      toast.info("Tidak ada perubahan")
       return
     }
     try {

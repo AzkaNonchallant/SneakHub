@@ -563,9 +563,15 @@ export function useConfirmOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (orderId: string) =>
-      api.post<{ data: { order_id: string; status_order?: string } }>(`/orders/${orderId}/confirm`, {}).then(
-        (r) => r.data.data,
-      ),
+      api
+        .post<{
+          data: {
+            order_id: string;
+            status_order?: string;
+            items?: { product_id: string; nama_produk: string }[];
+          };
+        }>(`/orders/${orderId}/confirm`, {})
+        .then((r) => r.data.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["order"] });

@@ -22,8 +22,9 @@ export function AdminSellersTable({ limit = 20 }: { limit?: number }) {
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const save = async (s: AdminSeller) => {
-    const next = drafts[s.seller_id] ?? s.status_verifikasi
-    if (next === s.status_verifikasi) return
+    // ponytail: backend live campur case ("verified"/"VERIFIED") — normalisasi pembanding
+    const next = (drafts[s.seller_id] ?? s.status_verifikasi).toUpperCase()
+    if (next === s.status_verifikasi.toUpperCase()) return
     try {
       await update.mutateAsync({ sellerId: s.seller_id, body: { status: next } })
       toast.success(t("Seller status updated"))
@@ -67,15 +68,15 @@ export function AdminSellersTable({ limit = 20 }: { limit?: number }) {
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{s.email}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${statusTone[s.status_verifikasi] ?? "bg-surface-container-highest text-primary"}`}
+                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${statusTone[s.status_verifikasi.toUpperCase()] ?? "bg-surface-container-highest text-primary"}`}
                   >
-                    {s.status_verifikasi}
+                    {s.status_verifikasi.toUpperCase()}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <select
-                      value={drafts[s.seller_id] ?? s.status_verifikasi}
+                      value={(drafts[s.seller_id] ?? s.status_verifikasi).toUpperCase()}
                       onChange={(e) => setDrafts((d) => ({ ...d, [s.seller_id]: e.target.value }))}
                       className="border border-outline-variant bg-transparent px-2 py-1 text-xs focus:border-on-tertiary-container focus:ring-0"
                     >

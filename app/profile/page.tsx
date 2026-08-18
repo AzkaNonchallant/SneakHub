@@ -73,22 +73,22 @@ export default function ProfilePage() {
             </span>
             {!isSeller ? (
               <>
-              {sellerReq?.status_verifikasi === "PENDING" ? (
+              {sellerReq?.status_verifikasi?.toUpperCase() === "PENDING" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-outline bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
                   <BadgeCheck className="size-4" />
                   {t("Seller application pending admin verification")}
                 </span>
-              ) : sellerReq?.status_verifikasi === "REJECTED" ? (
+              ) : sellerReq?.status_verifikasi?.toUpperCase() === "REJECTED" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-error bg-error/10 px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-error uppercase">
                   {t("Seller application rejected — you may reapply")}
                 </span>
-              ) : sellerReq?.status_verifikasi === "VERIFIED" ? (
+              ) : sellerReq?.status_verifikasi?.toUpperCase() === "VERIFIED" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-primary bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase">
                   <BadgeCheck className="size-4" />
                   {t("Seller verified")}
                 </span>
               ) : null}
-              {sellerReq?.status_verifikasi !== "PENDING" ? (
+              {sellerReq?.status_verifikasi?.toUpperCase() !== "PENDING" ? (
               <Button
                 type="button"
                 disabled={activate.isPending}

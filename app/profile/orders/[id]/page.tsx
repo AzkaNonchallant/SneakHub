@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, CreditCard, MapPin, Star, Truck } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -59,6 +59,7 @@ const reviewSchema = z.object({
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>()
+  const router = useRouter()
   const { data: order, isLoading } = useOrder(params.id)
   const review = useCreateReview()
   const updateStatus = useUpdateOrderStatus()
@@ -66,6 +67,9 @@ export default function OrderDetailPage() {
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
   const [error, setError] = useState("")
+  // ponytail: product reviewable dari response confirm (tanpa refetch); fallback order.items
+  const [confirmItems, setConfirmItems] = useState<{ product_id: string; nama_produk: string }[] | null>(null)
+  const reviewProduct = (confirmItems ?? order?.items)?.[0]
 
   const isDone = ["selesai", "completed"].includes(norm(order?.status_order))
   const isPendingPayment =
@@ -74,7 +78,9 @@ export default function OrderDetailPage() {
 
   const confirmReceipt = async () => {
     try {
-      await confirm.mutateAsync(order!.order_id)
+      const res = await confirm.mutateAsync(order!.order_id)
+      setConfirmItems(res?.items ?? null)
+      router.refresh()
       toast.success("Pesanan selesai — terima kasih!")
     } catch (err) {
       toast.error(errMessage(err))
@@ -103,7 +109,7 @@ export default function OrderDetailPage() {
     try {
       await review.mutateAsync({
         orderId: params.id,
-        body: { product_id: order?.items?.[0]?.product_id ?? "", ...parsed.data },
+        body: { product_id: reviewProduct?.product_id ?? "", ...parsed.data },
       })
       toast.success("Ulasan terkirim")
       setComment("")
@@ -341,7 +347,7 @@ export default function OrderDetailPage() {
                   {formatRp(order.total_pembayaran ?? 0)}
                 </p>
 
-                {isDone ? (
+                {isDone || confirmItems ? (
                   <form onSubmit={submitReview} className="mt-6 flex flex-col gap-4 border-t border-outline pt-4">
                     <span className="text-[10px] leading-4 font-bold tracking-widest text-muted-foreground uppercase">
                       Beri Ulasan

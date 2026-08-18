@@ -10,9 +10,9 @@ import { useT } from "@/lib/i18n"
 const statuses = ["VERIFIED", "REJECTED"]
 
 const statusTone: Record<string, string> = {
-  PENDING: "bg-[#f59e0b]",
-  VERIFIED: "bg-[#10B981]",
-  REJECTED: "bg-error",
+  PENDING: "bg-[#f59e0b] text-white",
+  VERIFIED: "bg-[#10B981] text-white",
+  REJECTED: "bg-error text-white",
 }
 
 export function AdminSellersTable({ limit = 20 }: { limit?: number }) {
@@ -67,7 +67,7 @@ export function AdminSellersTable({ limit = 20 }: { limit?: number }) {
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{s.email}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase ${statusTone[s.status_verifikasi] ?? "bg-surface-container-highest text-primary"}`}
+                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${statusTone[s.status_verifikasi] ?? "bg-surface-container-highest text-primary"}`}
                   >
                     {s.status_verifikasi}
                   </span>

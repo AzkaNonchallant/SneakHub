@@ -155,7 +155,7 @@ export function SiteHeader() {
                 setMenuOpen((v) => !v)
                 setOpen(false)
               }}
-              className="absolute top-1/2 right-1 size-8 -translate-y-1/2 rounded-none text-muted-foreground hover:bg-transparent hover:text-on-tertiary-container"
+              className="absolute top-1/2 right-1 size-8 -translate-y-1/2 rounded-none text-on-tertiary-container hover:bg-transparent hover:text-on-tertiary-container"
             >
               <Camera />
             </Button>

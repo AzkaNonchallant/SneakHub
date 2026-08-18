@@ -28,9 +28,9 @@ import {
 import { useT } from "@/lib/i18n"
 
 const kondisiBadge: Record<string, string> = {
-  NEW: "bg-[#10B981]",
-  USED: "bg-surface-container-highest",
-  REFURBISHED: "bg-outline",
+  NEW: "bg-[#10B981] text-white",
+  USED: "bg-surface-container-highest text-primary",
+  REFURBISHED: "bg-outline text-white",
 }
 
 export default function ProductDetailPage() {
@@ -103,7 +103,7 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
           <div className="flex flex-col gap-4 lg:col-span-7">
             <div className="group relative flex aspect-square w-full items-center justify-center overflow-hidden border border-outline-variant bg-surface-container-low p-8">
-              <span className={`absolute top-4 left-4 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${kondisiBadge[product.kondisi] ?? "bg-surface-container-highest text-primary"}`}>
+              <span className={`absolute top-4 left-4 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase ${kondisiBadge[product.kondisi] ?? "bg-surface-container-highest text-primary"}`}>
                 {t("Condition")}: {product.kondisi}
               </span>
               <img
@@ -234,10 +234,10 @@ export default function ProductDetailPage() {
 
 const kondisiMeta = (kondisi: string, t: (s: string) => string) =>
   kondisi === "NEW"
-    ? { bg: "bg-[#10B981]", label: t("NEW") }
+    ? { bg: "bg-[#10B981] text-white", label: t("NEW") }
     : kondisi === "USED"
-      ? { bg: "bg-surface-container-highest", label: t("USED") }
-      : { bg: "bg-outline", label: t("REFURBISHED") }
+      ? { bg: "bg-surface-container-highest text-primary", label: t("USED") }
+      : { bg: "bg-outline text-white", label: t("REFURBISHED") }
 
 function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; isSellerOrAdmin: boolean }) {
   const t = useT()
@@ -257,7 +257,7 @@ function ConditionScoreBox({ productId, isSellerOrAdmin }: { productId: string; 
         {isLoading ? (
           <span className="text-xs text-muted-foreground">{t("Loading…")}</span>
         ) : latest ? (
-          <span className={`flex items-center gap-2 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${meta.bg}`}>
+          <span className={`flex items-center gap-2 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase ${meta.bg}`}>
             {t("Overall")} <span className="text-base font-bold">{skor}/100</span>
           </span>
         ) : (
@@ -440,10 +440,10 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
 
   const tone =
     anomalyType === "CHEAP"
-      ? { chip: "bg-[#10B981]", text: "text-[#10B981]", label: t("BELOW MARKET") }
+      ? { chip: "bg-[#10B981] text-white", text: "text-[#10B981]", label: t("BELOW MARKET") }
       : anomalyType === "OVERPRICED"
-        ? { chip: "bg-[#f59e0b]", text: "text-[#f59e0b]", label: t("ABOVE MARKET") }
-        : { chip: "bg-surface-container-highest", text: "text-muted-foreground", label: t("AT MARKET") }
+        ? { chip: "bg-[#f59e0b] text-white", text: "text-[#f59e0b]", label: t("ABOVE MARKET") }
+        : { chip: "bg-surface-container-highest text-muted-foreground", text: "text-muted-foreground", label: t("AT MARKET") }
 
   const rel = marketAvg ? (price / marketAvg - 1) * 100 : 0
   const markerLeft = Math.min(90, Math.max(10, 10 + rel * 8))
@@ -457,7 +457,7 @@ function PriceInsightBox({ productId, price }: { productId: string; price: numbe
             {t("Price Insight")}
           </h3>
         </div>
-        <span className={`border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase ${tone.chip}`}>
+        <span className={`border border-primary px-2 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase ${tone.chip}`}>
           {tone.label}
         </span>
       </div>

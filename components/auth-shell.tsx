@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 import { Eye, EyeOff, Lock, type LucideIcon } from "lucide-react"
 import { motion } from "motion/react"
 
@@ -107,7 +107,16 @@ export function PasswordField({
   placeholder?: string
 }) {
   const [show, setShow] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
   const t = useT()
+  const toggleShow = () => {
+    setShow((s) => {
+      const el = inputRef.current
+      // ponytail: Chrome tetap menutup password autofill walau type=text; webkitTextSecurity memaksanya tampil
+      if (el) el.style.setProperty("-webkit-text-security", s ? "disc" : "none")
+      return !s
+    })
+  }
   return (
     <div>
       <Label
@@ -122,6 +131,7 @@ export function PasswordField({
           className="absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground"
         />
         <Input
+          ref={inputRef}
           id={id}
           name={name}
           type={show ? "text" : "password"}
@@ -132,7 +142,7 @@ export function PasswordField({
           type="button"
           variant="ghost"
           size="icon"
-          onClick={() => setShow((s) => !s)}
+          onClick={toggleShow}
           aria-label={show ? "Hide password" : "Show password"}
           className="absolute top-1/2 right-1 size-9 -translate-y-1/2 rounded-none"
         >

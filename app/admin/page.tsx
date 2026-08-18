@@ -9,11 +9,11 @@ import { useAdminOrders, useAdminProducts, useAdminReports, useAdminUsers } from
 import { useT } from "@/lib/i18n"
 
 const tone: Record<string, string> = {
-  PENDING: "bg-[#f59e0b]",
+  PENDING: "bg-[#f59e0b] text-white",
   PROCESSING: "bg-surface-container-highest text-primary",
-  SHIPPED: "bg-on-tertiary-container",
-  COMPLETED: "bg-[#10B981]",
-  CANCELLED: "bg-error",
+  SHIPPED: "bg-on-tertiary-container text-white",
+  COMPLETED: "bg-[#10B981] text-white",
+  CANCELLED: "bg-error text-white",
 }
 
 export default function AdminDashboardPage() {
@@ -130,7 +130,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase ${tone[o.status_order] ?? "bg-surface-container-highest text-primary"}`}>
+                    <span className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${tone[o.status_order] ?? "bg-surface-container-highest text-primary"}`}>
                       {statusLabel[o.status_order] ?? o.status_order}
                     </span>
                     <span className="font-heading text-sm font-bold text-primary">

@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
@@ -11,14 +10,12 @@ import { useT } from "@/lib/i18n"
 function Field({
   label,
   name,
-  value,
-  onChange,
+  defaultValue = "",
   type = "text",
 }: {
   label: string
   name: string
-  value: string
-  onChange: (v: string) => void
+  defaultValue?: string
   type?: string
 }) {
   return (
@@ -33,8 +30,7 @@ function Field({
         id={name}
         name={name}
         type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={defaultValue}
         className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
       />
     </div>
@@ -46,22 +42,15 @@ export default function SettingsPage() {
   const { data: me, isLoading } = useMe()
   const update = useUpdateMe()
 
-  const [nama, setNama] = useState("")
-  const [email, setEmail] = useState("")
-  const [telepon, setTelepon] = useState("")
-
-  useEffect(() => {
-    if (me) {
-      setNama(me.nama)
-      setEmail(me.email)
-      setTelepon(me.nomor_telepon)
-    }
-  }, [me])
-
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const fd = new FormData(e.currentTarget)
     try {
-      await update.mutateAsync({ nama, email, nomor_telepon: telepon })
+      await update.mutateAsync({
+        nama: String(fd.get("nama") ?? ""),
+        email: String(fd.get("email") ?? ""),
+        nomor_telepon: String(fd.get("nomor_telepon") ?? ""),
+      })
       toast.success(t("Profile updated"))
     } catch (err) {
       toast.error(errMessage(err))
@@ -82,6 +71,7 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <form
+          key={me?.user_id ?? "loading"}
           onSubmit={onSubmit}
           className="border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]"
         >
@@ -93,10 +83,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label={t("Name")} name="nama" value={nama} onChange={setNama} />
-            <Field label={t("Phone")} name="nomor_telepon" value={telepon} onChange={setTelepon} />
+            <Field label={t("Name")} name="nama" defaultValue={me?.nama} />
+            <Field label={t("Phone")} name="nomor_telepon" defaultValue={me?.nomor_telepon} />
             <div className="sm:col-span-2">
-              <Field label={t("Email")} name="email" type="email" value={email} onChange={setEmail} />
+              <Field label={t("Email")} name="email" type="email" defaultValue={me?.email} />
             </div>
           </div>
 

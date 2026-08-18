@@ -11,10 +11,10 @@ import { useT } from "@/lib/i18n"
 const statuses = ["ACTIVE", "DRAFT", "INACTIVE", "PENDING"]
 
 const statusTone: Record<string, string> = {
-  ACTIVE: "bg-[#10B981]",
+  ACTIVE: "bg-[#10B981] text-white",
   DRAFT: "bg-surface-container-highest text-primary",
   INACTIVE: "bg-surface-container-highest text-primary",
-  PENDING: "bg-[#f59e0b]",
+  PENDING: "bg-[#f59e0b] text-white",
 }
 
 export default function AdminInventoryPage() {
@@ -80,7 +80,7 @@ export default function AdminInventoryPage() {
                   <td className="px-4 py-3 font-heading font-bold text-primary">{formatRp(p.harga)}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase ${statusTone[p.status_publikasi] ?? "bg-surface-container-highest text-primary"}`}
+                      className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${statusTone[p.status_publikasi] ?? "bg-surface-container-highest text-primary"}`}
                     >
                       {p.status_publikasi}
                     </span>

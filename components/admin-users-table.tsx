@@ -10,10 +10,10 @@ import { useT } from "@/lib/i18n"
 const statuses = ["ACTIVE", "INACTIVE", "SUSPENDED", "BLOCKED"]
 
 const statusTone: Record<string, string> = {
-  ACTIVE: "bg-[#10B981]",
+  ACTIVE: "bg-[#10B981] text-white",
   INACTIVE: "bg-surface-container-highest text-primary",
-  SUSPENDED: "bg-[#f59e0b]",
-  BLOCKED: "bg-error",
+  SUSPENDED: "bg-[#f59e0b] text-white",
+  BLOCKED: "bg-error text-white",
 }
 
 export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
@@ -77,7 +77,7 @@ export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase ${statusTone[u.status_akun] ?? "bg-surface-container-highest text-primary"}`}
+                    className={`border border-primary px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${statusTone[u.status_akun] ?? "bg-surface-container-highest text-primary"}`}
                   >
                     {u.status_akun}
                   </span>

@@ -109,7 +109,7 @@ export type ApiProduct = {
   avg_rating?: number;
   total_review?: number;
   image_url: string;
-  images?: { image_id: string; image_url: string; urutan_tampil?: number }[];
+  images?: { image_id: string; url: string; urutan_tampil?: number }[];
   seller?: { seller_id: string; nama_toko: string; seller_trust_score: number | null };
   created_at?: string;
 };
@@ -435,7 +435,7 @@ export function toCard(p: ApiProduct): ProductCardData {
     brand: p.brand ?? p.seller?.nama_toko ?? "",
     name: p.nama_produk,
     price: `${formatRp(p.harga)}`,
-    image: p.images?.[0]?.image_url || p.image_url || PLACEHOLDER_IMAGE,
+    image: p.images?.[0]?.url || p.image_url || PLACEHOLDER_IMAGE,
     alt: p.nama_produk,
     badge: p.kondisi,
     trend: p.condition_score ? `Score ${p.condition_score}` : undefined,

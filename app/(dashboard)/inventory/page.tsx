@@ -161,7 +161,7 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
   // ponytail: list /seller/products cuma id+harga+stok; fetch detail buat edit & tampilan
   const { data: detail } = useProduct(item.product_id)
   const p = { ...item, ...(detail ?? {}) } as ApiProduct
-  const image = p.images?.[0]?.image_url || p.image_url || PLACEHOLDER_IMAGE
+  const image = p.images?.[0]?.url || p.image_url || PLACEHOLDER_IMAGE
   return (
     <article className="group relative flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000]">
       <span className="absolute top-2 right-2 z-10 border border-primary bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest text-primary uppercase shadow-[2px_2px_0px_0px_#000]">

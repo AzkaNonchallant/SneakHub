@@ -158,7 +158,7 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
                   {images.map((img) => (
                     <div key={img.image_id} className="relative size-20 border border-outline bg-surface-container-low">
                       <img
-                        src={img.image_url}
+                        src={img.url}
                         alt={product.nama_produk}
                         className="h-full w-full object-contain mix-blend-multiply"
                       />

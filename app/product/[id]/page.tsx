@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
 
   const gallery =
     product.images && product.images.length > 0
-      ? product.images.map((i) => i.image_url)
+      ? product.images.map((i) => i.url)
       : [product.image_url || PLACEHOLDER_IMAGE]
   const sellerName = product.seller?.nama_toko ?? "SneakHub Seller"
 

@@ -206,7 +206,7 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
               <Field
                 label={t("Sizes (comma separated)")}
                 name="sizes"
-                defaultValue={product.ukuran_tersedia.join(", ")}
+                defaultValue={(product.ukuran_tersedia ?? []).join(", ")}
               />
               <Field label={t("Condition")} name="condition" defaultValue={product.kondisi} />
               <Field label={t("Stock")} name="stock" type="number" min={0} defaultValue={String(product.stok)} />

@@ -26,7 +26,6 @@ const navItems = [
   { label: "Analytics", href: "/admin/analytics", icon: LineChart },
   { label: "User Management", href: "/admin/users", icon: Users },
   { label: "Sellers", href: "/admin/sellers", icon: Store },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
 const tabItems = navItems.filter(({ href }) => href !== "/admin/authentication")
@@ -90,7 +89,7 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      <aside className="hidden h-screen w-56 shrink-0 flex-col border-r border-outline-variant bg-surface-container-lowest px-4 py-6 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-outline-variant bg-surface-container-lowest px-4 py-6 md:flex">
         {/* Brand */}
         <div className="mb-6 px-2">
           <div className="font-heading text-lg leading-6 font-black tracking-tighter text-primary uppercase">

@@ -1,6 +1,4 @@
 "use client"
-import { SiteHeader } from "@/components/site-header";
-
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -24,13 +22,11 @@ export default function DashboardLayout({
   if (isLoading || !isSellerRole(me?.peran)) return null;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       <div className="flex flex-1 flex-col md:flex-row">
         <SiteSidebar />
 
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-clip pb-20 md:pb-0">
           {children}
         </main>
       </div>

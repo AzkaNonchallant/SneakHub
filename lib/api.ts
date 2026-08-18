@@ -387,6 +387,26 @@ export type SellerActivationResult = {
   status_verifikasi: string;
 };
 
+export type SellerProfile = {
+  seller_id: string;
+  user_id?: string;
+  nama_toko: string;
+  deskripsi_toko?: string;
+  status_verifikasi?: string;
+  kode_pos_asal?: string | null;
+  kota_asal?: string | null;
+  alamat_asal?: string | null;
+};
+
+export type SellerReview = {
+  review_id: string;
+  product_id: string;
+  customer?: { user_id: string; nama: string };
+  rating: number;
+  komentar?: string;
+  created_at?: string;
+};
+
 export const SELLER_REQ_KEY = "sneakhub_seller_req";
 
 export type ApiList<T> = { items: T[]; pagination: Pagination };

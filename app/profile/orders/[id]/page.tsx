@@ -11,14 +11,21 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useCreateReview, useOrder, useUpdateOrderStatus } from "@/lib/hooks"
+import { useConfirmOrder, useCreateReview, useOrder, useUpdateOrderStatus } from "@/lib/hooks"
 
+const norm = (s?: string) => (s ?? "").toLowerCase()
+
+// ponytail: backend live campur ID + EN ("dikirim"/"shipped") — norm() + kedua key
 const statusLabel: Record<string, string> = {
   pending: "Pending",
   diproses: "Diproses",
+  processing: "Diproses",
   dikirim: "Dikirim",
+  shipped: "Dikirim",
   selesai: "Selesai",
+  completed: "Selesai",
   dibatalkan: "Dibatalkan",
+  cancelled: "Dibatalkan",
 }
 
 const kurirLabel: Record<string, string> = {
@@ -32,6 +39,7 @@ const kurirLabel: Record<string, string> = {
 const pengirimanLabel: Record<string, string> = {
   menunggu: "Menunggu dikirim",
   dikirim: "Sedang dikirim",
+  shipped: "Sedang dikirim",
   selesai: "Sudah diterima",
   diterima: "Sudah diterima",
 }
@@ -54,13 +62,24 @@ export default function OrderDetailPage() {
   const { data: order, isLoading } = useOrder(params.id)
   const review = useCreateReview()
   const updateStatus = useUpdateOrderStatus()
+  const confirm = useConfirmOrder()
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
   const [error, setError] = useState("")
 
-  const isDone = order?.status_order === "selesai"
+  const isDone = ["selesai", "completed"].includes(norm(order?.status_order))
   const isPendingPayment =
-    order?.status_order === "pending" && order?.payment?.status_pembayaran === "pending"
+    norm(order?.status_order) === "pending" && norm(order?.payment?.status_pembayaran) === "pending"
+  const isShipped = ["dikirim", "shipped"].includes(norm(order?.status_order))
+
+  const confirmReceipt = async () => {
+    try {
+      await confirm.mutateAsync(order!.order_id)
+      toast.success("Pesanan selesai — terima kasih!")
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
 
   const cancelOrder = async () => {
     if (!order) return
@@ -123,12 +142,10 @@ export default function OrderDetailPage() {
                   </div>
                   <span
                     className={`border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
-                      order.status_order === "selesai"
-                        ? "bg-primary border-primary text-white"
-                        : "bg-surface-container border-outline text-primary"
+                      isDone ? "bg-primary border-primary text-white" : "bg-surface-container border-outline text-primary"
                     }`}
                   >
-                    {statusLabel[order.status_order ?? ""] ?? order.status_order ?? "-"}
+                    {statusLabel[norm(order.status_order)] ?? order.status_order ?? "-"}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">
@@ -182,7 +199,8 @@ export default function OrderDetailPage() {
                     </h3>
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                        {paymentLabel[order.payment.status_pembayaran] ?? order.payment.status_pembayaran}
+                        {paymentLabel[norm(order.payment.status_pembayaran)] ??
+                          order.payment.status_pembayaran}
                       </span>
                       <span className="font-heading text-base font-black text-primary">
                         {formatRp(order.payment.jumlah)}
@@ -219,6 +237,26 @@ export default function OrderDetailPage() {
                   </div>
                 ) : null}
 
+                {/* Konfirmasi terima */}
+                {isShipped ? (
+                  <div className="border border-primary bg-surface-container-lowest p-6">
+                    <h3 className="mb-4 flex items-center gap-2 border-b border-primary pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                      <Truck className="size-5" /> Paket Sudah Tiba?
+                    </h3>
+                    <p className="mb-4 text-sm leading-6 text-muted-foreground">
+                      Konfirmasi setelah barang diterima untuk menyelesaikan pesanan dan membuka ulasan.
+                    </p>
+                    <Button
+                      type="button"
+                      disabled={confirm.isPending}
+                      onClick={confirmReceipt}
+                      className="h-auto w-full rounded-none border border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+                    >
+                      {confirm.isPending ? "Memproses…" : "Konfirmasi Terima"}
+                    </Button>
+                  </div>
+                ) : null}
+
                 {/* Pengiriman */}
                 {order.shipment ? (
                   <div className="border border-outline bg-surface-container-lowest p-6">
@@ -239,7 +277,7 @@ export default function OrderDetailPage() {
                           Status
                         </dt>
                         <dd className="font-bold text-primary uppercase">
-                          {pengirimanLabel[order.shipment.status_pengiriman ?? ""] ??
+                          {pengirimanLabel[norm(order.shipment.status_pengiriman)] ??
                             order.shipment.status_pengiriman ??
                             "-"}
                         </dd>

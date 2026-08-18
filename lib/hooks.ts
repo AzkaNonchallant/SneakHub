@@ -86,6 +86,34 @@ export function useSellerActivation() {
   });
 }
 
+export function useSellerMe() {
+  return useQuery({
+    queryKey: ["seller-me"],
+    queryFn: () => api.get<{ data: import("@/lib/api").SellerProfile }>("/seller/me").then((r) => r.data.data),
+  });
+}
+
+export function useUpdateSellerMe() {
+  const qc = useQueryClient();
+  return useMutation({
+    // ponytail: partial update — field kosong ("") dihapus backend, jadi jangan kirim field kosong
+    mutationFn: (body: Record<string, unknown>) =>
+      api.put<{ data: import("@/lib/api").SellerProfile }>("/seller/me", body).then((r) => r.data.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["seller-me"] }),
+  });
+}
+
+export function useSellerReviews(sellerId?: string) {
+  return useQuery({
+    queryKey: ["seller-reviews", sellerId],
+    enabled: Boolean(sellerId),
+    queryFn: () =>
+      api
+        .get<{ data: ApiProductReviews }>(pageUrl(`/sellers/${sellerId}/reviews`, { limit: 20 }))
+        .then((r) => r.data.data),
+  });
+}
+
 
 
 export function useCategories() {
@@ -514,6 +542,37 @@ export function useSellerProducts(params: { page?: number; limit?: number } = {}
   });
 }
 
+export function useShipOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    // ponytail: body kosong = booking Biteship otomatis; { nomor_resi } = kirim manual
+    mutationFn: ({ orderId, body }: { orderId: string; body?: Record<string, unknown> }) =>
+      api.post<{ data: { order_id: string; status_order?: string } }>(
+        `/seller/orders/${orderId}/ship`,
+        body ?? {},
+      ).then((r) => r.data.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["seller-orders"] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["order"] });
+    },
+  });
+}
+
+export function useConfirmOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) =>
+      api.post<{ data: { order_id: string; status_order?: string } }>(`/orders/${orderId}/confirm`, {}).then(
+        (r) => r.data.data,
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["order"] });
+    },
+  });
+}
+
 export function useTrustScore(sellerId?: string) {
   return useQuery({
     queryKey: ["trust-score", sellerId],
@@ -581,6 +640,15 @@ export function useUpdateUserStatus() {
   return useMutation({
     mutationFn: ({ userId, body }: { userId: string; body: { status_akun: string; alasan: string } }) =>
       api.patch(`/admin/users/${userId}/status`, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
+  });
+}
+
+export function useUpdateUserRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, body }: { userId: string; body: { peran: string } }) =>
+      api.patch(`/admin/users/${userId}/role`, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
   });
 }

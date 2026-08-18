@@ -4,10 +4,12 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { errMessage, type AdminUser } from "@/lib/api"
-import { useAdminUsers, useUpdateUserStatus } from "@/lib/hooks"
+import { useAdminUsers, useUpdateUserRole, useUpdateUserStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 const statuses = ["ACTIVE", "INACTIVE", "SUSPENDED", "BLOCKED"]
+
+const roles = ["SELLER", "CUSTOMER"]
 
 const statusTone: Record<string, string> = {
   ACTIVE: "bg-[#10B981] text-white",
@@ -20,7 +22,20 @@ export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
   const t = useT()
   const { data, isLoading } = useAdminUsers({ limit })
   const update = useUpdateUserStatus()
+  const updateRole = useUpdateUserRole()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+
+  const changeRole = async (u: AdminUser, peran: string) => {
+    if (peran === u.peran) return
+    // ponytail: turunkan seller = seluruh produk INACTIVE — konfirmasi dulu
+    if (!window.confirm(`${t("Change role of")} ${u.email} ${t("to")} ${peran}?`)) return
+    try {
+      await updateRole.mutateAsync({ userId: u.user_id, body: { peran } })
+      toast.success(t("Role updated"))
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
 
   const save = async (u: AdminUser) => {
     const next = drafts[u.user_id] ?? u.status_akun
@@ -71,9 +86,22 @@ export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
                 <td className="px-4 py-3 font-heading font-bold text-primary">{u.nama}</td>
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{u.email}</td>
                 <td className="px-4 py-3">
-                  <span className="border border-outline px-2 py-0.5 text-[10px] font-bold tracking-widest text-primary uppercase">
-                    {u.peran}
-                  </span>
+                  {u.peran === "admin" ? (
+                    <span className="border border-outline px-2 py-0.5 text-[10px] font-bold tracking-widest text-primary uppercase">
+                      admin
+                    </span>
+                  ) : (
+                    <select
+                      value={u.peran}
+                      disabled={updateRole.isPending}
+                      onChange={(e) => changeRole(u, e.target.value)}
+                      className="border border-outline-variant bg-transparent px-2 py-1 text-xs uppercase focus:border-on-tertiary-container focus:ring-0 disabled:opacity-40"
+                    >
+                      {roles.map((r) => (
+                        <option key={r}>{r}</option>
+                      ))}
+                    </select>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span

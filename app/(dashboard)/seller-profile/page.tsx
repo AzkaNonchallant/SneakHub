@@ -3,8 +3,7 @@
 import { CheckCircle2, Star } from "lucide-react"
 
 import { PageMeta } from "@/components/page-meta"
-import { formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useMe, useProducts, useSellerDashboard, useSellerOrders, useTrustScore } from "@/lib/hooks"
+import { useMe, useSellerDashboard, useSellerMe, useSellerOrders, useSellerReviews, useTrustScore } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 function SectionHeader({ number, title }: { number: string; title: string }) {
@@ -23,14 +22,13 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
 export default function SellerProfilePage() {
   const t = useT()
   const { data: user } = useMe()
+  const { data: seller } = useSellerMe()
   const { data: dash } = useSellerDashboard()
   const { data: ordersData } = useSellerOrders({ limit: 100 })
-  // ponytail: API tidak expose seller_id milik user; ambil dari produk publik
-  const { data: productsData } = useProducts({ limit: 100 })
-  const sellerId = productsData?.items.find((p) => p.seller?.seller_id)?.seller?.seller_id
-  const { data: trust } = useTrustScore(sellerId)
+  const { data: trust } = useTrustScore(seller?.seller_id)
+  const { data: reviewsData } = useSellerReviews(seller?.seller_id)
 
-  const storeName = `${user?.nama ?? t("Store")} Store`
+  const storeName = seller?.nama_toko ?? `${user?.nama ?? t("Store")} ${t("Store")}`
   const totalOrders = ordersData?.pagination.total ?? 0
   const trustScore = dash?.seller_trust_score ?? trust?.skor_akhir ?? 0
 
@@ -61,8 +59,15 @@ export default function SellerProfilePage() {
                 {storeName}
               </h3>
               <p className="mt-1 max-w-md text-base leading-6 text-muted-foreground">
-                {user?.email}
+                {seller?.deskripsi_toko || user?.email}
               </p>
+              {seller?.alamat_asal ? (
+                <p className="mt-1 max-w-md text-sm leading-5 text-muted-foreground">
+                  {seller.alamat_asal}
+                  {seller.kota_asal ? `, ${seller.kota_asal}` : ""}
+                  {seller.kode_pos_asal ? ` ${seller.kode_pos_asal}` : ""}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
@@ -144,18 +149,51 @@ export default function SellerProfilePage() {
       {/* 04 Ulasan Pelanggan */}
       <section className="border border-outline-variant bg-surface-container-lowest p-6">
         <SectionHeader number="04" title={t("Customer Reviews")} />
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <p className="text-base leading-6 text-muted-foreground">
             {t("See how buyers rate this store's quality and service.")}
           </p>
           <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <Star className="size-4 fill-tertiary text-tertiary" />
             <span className="font-heading font-black text-primary">
-              {dash?.rating_rata_rata ? String(dash.rating_rata_rata) : "-"}
+              {reviewsData?.rating_rata_rata ? String(reviewsData.rating_rata_rata) : "-"}
             </span>
             <span>{t("(store rating)")}</span>
           </div>
         </div>
+        {(reviewsData?.items ?? []).length === 0 ? (
+          <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
+            {t("No reviews yet.")}
+          </div>
+        ) : (
+          <div className="divide-y divide-outline-variant border-t border-outline-variant">
+            {(reviewsData?.items ?? []).map((r) => (
+              <div key={r.review_id} className="flex flex-col gap-2 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-heading text-sm leading-5 font-bold text-primary uppercase">
+                    {r.customer?.nama ?? t("Customer")}
+                  </span>
+                  <span className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Star
+                        key={n}
+                        className={`size-4 ${n <= Math.round(r.rating) ? "fill-tertiary text-tertiary" : "text-outline-variant"}`}
+                      />
+                    ))}
+                  </span>
+                </div>
+                {r.komentar ? (
+                  <p className="text-sm leading-6 text-muted-foreground">{r.komentar}</p>
+                ) : null}
+                {r.created_at ? (
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString("id-ID")}
+                  </span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

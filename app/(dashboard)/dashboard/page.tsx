@@ -11,7 +11,7 @@ import { PricePredictionButton } from "@/components/price-prediction-dialog"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp } from "@/lib/api"
-import { useSellerDashboard, useSellerOrders, useUpdateOrderStatus } from "@/lib/hooks"
+import { useSellerDashboard, useSellerOrders, useShipOrder, useUpdateOrderStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -19,9 +19,6 @@ const norm = (s?: string) => (s ?? "").toLowerCase()
 
 const nextStatus: Record<string, string> = {
   pending: "diproses",
-  processing: "dikirim",
-  diproses: "dikirim",
-  dikirim: "selesai",
 }
 
 function SectionTitle({
@@ -51,12 +48,16 @@ export default function DashboardPage() {
     diproses: t("Processing"),
     processing: t("Processing"),
     dikirim: t("Shipped"),
+    shipped: t("Shipped"),
     selesai: t("Completed"),
+    completed: t("Completed"),
     dibatalkan: t("Cancelled"),
+    cancelled: t("Cancelled"),
   }
   const { data: dash } = useSellerDashboard()
   const { data: ordersData } = useSellerOrders({ limit: 100 })
   const updateStatus = useUpdateOrderStatus()
+  const ship = useShipOrder()
   const orders = ordersData?.items ?? []
 
   const advanceStatus = async (order: { order_id: string; status_order?: string }) => {
@@ -67,6 +68,21 @@ export default function DashboardPage() {
       toast.success(`${t("Status changed to")} ${statusLabel[target]}`)
     } catch (err) {
       toast.error(errMessage(err))
+    }
+  }
+
+  const shipOrder = async (order: { order_id: string }) => {
+    const send = async (body?: Record<string, unknown>) => {
+      await ship.mutateAsync({ orderId: order.order_id, body })
+      toast.success(t("Order shipped"))
+    }
+    try {
+      // ponytail: body kosong = Biteship booking resi otomatis; gagal → fallback resi manual
+      await send()
+    } catch {
+      const resi = window.prompt(t("Biteship unavailable — enter tracking number manually:"))
+      if (!resi || !resi.trim()) return
+      await send({ nomor_resi: resi.trim() })
     }
   }
 
@@ -258,6 +274,16 @@ export default function DashboardPage() {
                         className="border border-primary bg-primary px-2 py-1 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
                       >
                         {statusLabel[nextStatus[norm(o.status_order)]]}
+                      </button>
+                    ) : null}
+                    {norm(o.status_order) === "diproses" || norm(o.status_order) === "processing" ? (
+                      <button
+                        type="button"
+                        disabled={ship.isPending}
+                        onClick={() => shipOrder(o)}
+                        className="border border-primary bg-primary px-2 py-1 text-[10px] font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:opacity-40"
+                      >
+                        {ship.isPending ? "…" : t("Ship")}
                       </button>
                     ) : null}
                   </div>

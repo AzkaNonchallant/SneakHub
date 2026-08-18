@@ -4,7 +4,7 @@ import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
 import { errMessage } from "@/lib/api"
-import { useMe, useUpdateMe } from "@/lib/hooks"
+import { useMe, useSellerMe, useUpdateMe, useUpdateSellerMe } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 function Field({
@@ -125,7 +125,77 @@ export default function SettingsPage() {
             {t("Password changes are handled by account recovery.")}
           </p>
         </div>
+
+        {/* 03 Profil Toko */}
+        <StoreProfileForm />
       </div>
     </div>
+  )
+}
+
+function StoreProfileForm() {
+  const t = useT()
+  const { data: seller, isLoading } = useSellerMe()
+  const update = useUpdateSellerMe()
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    // ponytail: partial update — backend hapus field yang dikirim kosong, jadi filter dulu
+    const body: Record<string, string> = {}
+    for (const [key, value] of [
+      ["nama_toko", "nama_toko"],
+      ["deskripsi_toko", "deskripsi_toko"],
+      ["kode_pos_asal", "kode_pos_asal"],
+      ["kota_asal", "kota_asal"],
+      ["alamat_asal", "alamat_asal"],
+    ]) {
+      const v = String(fd.get(key) ?? "").trim()
+      if (v) body[value] = v
+    }
+    if (Object.keys(body).length === 0) {
+      toast.error(t("Fill in at least one store field."))
+      return
+    }
+    try {
+      await update.mutateAsync(body)
+      toast.success(t("Store profile updated"))
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
+
+  return (
+    <form
+      key={seller?.seller_id ?? "loading"}
+      onSubmit={onSubmit}
+      className="border border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]"
+    >
+      <div className="mb-6 flex items-baseline gap-3 border-b border-outline-variant pb-4">
+        <span className="font-heading text-sm leading-4 font-black text-on-tertiary-container">03</span>
+        <h2 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+          {t("Store Profile")}
+        </h2>
+      </div>
+      <p className="mb-4 text-sm leading-6 text-muted-foreground">
+        {t("Store address powers automated shipping quotes and Biteship courier booking.")}
+      </p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label={t("Store Name")} name="nama_toko" defaultValue={seller?.nama_toko} />
+        <Field label={t("Origin Postal Code")} name="kode_pos_asal" defaultValue={seller?.kode_pos_asal ?? ""} />
+        <div className="sm:col-span-2">
+          <Field label={t("Store Description")} name="deskripsi_toko" defaultValue={seller?.deskripsi_toko ?? ""} />
+        </div>
+        <Field label={t("Origin City")} name="kota_asal" defaultValue={seller?.kota_asal ?? ""} />
+        <Field label={t("Origin Address")} name="alamat_asal" defaultValue={seller?.alamat_asal ?? ""} />
+      </div>
+      <button
+        type="submit"
+        disabled={isLoading || update.isPending}
+        className="mt-6 w-full border border-primary bg-primary px-4 py-3 text-xs leading-4 font-bold tracking-[0.05em] text-white uppercase transition-colors hover:bg-white hover:text-primary disabled:pointer-events-none disabled:opacity-50"
+      >
+        {update.isPending ? t("Saving…") : t("Save Store Profile")}
+      </button>
+    </form>
   )
 }

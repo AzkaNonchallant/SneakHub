@@ -18,13 +18,17 @@ import {
 } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
+const CONDITION_OPTIONS = ["new", "used", "refurbished"] as const
+
 export function EditProdukButton({ product }: { product: ApiProduct }) {
   const t = useT()
   const schema = z.object({
     name: z.string().trim().min(1, t("Product name is required")),
     price: z.coerce.number().positive(t("Price must be greater than 0")),
     sizes: z.string().trim().min(1, t("Size is required")),
-    condition: z.string().trim().min(1, t("Condition is required")),
+    condition: z.enum(CONDITION_OPTIONS, {
+          message: t("Condition is required"),
+        }),
     stock: z.coerce.number().int().nonnegative(t("Stock cannot be negative")),
     description: z.string().trim().min(10, t("Description must be at least 10 characters")),
     category_id: z.string().optional(),
@@ -49,6 +53,9 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
   })
 
   const images = product.images ?? []
+  // ponytail: backend kadang tidak mengirim field ini (produk lama / belum ada ukuran),
+  // fallback ke array kosong biar .join() tidak meledak
+  const sizes = product.ukuran_tersedia ?? []
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -206,9 +213,29 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
               <Field
                 label={t("Sizes (comma separated)")}
                 name="sizes"
-                defaultValue={product.ukuran_tersedia.join(", ")}
+                defaultValue={sizes.join(", ")}
               />
-              <Field label={t("Condition")} name="condition" defaultValue={product.kondisi} />
+              <div>
+                <label
+                  htmlFor="condition"
+                  className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase"
+                >
+                  {t("Condition")}
+                </label>
+                <select
+                  id="condition"
+                  name="condition"
+                  defaultValue={product.kondisi}
+                  className="h-10 w-full rounded-none border border-input bg-transparent px-3 text-sm text-foreground outline-none focus:border-b-2 focus:border-ring"
+                >
+                  <option value="">{t("Select condition…")}</option>
+                  {CONDITION_OPTIONS.map((c) => (
+                    <option key={c} value={c}>
+                      {t(c)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <Field label={t("Stock")} name="stock" type="number" min={0} defaultValue={String(product.stok)} />
               <div>
                 <label

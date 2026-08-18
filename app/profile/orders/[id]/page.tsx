@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Star } from "lucide-react"
+import { ArrowLeft, CreditCard, MapPin, Star, Truck } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -11,7 +11,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useCreateReview, useOrder } from "@/lib/hooks"
+import { useCreateReview, useOrder, useUpdateOrderStatus } from "@/lib/hooks"
 
 const statusLabel: Record<string, string> = {
   pending: "Pending",
@@ -19,6 +19,29 @@ const statusLabel: Record<string, string> = {
   dikirim: "Dikirim",
   selesai: "Selesai",
   dibatalkan: "Dibatalkan",
+}
+
+const kurirLabel: Record<string, string> = {
+  jne: "JNE",
+  "j&t": "J&T",
+  anteraja: "AnterAja",
+  sicepat: "SiCepat",
+  flat: "Flat Rp15.000",
+}
+
+const pengirimanLabel: Record<string, string> = {
+  menunggu: "Menunggu dikirim",
+  dikirim: "Sedang dikirim",
+  selesai: "Sudah diterima",
+  diterima: "Sudah diterima",
+}
+
+const paymentLabel: Record<string, string> = {
+  pending: "Belum dibayar",
+  paid: "Lunas",
+  failed: "Gagal",
+  expired: "Kedaluwarsa",
+  refunded: "Dikembalikan",
 }
 
 const reviewSchema = z.object({
@@ -30,11 +53,25 @@ export default function OrderDetailPage() {
   const params = useParams<{ id: string }>()
   const { data: order, isLoading } = useOrder(params.id)
   const review = useCreateReview()
+  const updateStatus = useUpdateOrderStatus()
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
   const [error, setError] = useState("")
 
   const isDone = order?.status_order === "selesai"
+  const isPendingPayment =
+    order?.status_order === "pending" && order?.payment?.status_pembayaran === "pending"
+
+  const cancelOrder = async () => {
+    if (!order) return
+    if (!window.confirm("Batalkan pesanan ini? Stok produk akan dikembalikan.")) return
+    try {
+      await updateStatus.mutateAsync({ id: order.order_id, status_order: "dibatalkan" })
+      toast.success("Pesanan dibatalkan")
+    } catch (err) {
+      toast.error(errMessage(err))
+    }
+  }
 
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -132,7 +169,133 @@ export default function OrderDetailPage() {
             </div>
 
             <div className="w-full lg:w-80">
-              <div className="sticky top-8 border border-outline bg-surface-container-lowest p-6">
+              <div className="sticky top-8 flex flex-col gap-4">
+                {/* Pembayaran */}
+                {order.payment ? (
+                  <div
+                    className={`border bg-surface-container-lowest p-6 ${
+                      isPendingPayment ? "border-error" : "border-outline"
+                    }`}
+                  >
+                    <h3 className="mb-4 flex items-center gap-2 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                      <CreditCard className="size-5" /> Pembayaran
+                    </h3>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                        {paymentLabel[order.payment.status_pembayaran] ?? order.payment.status_pembayaran}
+                      </span>
+                      <span className="font-heading text-base font-black text-primary">
+                        {formatRp(order.payment.jumlah)}
+                      </span>
+                    </div>
+                    <p className="mb-4 text-sm leading-6 text-muted-foreground">
+                      Metode: {order.payment.metode_pembayaran}
+                    </p>
+                    {isPendingPayment ? (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-xs leading-4 font-bold text-error uppercase">
+                          Selesaikan pembayaran untuk memproses pesanan.
+                        </p>
+                        {order.payment.payment_url ? (
+                          <Button
+                            type="button"
+                            onClick={() => window.open(order.payment!.payment_url!, "_blank")}
+                            className="h-auto rounded-none border border-primary bg-primary px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors hover:bg-white hover:text-primary"
+                          >
+                            Lanjutkan Pembayaran
+                          </Button>
+                        ) : null}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={updateStatus.isPending}
+                          onClick={cancelOrder}
+                          className="h-auto rounded-none border border-error bg-background px-4 py-2 text-xs font-bold tracking-widest text-error uppercase transition-colors hover:bg-error hover:text-white"
+                        >
+                          {updateStatus.isPending ? "Memproses…" : "Batalkan Pesanan"}
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {/* Pengiriman */}
+                {order.shipment ? (
+                  <div className="border border-outline bg-surface-container-lowest p-6">
+                    <h3 className="mb-4 flex items-center gap-2 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                      <Truck className="size-5" /> Pengiriman
+                    </h3>
+                    <dl className="space-y-3 text-sm leading-6">
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                          Kurir
+                        </dt>
+                        <dd className="font-heading text-sm font-bold text-primary uppercase">
+                          {kurirLabel[order.shipment.kurir?.toLowerCase() ?? ""] ?? order.shipment.kurir ?? "-"}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                          Status
+                        </dt>
+                        <dd className="font-bold text-primary uppercase">
+                          {pengirimanLabel[order.shipment.status_pengiriman ?? ""] ??
+                            order.shipment.status_pengiriman ??
+                            "-"}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                          No. Resi
+                        </dt>
+                        <dd className="font-mono text-sm font-medium text-primary">
+                          {order.shipment.nomor_resi ?? "-"}
+                        </dd>
+                      </div>
+                      {order.shipment.shipped_at ? (
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                            Dikirim
+                          </dt>
+                          <dd className="font-mono text-sm">
+                            {new Date(order.shipment.shipped_at).toLocaleString("id-ID")}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {order.shipment.delivered_at ? (
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                            Tiba
+                          </dt>
+                          <dd className="font-mono text-sm">
+                            {new Date(order.shipment.delivered_at).toLocaleString("id-ID")}
+                          </dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  </div>
+                ) : null}
+
+                {/* Alamat pengiriman */}
+                {order.alamat_pengiriman ? (
+                  <div className="border border-outline bg-surface-container-lowest p-6">
+                    <h3 className="mb-4 flex items-center gap-2 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                      <MapPin className="size-5" /> Alamat
+                    </h3>
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      <span className="font-heading text-base font-bold text-primary uppercase">
+                        {order.alamat_pengiriman.nama_penerima}
+                      </span>
+                      <span className="block">{order.alamat_pengiriman.nomor_telepon}</span>
+                      <span className="block">
+                        {order.alamat_pengiriman.alamat}, {order.alamat_pengiriman.kota},{" "}
+                        {order.alamat_pengiriman.provinsi} {order.alamat_pengiriman.kode_pos}
+                      </span>
+                    </p>
+                  </div>
+                ) : null}
+
+              <div className="border border-outline bg-surface-container-lowest p-6">
                 <h3 className="mb-4 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
                   Total
                 </h3>
@@ -177,6 +340,7 @@ export default function OrderDetailPage() {
                 ) : null}
               </div>
             </div>
+          </div>
           </div>
         )}
       </main>

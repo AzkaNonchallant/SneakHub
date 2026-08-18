@@ -12,6 +12,7 @@ import {
   type ApiNotification,
   type ApiOrder,
   type ApiProduct,
+  type ApiProductReviews,
   type ApiWishlistItem,
   type BestSellerItem,
   type ConditionScore,
@@ -19,8 +20,10 @@ import {
   type PriceInsight,
   type PricePrediction,
   type RecommendationItem,
+  type SellerActivationResult,
   type SellerDashboard,
   type SellerTrustScore,
+  type ShippingRate,
   type SmartFilterItem,
   type TrendingItem,
   type User,
@@ -76,7 +79,9 @@ export function useSellerActivation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: { nama_toko: string; deskripsi_toko: string }) =>
-      api.post("/users/me/seller-activation", body),
+      api
+        .post<{ data: SellerActivationResult }>("/users/me/seller-activation", body)
+        .then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
   });
 }
@@ -144,6 +149,17 @@ export function useProduct(id: string) {
     queryKey: ["product", id],
     enabled: Boolean(id),
     queryFn: () => api.get<{ data: ApiProduct }>(`/products/${id}`).then((r) => r.data.data),
+  });
+}
+
+export function useProductReviews(productId: string, limit = 20) {
+  return useQuery({
+    queryKey: ["product-reviews", productId],
+    enabled: Boolean(productId),
+    queryFn: () =>
+      api
+        .get<{ data: ApiProductReviews }>(pageUrl(`/products/${productId}/reviews`, { limit }))
+        .then((r) => r.data.data),
   });
 }
 
@@ -322,13 +338,24 @@ export type CheckoutResult = {
 export function useCheckout() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: { address_id: string; metode_pembayaran: string }) =>
+    mutationFn: (body: { address_id: string; metode_pembayaran: string; pengiriman?: { seller_id: string; kurir: string }[] }) =>
       // ponytail: backend kirim ARRAY (satu entry per seller); frontend pakai entry pertama
       api.post<{ data: CheckoutResult[] }>("/checkout", body).then((r) => r.data.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
     },
+  });
+}
+
+export function useShippingRates(addressId?: string) {
+  return useQuery({
+    queryKey: ["shipping-rates", addressId],
+    enabled: Boolean(addressId),
+    queryFn: () =>
+      api
+        .post<{ data: ShippingRate[] }>("/checkout/shipping-rates", { address_id: addressId })
+        .then((r) => r.data.data),
   });
 }
 

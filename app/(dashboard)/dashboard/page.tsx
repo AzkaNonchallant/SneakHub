@@ -11,7 +11,7 @@ import { PricePredictionButton } from "@/components/price-prediction-dialog"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp } from "@/lib/api"
-import { useProducts, useSellerDashboard, useSellerOrders, useTrustScore, useUpdateOrderStatus } from "@/lib/hooks"
+import { useSellerDashboard, useSellerOrders, useUpdateOrderStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -55,14 +55,9 @@ export default function DashboardPage() {
     dibatalkan: t("Cancelled"),
   }
   const { data: dash } = useSellerDashboard()
-  const { data: productsData } = useProducts({ limit: 100 })
-  // ponytail: API tidak expose seller_id milik user; ambil dari produk publik
-  const sellerId = productsData?.items.find((p) => p.seller?.seller_id)?.seller?.seller_id
-  const { data: trust } = useTrustScore(sellerId)
   const { data: ordersData } = useSellerOrders({ limit: 100 })
   const updateStatus = useUpdateOrderStatus()
   const orders = ordersData?.items ?? []
-  const products = productsData?.items ?? []
 
   const advanceStatus = async (order: { order_id: string; status_order?: string }) => {
     const target = nextStatus[norm(order.status_order)]
@@ -91,7 +86,7 @@ export default function DashboardPage() {
     {
       icon: ShoppingBag,
       trend: "flat" as const,
-      value: String(dash?.produk_aktif ?? products.filter((p) => p.status_publikasi === "AKTIF").length),
+      value: String(dash?.produk_aktif ?? 0),
       label: t("Active Products"),
     },
     {
@@ -104,7 +99,7 @@ export default function DashboardPage() {
     {
       icon: ShieldCheck,
       trend: "up" as const,
-      value: dash?.seller_trust_score ?? trust?.skor_akhir ?? "-",
+      value: dash?.seller_trust_score ?? "-",
       label: t("Trust Score"),
     },
   ]
@@ -129,7 +124,6 @@ export default function DashboardPage() {
   )
 
   const recentOrders = orders.slice(0, 5)
-  const topProducts = products.slice(0, 5)
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -205,16 +199,16 @@ export default function DashboardPage() {
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <SectionTitle eyebrow={t("Reputation")} title={t("Trust Score")} />
           <div className="mb-6 flex flex-wrap items-center gap-6">
-            <TrustGauge score={dash?.seller_trust_score ?? trust?.skor_akhir ?? 0} />
+            <TrustGauge score={dash?.seller_trust_score ?? 0} />
             <div>
               <div className="font-heading text-3xl leading-9 font-black text-primary">
-                {dash?.seller_trust_score ?? trust?.skor_akhir ?? "-"}
-                {trust ? <span className="text-base font-bold text-muted-foreground">/100</span> : null}
+                {dash?.seller_trust_score ?? "-"}
+                {dash?.seller_trust_score != null ? (
+                  <span className="text-base font-bold text-muted-foreground">/100</span>
+                ) : null}
               </div>
               <div className="mt-0.5 text-base font-bold text-muted-foreground">
-                {trust
-                  ? `${t("Completed")} ${trust.order_completion_rate}% • ${t("Cancelled")} ${trust.cancellation_rate}%`
-                  : t("No ratings yet")}
+                {t("No ratings yet")}
               </div>
             </div>
           </div>
@@ -283,33 +277,22 @@ export default function DashboardPage() {
               {t("Manage")} <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
             </Link>
           </div>
-          {topProducts.length === 0 ? (
+          {(dash?.produk_terlaris ?? []).length === 0 ? (
             <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
               {t("No data yet.")}
             </div>
           ) : (
             <div className="divide-y divide-outline-variant border-t border-outline-variant">
-              {(dash?.produk_terlaris ?? []).length > 0
-                ? dash!.produk_terlaris.map((p) => (
-                    <div key={p.product_id} className="flex items-center justify-between py-3">
-                      <div className="truncate font-heading text-sm font-bold text-primary">
-                        {p.nama_produk}
-                      </div>
-                      <span className="text-xs font-bold text-muted-foreground uppercase">
-                        {p.total_terjual} {t("sold")}
-                      </span>
-                    </div>
-                  ))
-                : topProducts.map((p) => (
-                    <div key={p.product_id} className="flex items-center justify-between py-3">
-                      <div className="truncate font-heading text-sm font-bold text-primary">
-                        {p.nama_produk}
-                      </div>
-                      <span className="text-xs font-bold text-muted-foreground uppercase">
-                        {t("Stock")} {p.stok}
-                      </span>
-                    </div>
-                  ))}
+              {dash!.produk_terlaris.map((p) => (
+                <div key={p.product_id} className="flex items-center justify-between py-3">
+                  <div className="truncate font-heading text-sm font-bold text-primary">
+                    {p.nama_produk}
+                  </div>
+                  <span className="text-xs font-bold text-muted-foreground uppercase">
+                    {p.total_terjual} {t("sold")}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ import { notFound } from "next/navigation"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
+import { RatingStars } from "@/components/rating-stars"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ import {
   useMe,
   usePriceInsight,
   useProduct,
+  useProductReviews,
   useRemoveWishlist,
   useSubmitConditionScore,
   useWishlist,
@@ -191,6 +193,8 @@ export default function ProductDetailPage() {
             </div>
 
             <PriceInsightBox productId={id} price={product.harga} />
+
+            <ReviewsBox productId={id} />
 
             <button
               type="button"
@@ -370,6 +374,56 @@ function ConditionScoreDialog({
           {submit.isPending ? t("Saving…") : t("Save Score")}
         </Button>
       </div>
+    </div>
+  )
+}
+
+function ReviewsBox({ productId }: { productId: string }) {
+  const t = useT()
+  const { data: reviews } = useProductReviews(productId)
+
+  return (
+    <div className="flex flex-col gap-4 border border-outline-variant bg-surface p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+          {t("Reviews")}
+        </h3>
+        {reviews && reviews.total_review > 0 ? (
+          <span className="flex items-center gap-2">
+            <RatingStars value={reviews.rating_rata_rata} total={reviews.total_review} />
+          </span>
+        ) : (
+          <span className="border border-outline bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest uppercase">
+            {t("NO REVIEWS")}
+          </span>
+        )}
+      </div>
+      {!reviews || reviews.items.length === 0 ? (
+        <p className="text-sm leading-6 text-muted-foreground">
+          {t("No reviews yet. Be the first to review this product.")}
+        </p>
+      ) : (
+        <div className="flex flex-col divide-y divide-outline-variant border-t border-outline-variant">
+          {reviews.items.map((r) => (
+            <div key={r.review_id} className="flex flex-col gap-1.5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs leading-4 font-bold tracking-widest text-primary uppercase">
+                  {r.customer?.nama ?? t("Customer")}
+                </span>
+                <span className="flex items-center gap-1">
+                  <RatingStars value={r.rating} />
+                </span>
+              </div>
+              {r.komentar ? <p className="text-sm leading-6 text-muted-foreground">{r.komentar}</p> : null}
+              {r.created_at ? (
+                <span className="font-mono text-[10px] text-muted-foreground">
+                  {new Date(r.created_at).toLocaleString("id-ID")}
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

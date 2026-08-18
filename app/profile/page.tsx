@@ -10,7 +10,7 @@ import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { errMessage, formatRp, isSellerRole } from "@/lib/api"
+import { errMessage, formatRp, isSellerRole, SELLER_REQ_KEY, type SellerActivationResult } from "@/lib/api"
 import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
@@ -30,6 +30,16 @@ export default function ProfilePage() {
   const { data: ordersData } = useOrders({ limit: 10 })
   const activate = useSellerActivation()
   const [sellerError, setSellerError] = useState("")
+  const [sellerReq, setSellerReq] = useState<SellerActivationResult | null>(() => {
+    // ponytail: status pengajuan seller disimpan lokal — backend tidak expose endpoint status user
+    if (typeof window === "undefined") return null
+    try {
+      const raw = localStorage.getItem(SELLER_REQ_KEY)
+      return raw ? (JSON.parse(raw) as SellerActivationResult) : null
+    } catch {
+      return null
+    }
+  })
 
   const orders = ordersData?.items ?? []
   const initial = user?.nama?.charAt(0).toUpperCase() ?? "S"
@@ -63,16 +73,34 @@ export default function ProfilePage() {
             </span>
             {!isSeller ? (
               <>
+              {sellerReq?.status_verifikasi === "PENDING" ? (
+                <span className="mt-4 inline-flex items-center gap-1 border border-outline bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
+                  <BadgeCheck className="size-4" />
+                  {t("Seller application pending admin verification")}
+                </span>
+              ) : sellerReq?.status_verifikasi === "REJECTED" ? (
+                <span className="mt-4 inline-flex items-center gap-1 border border-error bg-error/10 px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-error uppercase">
+                  {t("Seller application rejected — you may reapply")}
+                </span>
+              ) : sellerReq?.status_verifikasi === "VERIFIED" ? (
+                <span className="mt-4 inline-flex items-center gap-1 border border-primary bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase">
+                  <BadgeCheck className="size-4" />
+                  {t("Seller verified")}
+                </span>
+              ) : null}
+              {sellerReq?.status_verifikasi !== "PENDING" ? (
               <Button
                 type="button"
                 disabled={activate.isPending}
                 onClick={async () => {
                   setSellerError("")
                   try {
-                    await activate.mutateAsync({
+                    const res = await activate.mutateAsync({
                       nama_toko: `${user?.nama ?? t("Store")} ${t("Store")}`,
                       deskripsi_toko: t("Official SneakHub store."),
                     })
+                    setSellerReq(res)
+                    localStorage.setItem(SELLER_REQ_KEY, JSON.stringify(res))
                   } catch (err) {
                     setSellerError(errMessage(err))
                   }
@@ -81,6 +109,7 @@ export default function ProfilePage() {
               >
                 {activate.isPending ? t("Activating…") : t("Become a Seller")}
               </Button>
+              ) : null}
               {sellerError ? (
                 <p className="mt-2 max-w-full bg-error/10 px-2 py-1 text-right text-[10px] leading-4 font-bold text-error">
                   {sellerError}
@@ -143,6 +172,11 @@ export default function ProfilePage() {
                       >
                         {statusLabel[order.status_order ?? ""] ?? order.status_order ?? "-"}
                       </span>
+                      {order.status_order === "pending" && order.status_pembayaran === "pending" ? (
+                        <span className="border border-error bg-error/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-error uppercase">
+                          {t("Unpaid")}
+                        </span>
+                      ) : null}
                     </div>
                     <h3 className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
                       {(order.items?.[0]?.nama_produk ?? t("Order")) +

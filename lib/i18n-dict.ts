@@ -496,4 +496,24 @@ export const ID_DICT: Record<string, string> = {
   "5. Your Rights": "5. Hak Anda",
   "You may request access, correction, or deletion of your personal data at any time.":
     "Anda dapat meminta akses, perbaikan, atau penghapusan data pribadi Anda kapan saja.",
+  "Out of Stock": "Stok Habis",
+  Unpaid: "Belum Dibayar",
+  Reviews: "Ulasan",
+  "NO REVIEWS": "BELUM ADA ULASAN",
+  "No reviews yet. Be the first to review this product.":
+    "Belum ada ulasan. Jadilah yang pertama memberi ulasan produk ini.",
+  Customer: "Pelanggan",
+  "Flat rate": "Tarif flat",
+  "Insufficient stock": "Stok tidak mencukupi",
+  "Shipping Method": "Metode Pengiriman",
+  "Calculating shipping…": "Menghitung ongkir…",
+  "Shipping rates unavailable. Flat rate Rp15.000 will be applied.":
+    "Ongkir tidak tersedia. Tarif flat Rp15.000 akan diterapkan.",
+  "Select a shipping address to calculate shipping costs.":
+    "Pilih alamat pengiriman untuk menghitung ongkir.",
+  "Seller application pending admin verification":
+    "Pengajuan seller menunggu verifikasi admin",
+  "Seller application rejected — you may reapply":
+    "Pengajuan seller ditolak — Anda boleh mengajukan ulang",
+  "Seller verified": "Seller terverifikasi",
 }

@@ -8,15 +8,17 @@ import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { formatRp, PLACEHOLDER_IMAGE, type ApiCartItem } from "@/lib/api"
-import { useCart, useDeleteCartItem, useUpdateCartItem } from "@/lib/hooks"
+import { useCart, useDeleteCartItem, useProducts, useUpdateCartItem } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 function CartItemRow({
   item,
+  stock,
   onChange,
   onRemove,
 }: {
   item: ApiCartItem
+  stock?: number
   onChange: (qty: number) => void
   onRemove: () => void
 }) {
@@ -25,6 +27,8 @@ function CartItemRow({
   const image = item.image_url || PLACEHOLDER_IMAGE
   const price = item.harga ?? 0
   const size = "-"
+  const maxQty = typeof stock === "number" ? stock : undefined
+  const outOfStock = typeof stock === "number" && stock <= 0
 
   return (
     <motion.article
@@ -91,14 +95,26 @@ function CartItemRow({
             <button
               type="button"
               aria-label="Increase quantity"
+              disabled={outOfStock || (typeof maxQty === "number" && item.jumlah >= maxQty)}
               onClick={() => onChange(item.jumlah + 1)}
-              className="px-3 py-1 text-muted-foreground transition-colors hover:bg-surface-container-high hover:text-primary"
+              className="px-3 py-1 text-muted-foreground transition-colors hover:bg-surface-container-high hover:text-primary disabled:pointer-events-none disabled:opacity-40"
             >
               <Plus className="size-3.5" />
             </button>
           </div>
-          <div className="font-heading text-2xl leading-7 font-semibold text-primary">
-            {formatRp(price * item.jumlah)}
+          <div className="text-right">
+            {outOfStock ? (
+              <span className="block border border-error px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-error uppercase">
+                {t("Out of Stock")}
+              </span>
+            ) : typeof stock === "number" ? (
+              <span className="block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                {t("Stock")} {stock}
+              </span>
+            ) : null}
+            <div className="font-heading text-2xl leading-7 font-semibold text-primary">
+              {formatRp(price * item.jumlah)}
+            </div>
           </div>
         </div>
       </div>
@@ -111,6 +127,9 @@ export default function CartPage() {
   const { data: cart } = useCart()
   const updateItem = useUpdateCartItem()
   const deleteItem = useDeleteCartItem()
+  const { data: productsData } = useProducts({ limit: 100 })
+  // ponytail: stok per produk dari endpoint publik (cart item tidak bawa stok)
+  const stockById = new Map((productsData?.items ?? []).map((p) => [p.product_id, p.stok]))
 
   const items = cart?.items ?? []
   const subtotal = cart?.total ?? 0
@@ -167,6 +186,7 @@ export default function CartPage() {
                 <CartItemRow
                   key={item.cart_item_id}
                   item={item}
+                  stock={stockById.get(item.product_id)}
                   onChange={(qty) => updateItem.mutate({ id: item.cart_item_id, jumlah: qty })}
                   onRemove={() => deleteItem.mutate(item.cart_item_id)}
                 />

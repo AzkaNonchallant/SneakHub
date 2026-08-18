@@ -8,22 +8,49 @@ import { AddressDialog } from "@/components/address-manager"
 import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
-import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
-import { useAddresses, useCart, useCheckout } from "@/lib/hooks"
+import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ShippingRate } from "@/lib/api"
+import { useAddresses, useCart, useCheckout, useProducts, useShippingRates } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
+
+const kurirLabel: Record<string, string> = {
+  jne: "JNE",
+  "j&t": "J&T",
+  anteraja: "AnterAja",
+  sicepat: "SiCepat",
+  flat: "Flat Rp15.000",
+}
+
+function cheapest(rate: ShippingRate) {
+  return rate.options.reduce((a, b) => (b.biaya < a.biaya ? b : a), rate.options[0])
+}
 
 export default function CheckoutPage() {
   const t = useT()
   const { data: cart } = useCart()
   const { data: addresses } = useAddresses()
+  const { data: productsData } = useProducts({ limit: 100 })
+  const stockById = new Map((productsData?.items ?? []).map((p) => [p.product_id, p.stok]))
   const checkout = useCheckout()
   const [addressId, setAddressId] = useState("")
   const [method, setMethod] = useState("EWALLET")
   const [error, setError] = useState("")
+  const [kurir, setKurir] = useState<Record<string, string>>({})
 
   const items = cart?.items ?? []
   const subtotal = cart?.total ?? 0
   const chosenAddress = addresses?.find((a) => a.address_id === addressId) ?? addresses?.[0]
+
+  const { data: rates, isLoading: ratesLoading } = useShippingRates(chosenAddress?.address_id)
+
+  // ponytail: default = kurir termurah; state hanya menimpa kalau user pilih manual
+  const chosen = (r: ShippingRate) => kurir[r.seller_id] ?? cheapest(r).kurir
+
+  const shippingCost = (rates ?? []).reduce((sum, r) => {
+    const opt = r.options.find((o) => o.kurir === chosen(r)) ?? cheapest(r)
+    return sum + (opt?.biaya ?? 0)
+  }, 0)
+
+  const total = subtotal + shippingCost
 
   async function onCheckout() {
     setError("")
@@ -31,10 +58,23 @@ export default function CheckoutPage() {
       setError(t("Choose or create a shipping address first."))
       return
     }
+    const bad = items.find((it) => {
+      const stok = stockById.get(it.product_id)
+      return typeof stok === "number" && stok < it.jumlah
+    })
+    if (bad) {
+      setError(`${t("Insufficient stock")}: ${bad.nama_produk ?? "..."} (${t("Stock")} ${stockById.get(bad.product_id) ?? 0})`)
+      return
+    }
     try {
+      const pengiriman =
+        rates && rates.length > 0
+          ? rates.map((r) => ({ seller_id: r.seller_id, kurir: chosen(r) }))
+          : undefined
       const data = await checkout.mutateAsync({
         address_id: chosenAddress.address_id,
         metode_pembayaran: method,
+        pengiriman,
       })
       // ponytail: backend kirim ARRAY (satu entry per seller) — pakai entry pertama
       if (data[0]?.payment_url) window.location.href = data[0].payment_url
@@ -159,6 +199,77 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Step 3: Pengiriman (smart ongkir) */}
+            <div className="relative border border-primary bg-surface-container-lowest p-6">
+              <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
+              <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
+                <span className="flex size-8 items-center justify-center bg-primary text-xs leading-4 font-bold text-white">
+                  03
+                </span>
+                {t("Shipping Method")}
+              </h2>
+              {!chosenAddress ? (
+                <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
+                  {t("Select a shipping address to calculate shipping costs.")}
+                </p>
+              ) : ratesLoading ? (
+                <p className="p-6 text-sm text-muted-foreground">{t("Calculating shipping…")}</p>
+              ) : !rates || rates.length === 0 ? (
+                <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
+                  {t("Shipping rates unavailable. Flat rate Rp15.000 will be applied.")}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {rates.map((r) => (
+                    <div key={r.seller_id} className="border border-outline bg-background p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className="font-heading text-sm font-bold text-primary uppercase">
+                          {r.nama_toko}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {(r.berat / 1000).toFixed(1)} kg • {r.kota_asal}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {r.options.map((o) => (
+                          <label
+                            key={o.kurir}
+                            className={`flex cursor-pointer items-center justify-between gap-3 border p-3 transition-colors ${
+                              chosen(r) === o.kurir
+                                ? "border-primary bg-surface-container-low"
+                                : "border-outline bg-surface-container-lowest"
+                            }`}
+                          >
+                            <span className="flex items-center gap-3">
+                              <input
+                                type="radio"
+                                name={`kurir-${r.seller_id}`}
+                                checked={chosen(r) === o.kurir}
+                                onChange={() => setKurir((prev) => ({ ...prev, [r.seller_id]: o.kurir }))}
+                                className="accent-primary"
+                              />
+                              <span>
+                                <span className="block font-heading text-sm font-bold text-primary uppercase">
+                                  {kurirLabel[o.kurir.toLowerCase()] ?? o.kurir} • {o.service}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {o.estimasi}
+                                  {o.is_fallback ? ` • ${t("Flat rate")}` : ""}
+                                </span>
+                              </span>
+                            </span>
+                            <span className="font-heading text-base font-black text-primary">
+                              {formatRp(o.biaya)}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {error ? (
               <p className="flex items-center gap-2 bg-error/10 px-3 py-2 text-xs font-bold text-error">
                 <AlertCircle className="size-4 shrink-0" /> {error}
@@ -212,6 +323,9 @@ export default function CheckoutPage() {
                             <p className="text-xs leading-4 font-bold tracking-[0.05em] text-primary uppercase">
                               {item.nama_produk ?? t("Product")}
                             </p>
+                            <p className="mt-0.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                              {t("Stock")} {stockById.get(item.product_id) ?? "-"}
+                            </p>
                           </div>
                           <p className="font-heading text-2xl leading-7 font-semibold text-primary">
                             {formatRp((item.harga ?? 0) * item.jumlah)}
@@ -225,13 +339,17 @@ export default function CheckoutPage() {
                       <span>Subtotal</span>
                       <span>{formatRp(subtotal)}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span>{t("Shipping")}</span>
+                      <span>{ratesLoading ? t("…") : formatRp(rates && rates.length > 0 ? shippingCost : 15000)}</span>
+                    </div>
                   </div>
                   <div className="mb-6 flex items-end justify-between border-t border-primary pt-4">
                     <span className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
                       Total
                     </span>
                     <span className="font-heading text-[36px] leading-9 font-bold text-primary">
-                      {formatRp(subtotal)}
+                      {formatRp(ratesLoading ? subtotal : rates && rates.length > 0 ? total : subtotal + 15000)}
                     </span>
                   </div>
                   <div className="flex items-start gap-3 border border-outline bg-surface p-4">

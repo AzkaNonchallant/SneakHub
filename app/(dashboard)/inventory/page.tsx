@@ -8,7 +8,7 @@ import { EditProdukButton } from "@/components/edit-produk-dialog"
 import { PageMeta } from "@/components/page-meta"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
-import { useDeleteProduct, useProducts } from "@/lib/hooks"
+import { useDeleteProduct, useProduct, useSellerProducts } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 const PAGE_SIZE = 6
@@ -38,7 +38,7 @@ export default function InventoryPage() {
     "price-desc": t("Price: Most Expensive"),
     name: t("Name: A-Z"),
   }
-  const { data } = useProducts({ limit: 100 })
+  const { data } = useSellerProducts({ limit: 100 })
   const items = data?.items ?? []
   const remove = useDeleteProduct()
   const [sort, setSort] = useState<SortKey>("newest")
@@ -158,17 +158,20 @@ export default function InventoryPage() {
 
 function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: ApiProduct) => void }) {
   const t = useT()
-  const image = item.images?.[0]?.image_url || item.image_url || PLACEHOLDER_IMAGE
+  // ponytail: list /seller/products cuma id+harga+stok; fetch detail buat edit & tampilan
+  const { data: detail } = useProduct(item.product_id)
+  const p = { ...item, ...(detail ?? {}) } as ApiProduct
+  const image = p.images?.[0]?.image_url || p.image_url || PLACEHOLDER_IMAGE
   return (
     <article className="group relative flex flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000]">
       <span className="absolute top-2 right-2 z-10 border border-primary bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest text-primary uppercase shadow-[2px_2px_0px_0px_#000]">
-        {item.kondisi}
+        {p.kondisi ?? "-"}
       </span>
 
       <div className="flex aspect-square items-center justify-center overflow-hidden border-b border-primary bg-surface-container-low p-4">
         <img
           src={image}
-          alt={item.nama_produk}
+          alt={p.nama_produk}
           loading="lazy"
           className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
         />
@@ -176,10 +179,10 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
 
       <div className="flex grow flex-col p-4">
         <h3 className="line-clamp-1 font-heading text-xl leading-6 font-semibold text-primary uppercase">
-          {item.nama_produk}
+          {p.nama_produk}
         </h3>
         <p className="mt-1 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          {item.seller?.nama_toko ?? "SNEAKHUB"}
+          {p.seller?.nama_toko ?? "SNEAKHUB"}
         </p>
         <div className="mt-auto flex items-end justify-between border-t border-outline-variant pt-3">
           <div>
@@ -187,17 +190,17 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
               {t("Price")}
             </span>
             <span className="font-heading text-2xl leading-7 font-black text-primary">
-              {formatRp(item.harga)}
+              {formatRp(p.harga)}
             </span>
           </div>
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            {t("Stock")} {item.stok} • {item.ukuran_tersedia.join(", ") || "-"}
+            {t("Stock")} {p.stok} • {(p.ukuran_tersedia ?? []).join(", ") || "-"}
           </span>
         </div>
       </div>
 
       <div className="flex gap-2 border-t border-primary p-2">
-        <EditProdukButton product={item} />
+        <EditProdukButton product={p} />
         <button
           type="button"
           onClick={() => onDelete(item)}

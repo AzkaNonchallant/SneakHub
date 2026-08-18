@@ -10,6 +10,7 @@ import type { ProductCardData } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { useAddCartItems } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
+import { RatingStars } from "@/components/rating-stars"
 
 export function ProductCard({
   product,
@@ -70,6 +71,9 @@ export function ProductCard({
         <span className="mb-1 text-xs font-medium tracking-widest text-muted-foreground uppercase">
           {product.brand}
         </span>
+        <div className="mb-1">
+          <RatingStars value={product.rating} total={product.totalReview} />
+        </div>
         <h3 className="mb-2 line-clamp-1 font-heading text-2xl leading-7 font-semibold text-primary">
           {product.name}
         </h3>

@@ -85,7 +85,14 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
           stok: v.stock,
           // ponytail: backend tolak status_publikasi ACTIVE; tanpa field status tidak berubah
           ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-          condition_score: v.condition.includes("/") ? Number(v.condition.split("/")[0]) : 9.0,
+          // ponytail: condition_score cuma dikirim kalau kondisi diubah — kalau tidak,
+          // backend menimpa skor asli dengan nilai paksa di sini
+          condition_score:
+            v.condition !== product.kondisi
+              ? v.condition.includes("/")
+                ? Number(v.condition.split("/")[0])
+                : 9.0
+              : undefined,
           category_id: v.category_id || product.category_id || categories?.[0]?.cateogry_id,
         },
       })

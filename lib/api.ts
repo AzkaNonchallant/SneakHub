@@ -106,6 +106,8 @@ export type ApiProduct = {
   ukuran_tersedia: string[];
   condition_score?: number;
   status_publikasi?: string;
+  avg_rating?: number;
+  total_review?: number;
   image_url: string;
   images?: { image_id: string; image_url: string; urutan_tampil?: number }[];
   seller?: { seller_id: string; nama_toko: string; seller_trust_score: number | null };
@@ -154,7 +156,17 @@ export type ApiOrder = {
   subtotal?: number;
   biaya_pengiriman?: number;
   total_pembayaran?: number;
+  metode_pembayaran?: string;
+  status_pembayaran?: string;
   created_at?: string;
+  alamat_pengiriman?: {
+    nama_penerima: string;
+    nomor_telepon: string;
+    alamat: string;
+    kota: string;
+    provinsi: string;
+    kode_pos: string;
+  };
   items?: {
     order_item_id?: string;
     product_id?: string;
@@ -162,6 +174,23 @@ export type ApiOrder = {
     nama_produk?: string;
     harga_saat_transaksi?: number;
   }[];
+  payment?: {
+    payment_id: string;
+    metode_pembayaran: string;
+    jumlah: number;
+    status_pembayaran: string;
+    payment_url?: string;
+    gateway_reference?: string;
+    paid_at?: string | null;
+  };
+  shipment?: {
+    shipment_id: string;
+    kurir?: string;
+    nomor_resi?: string | null;
+    status_pengiriman?: string;
+    shipped_at?: string | null;
+    delivered_at?: string | null;
+  };
 };
 
 export type ApiWishlistItem = {
@@ -324,6 +353,42 @@ export type AdminReport = {
 
 export type Pagination = { page: number; limit: number; total: number; total_pages: number };
 
+export type ShippingRate = {
+  seller_id: string;
+  nama_toko: string;
+  berat: number;
+  kota_asal: string;
+  options: {
+    kurir: string;
+    service: string;
+    biaya: number;
+    estimasi: string;
+    is_fallback: boolean;
+  }[];
+};
+
+export type ProductReview = {
+  review_id: string;
+  product_id: string;
+  customer?: { user_id: string; nama: string };
+  rating: number;
+  komentar?: string;
+  created_at?: string;
+};
+
+export type ApiProductReviews = {
+  items: ProductReview[];
+  rating_rata_rata: number;
+  total_review: number;
+};
+
+export type SellerActivationResult = {
+  seller_id: string;
+  status_verifikasi: string;
+};
+
+export const SELLER_REQ_KEY = "sneakhub_seller_req";
+
 export type ApiList<T> = { items: T[]; pagination: Pagination };
 
 /* ---------- Mapping API -> UI ---------- */
@@ -340,6 +405,8 @@ export type ProductCardData = {
   harga: number;
   kondisi: string;
   ukuran: string[];
+  rating?: number;
+  totalReview?: number;
 };
 
 export function toCard(p: ApiProduct): ProductCardData {
@@ -355,5 +422,7 @@ export function toCard(p: ApiProduct): ProductCardData {
     harga: p.harga,
     kondisi: p.kondisi,
     ukuran: p.ukuran_tersedia ?? [],
+    rating: p.avg_rating,
+    totalReview: p.total_review,
   };
 }

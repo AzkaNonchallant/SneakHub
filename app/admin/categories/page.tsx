@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react"
 
 import { PageMeta } from "@/components/page-meta"
+import { SkeletonBlock } from "@/components/skeleton"
 import { errMessage } from "@/lib/api"
 import {
   useCategories,
@@ -113,11 +114,15 @@ export default function AdminCategoriesPage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={2} className="px-4 py-8 text-center text-muted-foreground">
-                  {t("Loading…")}
-                </td>
-              </tr>
+              <>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={2} className="px-4 py-3">
+                      <SkeletonBlock className="h-4 w-full" />
+                    </td>
+                  </tr>
+                ))}
+              </>
             ) : categories?.length === 0 ? (
               <tr>
                 <td colSpan={2} className="px-4 py-8 text-center text-muted-foreground">

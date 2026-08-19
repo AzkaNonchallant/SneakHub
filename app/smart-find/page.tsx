@@ -8,6 +8,7 @@ import { BadgeCheck } from "lucide-react"
 import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { ProductCardSkeleton } from "@/components/skeleton"
 import { formatRp, PLACEHOLDER_IMAGE, type SmartFilterItem } from "@/lib/api"
 import { useProducts, useSmartFilter, type SmartFilterParams } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
@@ -225,7 +226,13 @@ export default function SmartFindPage() {
             </div>
           </div>
 
-          {filter.data ? (
+          {filter.isPending && !filter.data ? (
+            <div className="grid grid-cols-1 gap-0 border-t border-l border-outline-variant sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductCardSkeleton key={i} className="w-auto" />
+              ))}
+            </div>
+          ) : filter.data ? (
             results.length > 0 ? (
               <div className="grid grid-cols-1 gap-0 border-t border-l border-outline-variant sm:grid-cols-2 lg:grid-cols-3">
                 {results.map((product) => (

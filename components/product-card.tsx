@@ -19,11 +19,13 @@ export function ProductCard({
   number,
   index = 0,
   className,
+  priority = false,
 }: {
   product: ProductCardData
   number?: number
   index?: number
   className?: string
+  priority?: boolean
 }) {
   const router = useRouter()
   const t = useT()
@@ -71,6 +73,7 @@ export function ProductCard({
           src={product.image}
           alt={product.alt}
           fill
+          priority={priority}
           sizes="(max-width:768px) 50vw, 300px"
           className="object-contain mix-blend-multiply transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
         />

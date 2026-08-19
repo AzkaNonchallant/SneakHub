@@ -89,6 +89,8 @@ export const ID_DICT: Record<string, string> = {
   "Current Ask": "Harga Sekarang",
   // product/[id]
   "Loading…": "Memuat…",
+  "Failed to load data": "Gagal memuat data",
+  "Refresh": "Muat Ulang",
   "Failed to load trust score": "Gagal memuat skor kepercayaan",
   "Product saved": "Produk disimpan",
   "Product saved, image upload failed": "Produk disimpan, tetapi gambar gagal diunggah",

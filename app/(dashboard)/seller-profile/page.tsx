@@ -30,8 +30,9 @@ export default function SellerProfilePage() {
 
   const storeName = seller?.nama_toko ?? `${user?.nama ?? t("Store")} ${t("Store")}`
   const totalOrders = ordersData?.pagination.total ?? 0
-  // ponytail: trust-score endpoint dedicated lebih akurat — dashboard jadi fallback
-  const trustScore = trust?.skor_akhir ?? dash?.seller_trust_score ?? 0
+  // ponytail: backend isi skor_akhir=0 utk seller baru walau completion >0 — fallback ke completion
+  const rawScore = trust?.skor_akhir ?? dash?.seller_trust_score
+  const trustScore = rawScore && rawScore > 0 ? rawScore : (trust?.order_completion_rate ?? 0)
 
   return (
     <div className="mx-auto w-full max-w-[1280px] bg-background px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -104,7 +105,7 @@ export default function SellerProfilePage() {
             <TrustGauge score={trustScore} />
             <div>
               <div className="font-heading text-3xl leading-9 font-black text-primary">
-                {trust ? `${trust.skor_akhir}/100` : trustScore || "-"}
+                {trust ? `${trustScore}/100` : trustScore || "-"}
               </div>
               {trust ? (
                 <div className="mt-1 flex flex-col gap-1 text-sm font-bold text-muted-foreground">
@@ -236,7 +237,7 @@ function TrustGauge({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center font-heading text-xl leading-7 font-black text-primary">
-        {score || "-"}
+        {score ?? "-"}
       </div>
     </div>
   )

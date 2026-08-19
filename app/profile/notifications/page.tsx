@@ -3,6 +3,7 @@
 import { CheckCheck, CheckCircle2, Circle, Package, RefreshCw, TrendingDown } from "lucide-react"
 
 import { PageMeta } from "@/components/page-meta"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { useMarkNotificationRead, useNotifications } from "@/lib/hooks"
@@ -65,8 +66,10 @@ export default function NotificationsPage() {
         </header>
 
         {isLoading ? (
-          <div className="border border-primary bg-surface-container-low p-12 text-center">
-            <p className="font-heading text-xl font-semibold text-primary uppercase">Loading…</p>
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ListRowSkeleton key={i} bars={2} />
+            ))}
           </div>
         ) : items.length === 0 ? (
           <div className="border border-primary bg-surface-container-low p-12 text-center">

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { errMessage, type AdminUser } from "@/lib/api"
+import { SkeletonBlock } from "@/components/skeleton"
 import { useAdminUsers, useUpdateUserRole, useUpdateUserStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
@@ -69,11 +70,15 @@ export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
         </thead>
         <tbody>
           {isLoading ? (
-            <tr>
-              <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                Loading…
-              </td>
-            </tr>
+            <>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i}>
+                  <td colSpan={5} className="px-4 py-3">
+                    <SkeletonBlock className="h-4 w-full" />
+                  </td>
+                </tr>
+              ))}
+            </>
           ) : users.length === 0 ? (
             <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">

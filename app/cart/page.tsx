@@ -7,6 +7,7 @@ import { motion } from "motion/react"
 
 import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { formatRp, PLACEHOLDER_IMAGE, type ApiCartItem } from "@/lib/api"
 import { useCart, useDeleteCartItem, useProducts, useUpdateCartItem } from "@/lib/hooks"
@@ -171,9 +172,11 @@ export default function CartPage() {
         </motion.div>
 
         {!cart ? (
-          <p className="border border-outline bg-surface-container-lowest p-16 text-center text-sm text-muted-foreground">
-            {t("Calculating…")}
-          </p>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ListRowSkeleton key={i} bars={2} />
+            ))}
+          </div>
         ) : items.length === 0 ? (
           <div className="border border-outline bg-surface-container-lowest p-16 text-center">
             <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">

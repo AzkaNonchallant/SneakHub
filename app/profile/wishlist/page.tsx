@@ -7,6 +7,7 @@ import { Bell, BellOff, Heart, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
+import { ProductCardSkeleton } from "@/components/skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -59,8 +60,10 @@ export default function WishlistPage() {
         </header>
 
         {isLoading ? (
-          <div className="border border-primary bg-surface-container-low p-12 text-center">
-            <p className="font-heading text-xl font-semibold text-primary uppercase">Loading…</p>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         ) : items.length === 0 ? (
           <div className="border border-primary bg-surface-container-low p-12 text-center">

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
+import { SkeletonBlock } from "@/components/skeleton"
 import { errMessage, formatRp, type AdminProduct } from "@/lib/api"
 import { useAdminProducts, useUpdateProductStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
@@ -91,11 +92,15 @@ export default function AdminInventoryPage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  Loading…
-                </td>
-              </tr>
+              <>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={5} className="px-4 py-3">
+                      <SkeletonBlock className="h-4 w-full" />
+                    </td>
+                  </tr>
+                ))}
+              </>
             ) : products.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">

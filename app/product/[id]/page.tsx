@@ -10,6 +10,7 @@ import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
 import { RatingStars } from "@/components/rating-stars"
+import { ProductDetailSkeleton } from "@/components/skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -78,7 +79,7 @@ export default function ProductDetailPage() {
 
   const isSellerOrAdmin = me?.peran === "seller" || me?.peran === "admin" || me?.peran === "SELLER" || me?.peran === "ADMIN"
 
-  if (isLoading) return <div className="p-10 font-heading text-2xl text-primary uppercase">{t("Loading…")}</div>
+  if (isLoading) return <ProductDetailSkeleton />
   if (!product) notFound()
 
   const gallery =
@@ -111,6 +112,7 @@ export default function ProductDetailPage() {
                 src={gallery[activeImage]}
                 alt={product.nama_produk}
                 fill
+                priority
                 sizes="(max-width:1024px) 100vw, 60vw"
                 className="object-contain transition-transform duration-500 group-hover:scale-105"
               />

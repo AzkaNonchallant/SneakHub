@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { AddressDialog } from "@/components/address-manager"
 import { PageMeta } from "@/components/page-meta"
 import { SiteFooter } from "@/components/site-footer"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ShippingRate } from "@/lib/api"
 import { useAddresses, useCart, useCheckout, useProducts, useShippingRates } from "@/lib/hooks"
@@ -225,7 +226,9 @@ export default function CheckoutPage() {
                   {t("Select a shipping address to calculate shipping costs.")}
                 </p>
               ) : ratesLoading ? (
-                <p className="p-6 text-sm text-muted-foreground">{t("Calculating shipping…")}</p>
+                <div className="space-y-2">
+                  <ListRowSkeleton bars={1} />
+                </div>
               ) : !rates || rates.length === 0 ? (
                 <p className="border border-dashed border-outline-variant p-6 text-sm text-muted-foreground">
                   {t("Shipping rates unavailable. Flat rate Rp15.000 will be applied.")}
@@ -304,7 +307,9 @@ export default function CheckoutPage() {
                 {t("Order Summary")}
               </h3>
               {!cart ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">{t("Calculating…")}</p>
+                <div className="space-y-2">
+                  <ListRowSkeleton bars={1} />
+                </div>
               ) : items.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="font-heading text-xl leading-7 font-semibold text-primary uppercase">

@@ -3,6 +3,7 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 import { PageMeta } from "@/components/page-meta"
+import { StatCardSkeleton } from "@/components/skeleton"
 import { formatRp } from "@/lib/api"
 import { useSellerDashboard, useSellerOrders } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
@@ -40,8 +41,16 @@ export default function SellerAnalyticsPage() {
       </div>
 
       {isLoading ? (
-        <div className="border border-outline-variant bg-surface-container-low p-10 text-center text-muted-foreground">
-          Loading…
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-5 lg:col-span-1 lg:grid-cols-1">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
+          <div className="space-y-5 lg:col-span-2">
+            <StatCardSkeleton className="h-24" />
+            <StatCardSkeleton className="h-64" />
+          </div>
         </div>
       ) : dash ? (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">

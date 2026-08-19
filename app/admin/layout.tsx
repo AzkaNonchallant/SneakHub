@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 import { AdminSidebar } from "@/components/admin-sidebar"
+import { BrandLoading } from "@/components/brand-loading"
 import { isAdminRole } from "@/lib/api"
 import { useMe } from "@/lib/hooks"
 
@@ -20,7 +21,7 @@ export default function AdminLayout({
     if (!isLoading && !isAdminRole(me?.peran)) router.replace("/home")
   }, [isLoading, me?.peran, router])
 
-  if (isLoading || !isAdminRole(me?.peran)) return null
+  if (isLoading || !isAdminRole(me?.peran)) return <BrandLoading />
 
   return (
     <div className="flex min-h-screen flex-col">

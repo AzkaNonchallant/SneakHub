@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import { BrandLoading } from "@/components/brand-loading";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { isSellerRole } from "@/lib/api";
 import { useMe } from "@/lib/hooks";
@@ -19,7 +20,7 @@ export default function DashboardLayout({
     if (!isLoading && !isSellerRole(me?.peran)) router.replace("/home");
   }, [isLoading, me?.peran, router]);
 
-  if (isLoading || !isSellerRole(me?.peran)) return null;
+  if (isLoading || !isSellerRole(me?.peran)) return <BrandLoading />;
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip">

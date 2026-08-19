@@ -10,6 +10,7 @@ import { z } from "zod"
 
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE } from "@/lib/api"
 import { useConfirmOrder, useCreateReview, useOrder, useUpdateOrderStatus } from "@/lib/hooks"
@@ -131,9 +132,11 @@ export default function OrderDetailPage() {
         </Link>
 
         {isLoading || !order ? (
-          <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
-            Memuat detail pesanan…
-          </p>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ListRowSkeleton key={i} bars={2} />
+            ))}
+          </div>
         ) : (
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
             <div className="flex-1">

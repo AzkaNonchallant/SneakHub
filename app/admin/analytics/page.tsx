@@ -1,41 +1,63 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
+import { RefreshCw } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 import { PageMeta } from "@/components/page-meta"
+import { StatCardSkeleton } from "@/components/skeleton"
 import { formatRp } from "@/lib/api"
 import { useAdminReports } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 export default function AdminAnalyticsPage() {
   const t = useT()
-  const { data, isLoading } = useAdminReports({ period: "monthly" })
+  const qc = useQueryClient()
+  const { data, isLoading, isError } = useAdminReports({ period: "monthly" })
 
+  // ponytail: bar chart cuma metrik count — revenue beda unit (rupiah), card sendiri
   const rows = data
     ? [
-        { label: "Users", value: data.total_users },
-        { label: "Sellers", value: data.total_sellers },
-        { label: "Products", value: data.total_products },
-        { label: "Orders", value: data.total_orders },
-        { label: "Revenue", value: data.total_revenue },
+        { label: t("Users"), value: data.total_users ?? 0 },
+        { label: t("Sellers"), value: data.total_sellers ?? 0 },
+        { label: t("Products"), value: data.total_products ?? 0 },
+        { label: t("Orders"), value: data.total_orders ?? 0 },
       ]
     : []
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-6 py-8 md:px-8">
       <PageMeta title="Analytics" />
-      <div className="mb-6 border-b border-primary pb-4">
-        <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
-          Analytics
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("Aggregate platform report")} ({t("period")} {data?.period ?? "-"}).
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-primary pb-4">
+        <div>
+          <h1 className="font-heading text-3xl leading-9 font-black text-primary uppercase">
+            Analytics
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("Aggregate platform report")} ({t("period")} {data?.period ?? "-"}).
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => qc.invalidateQueries({ queryKey: ["admin-reports"] })}
+          className="flex items-center gap-2 border border-primary px-3 py-2 text-xs font-bold tracking-widest text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+        >
+          <RefreshCw className="size-3.5" /> {t("Refresh")}
+        </button>
       </div>
 
       {isLoading ? (
-        <div className="border border-outline-variant bg-surface-container-low p-10 text-center text-muted-foreground">
-          Loading…
+        <div className="space-y-5">
+          <div className="grid grid-cols-2 gap-5 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
+          <StatCardSkeleton className="h-80" />
+        </div>
+      ) : isError ? (
+        <div className="border border-primary bg-surface-container-low p-10 text-center text-error">
+          {t("Failed to load data")}
         </div>
       ) : data ? (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -72,8 +94,8 @@ export default function AdminAnalyticsPage() {
                   contentStyle={{ borderRadius: 0, border: "1px solid #1b1b1b", fontSize: 12 }}
                 />
                 <Bar dataKey="value" radius={[0, 0, 0, 0]}>
-                  {rows.map((r, i) => (
-                    <Cell key={r.label} fill={i === 4 ? "#2b82f4" : "#000000"} />
+                  {rows.map((r) => (
+                    <Cell key={r.label} fill="#000000" />
                   ))}
                 </Bar>
               </BarChart>

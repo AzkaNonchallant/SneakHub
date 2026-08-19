@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import { EditProdukButton } from "@/components/edit-produk-dialog"
 import { PageMeta } from "@/components/page-meta"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { errMessage, formatRp, PLACEHOLDER_IMAGE, type ApiProduct } from "@/lib/api"
 import { useDeleteProduct, useProduct, useSellerProducts } from "@/lib/hooks"
@@ -39,7 +40,7 @@ export default function InventoryPage() {
     "price-desc": t("Price: Most Expensive"),
     name: t("Name: A-Z"),
   }
-  const { data } = useSellerProducts({ limit: 100 })
+  const { data, isLoading } = useSellerProducts({ limit: 100 })
   const items = data?.items ?? []
   const remove = useDeleteProduct()
   const [sort, setSort] = useState<SortKey>("newest")
@@ -102,7 +103,13 @@ export default function InventoryPage() {
         </select>
       </div>
 
-      {items.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ListRowSkeleton key={i} bars={2} />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
         <p className="border border-dashed border-outline-variant p-10 text-center text-sm text-muted-foreground">
           {t("No products yet")}. {t("Click")} &quot;{t("Add Product")}&quot; {t("to start selling")}.
         </p>

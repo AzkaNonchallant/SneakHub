@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Camera, LoaderCircle, ScanSearch, Search, X } from "lucide-react"
@@ -8,10 +8,11 @@ import { useDropzone } from "react-dropzone"
 
 import { ProductCard } from "@/components/product-card"
 import { PageMeta } from "@/components/page-meta"
+import { ListRowSkeleton } from "@/components/skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
-import { formatRp, PLACEHOLDER_IMAGE, toCard, type ProductCardData } from "@/lib/api"
+import { formatRp, PLACEHOLDER_IMAGE, toCard, type ApiProduct, type ProductCardData } from "@/lib/api"
 import { useProducts, useRecommendations, useSearchByImage } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 import { useVisualSearchStore } from "@/lib/visual-search-store"
@@ -38,6 +39,15 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   const [matchResults, setMatchResults] = useState<ProductCardData[]>([])
   const [visualError, setVisualError] = useState("")
 
+  // ponytail: skor_kemiripan 0-1 dari backend -> persen; badge ganti kondisi
+  const matchCard = useCallback(
+    (p: ApiProduct & { skor_kemiripan?: number }): ProductCardData => ({
+      ...toCard(p),
+      badge: p.skor_kemiripan != null ? `${t("SCORE")} ${Math.round(p.skor_kemiripan * 100)}%` : undefined,
+    }),
+    [t],
+  )
+
   const recommendations: ProductCardData[] = (recoData?.items ?? []).map((r) => ({
     id: r.product_id,
     brand: "",
@@ -62,13 +72,13 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
       fd.append("limit", "10")
       try {
         const data = await searchByImage.mutateAsync(fd)
-        setMatchResults(data.items.map(toCard))
+        setMatchResults(data.items.map(matchCard))
       } catch {
         setVisualError(t("Image not recognized, try another photo."))
       }
     }, 1400)
     return () => clearTimeout(timeoutId)
-  }, [match?.phase, match, searchByImage, t])
+  }, [match?.phase, match, searchByImage, t, matchCard])
 
   const applyFile = (file: File) => {
     if (!file.type.startsWith("image/")) return
@@ -284,7 +294,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                   <MatchRow key={product.id} product={product} rank={i + 1} />
                 ))
               ) : searchByImage.isPending ? (
-                <p className="p-4 text-sm text-muted-foreground">{t("Searching for similar products…")}</p>
+                <div className="space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <ListRowSkeleton key={i} bars={2} />
+                  ))}
+                </div>
               ) : (
                 <p className="p-4 text-sm text-muted-foreground">{t("No similar products found.")}</p>
               )}
@@ -391,7 +405,7 @@ function MatchRow({ product, rank }: { product: ProductCardData; rank: number })
         <span className="font-heading text-sm font-bold text-primary">{formatRp(product.harga)}</span>
       </div>
       <span className="border border-on-tertiary-container bg-on-tertiary-container/10 px-2 py-1 text-xs leading-4 font-bold text-on-tertiary-container">
-        {product.kondisi}
+        {product.badge ?? product.kondisi}
       </span>
     </div>
   )

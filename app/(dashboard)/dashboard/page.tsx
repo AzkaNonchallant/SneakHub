@@ -2,15 +2,16 @@
 
 import { useMemo } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Minus, Package, ShieldCheck, ShoppingBag, Star, Store, Wallet } from "lucide-react"
+import { ArrowUpRight, CheckCircle2, Minus, Package, ShieldCheck, ShoppingBag, Star, Store, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
 import { PricePredictionButton } from "@/components/price-prediction-dialog"
+import { ListRowSkeleton, StatCardSkeleton } from "@/components/skeleton"
 import { TambahProdukButton } from "@/components/tambah-produk-dialog"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp } from "@/lib/api"
-import { useSellerDashboard, useSellerOrders, useShipOrder, useUpdateOrderStatus } from "@/lib/hooks"
+import { useSellerDashboard, useSellerMe, useSellerOrders, useShipOrder, useTrustScore, useUpdateOrderStatus } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -52,11 +53,16 @@ export default function DashboardPage() {
     dibatalkan: t("Cancelled"),
     cancelled: t("Cancelled"),
   }
-  const { data: dash } = useSellerDashboard()
+  const { data: dash, isLoading: dashLoading } = useSellerDashboard()
   const { data: ordersData } = useSellerOrders({ limit: 100 })
+  const { data: seller } = useSellerMe()
+  const { data: trust, isPending: trustPending, isError: trustError } = useTrustScore(seller?.seller_id)
   const updateStatus = useUpdateOrderStatus()
   const ship = useShipOrder()
   const orders = ordersData?.items ?? []
+  // ponytail: backend isi skor_akhir=0 utk seller baru walau completion >0 — fallback ke completion
+  const rawScore = trust?.skor_akhir ?? dash?.seller_trust_score
+  const trustScore = rawScore && rawScore > 0 ? rawScore : (trust?.order_completion_rate ?? 0)
 
   const advanceStatus = async (order: { order_id: string; status_order?: string }) => {
     const target = nextStatus[norm(order.status_order)]
@@ -177,7 +183,9 @@ export default function DashboardPage() {
 
       {/* Stat cards */}
       <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-        {stats.map((stat) => (
+        {dashLoading
+          ? Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} className="h-full" />)
+          : stats.map((stat) => (
           <div
             key={stat.label}
             className="border border-outline-variant bg-surface-container-lowest p-5 sm:p-6"
@@ -221,17 +229,27 @@ export default function DashboardPage() {
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <SectionTitle eyebrow={t("Reputation")} title={t("Trust Score")} />
           <div className="mb-6 flex flex-wrap items-center gap-6">
-            <TrustGauge score={dash?.seller_trust_score ?? 0} />
+            <TrustGauge score={trustScore} />
             <div>
               <div className="font-heading text-3xl leading-9 font-black text-primary">
-                {dash?.seller_trust_score ?? "-"}
-                {dash?.seller_trust_score != null ? (
-                  <span className="text-base font-bold text-muted-foreground">/100</span>
-                ) : null}
+                {trust ? `${trustScore}/100` : trustScore || "-"}
               </div>
-              <div className="mt-0.5 text-base font-bold text-muted-foreground">
-                {t("No ratings yet")}
-              </div>
+              {trust ? (
+                <div className="mt-1 flex flex-col gap-1 text-sm font-bold text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4 text-[#10B981]" /> {t("Completed")} {trust.order_completion_rate}%
+                  </span>
+                  <span>{t("Cancelled")} {trust.cancellation_rate}% • {t("Response")} {trust.response_rate}%</span>
+                </div>
+              ) : trustPending ? (
+                <div className="mt-0.5 text-base font-bold text-muted-foreground">{t("Loading…")}</div>
+              ) : trustError ? (
+                <div className="mt-0.5 text-sm font-bold text-error">{t("Failed to load trust score")}</div>
+              ) : (
+                <div className="mt-0.5 text-base font-bold text-muted-foreground">
+                  {t("No ratings yet")}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -309,7 +327,13 @@ export default function DashboardPage() {
               {t("Manage")} <ArrowUpRight className="size-3.5 rotate-45" aria-hidden />
             </Link>
           </div>
-          {(dash?.produk_terlaris ?? []).length === 0 ? (
+          {dashLoading ? (
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ListRowSkeleton key={i} bars={1} />
+              ))}
+            </div>
+          ) : (dash?.produk_terlaris ?? []).length === 0 ? (
             <div className="flex items-center justify-center border border-dashed border-outline-variant py-10 text-sm text-muted-foreground">
               {t("No data yet.")}
             </div>
@@ -397,7 +421,7 @@ function TrustGauge({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center font-heading text-lg leading-6 font-black text-primary">
-        {score || "-"}
+        {score ?? "-"}
       </div>
     </div>
   )

@@ -244,8 +244,11 @@ export function useUploadProductImage() {
 
 export function useSearchByImage() {
   return useMutation({
+    // ponytail: backend kirim skor_kemiripan 0-1 bareng item produk — intersect type
     mutationFn: (fd: FormData) =>
-      api.post<{ data: ApiList<ApiProduct> }>("/products/search-by-image", fd).then((r) => r.data.data),
+      api
+        .post<{ data: ApiList<ApiProduct & { skor_kemiripan?: number }> }>("/products/search-by-image", fd)
+        .then((r) => r.data.data),
   });
 }
 

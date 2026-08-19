@@ -16,6 +16,7 @@ import {
 import { PageMeta } from "@/components/page-meta"
 import { PricePredictionButton } from "@/components/price-prediction-dialog"
 import { ProductCard } from "@/components/product-card"
+import { ProductCardSkeleton } from "@/components/skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -156,13 +157,15 @@ export default function HomePage() {
             </Link>
           </motion.div>
           {trendingLoading ? (
-            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
-              {t("Calculating…")}
+            <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <ProductCardSkeleton key={i} className="w-72 shrink-0" />
+              ))}
             </div>
           ) : trending.length > 0 ? (
             <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8 snap-x snap-mandatory [mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)] md:-mx-10 md:px-10">
               {trending.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductCard key={product.id} product={product} index={i} priority={i < 2} />
               ))}
             </div>
           ) : (
@@ -320,8 +323,10 @@ export default function HomePage() {
           </motion.h2>
           <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
             {bestSellerLoading ? (
-            <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
-              {t("Calculating…")}
+            <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ProductCardSkeleton key={i} className="w-auto border-r border-b" />
+              ))}
             </div>
           ) : bestSellers.length > 0 ? (
               bestSellers.map((product, i) => (
@@ -330,6 +335,7 @@ export default function HomePage() {
                   product={product}
                   number={i + 1}
                   index={i}
+                  priority={i < 2}
                   className="w-auto border-r border-b"
                 />
               ))
@@ -367,8 +373,10 @@ export default function HomePage() {
           </motion.div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
 {personalizedLoading ? (
-            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
-              {t("Calculating…")}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
             </div>
           ) : personalized.length > 0 ? (
             personalized.map((product, i) => (

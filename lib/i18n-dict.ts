@@ -1,6 +1,6 @@
-// ponytail: kamus minimal string-as-key — isi per file yang di-wrap, bukan kamus generic
+
 export const ID_DICT: Record<string, string> = {
-  // site-header
+
   "Smart Find": "Smart Find",
   Shop: "Belanja",
   "Market Insights": "Wawasan Pasar",
@@ -21,13 +21,13 @@ export const ID_DICT: Record<string, string> = {
   "No results for": "Tidak ada hasil untuk",
   "View all results for": "Lihat semua hasil untuk",
   Language: "Bahasa",
-  // site-footer
+
   "Terms of Service": "Ketentuan Layanan",
   "Privacy Policy": "Kebijakan Privasi",
   "Authentication Process": "Proses Autentikasi",
   "Contact Support": "Hubungi Dukungan",
   "TECHNICAL PRECISION IN RESALE.": "PRESISI TEKNIS DALAM RESALE.",
-  // home
+
   Home: "Beranda",
   "Latest Drop": "Rilis Terbaru",
   Technical: "Teknis",
@@ -67,7 +67,7 @@ export const ID_DICT: Record<string, string> = {
   SCORE: "SKOR",
   SOLD: "TERJUAL",
   "BEST SELLER": "TERLARIS",
-  // price-prediction-dialog
+
   "Calculate Price Prediction": "Hitung Prediksi Harga",
   "Price Prediction": "Prediksi Harga",
   Close: "Tutup",
@@ -85,9 +85,9 @@ export const ID_DICT: Record<string, string> = {
   Confidence: "Keyakinan",
   "Calculating…": "Menghitung…",
   "Run Prediction": "Hitung Prediksi",
-  // product-card
+
   "Current Ask": "Harga Sekarang",
-  // product/[id]
+
   "Loading…": "Memuat…",
   "Failed to load data": "Gagal memuat data",
   "Refresh": "Muat Ulang",
@@ -127,7 +127,7 @@ export const ID_DICT: Record<string, string> = {
   "This listing is": "Daftar ini",
   "below market average.": "di bawah rata-rata pasar.",
   "above market average.": "di atas rata-rata pasar.",
-  // cart
+
   Product: "Produk",
   "Secure Checkout": "Checkout Aman",
   Item: "Item",
@@ -142,7 +142,7 @@ export const ID_DICT: Record<string, string> = {
   Total: "Total",
   "Every item passes rigorous multi-point verification before shipping.":
     "Setiap item melewati verifikasi multi-titik yang ketat sebelum dikirim.",
-  // checkout
+
   "Choose or create a shipping address first.": "Pilih atau buat alamat pengiriman dulu.",
   Encrypted: "Terenkripsi",
   "Complete your technical transaction.": "Selesaikan transaksi teknis Anda.",
@@ -157,7 +157,7 @@ export const ID_DICT: Record<string, string> = {
   "SneakHub Verified": "Terverifikasi SneakHub",
   "Every item passes our strict, multi-point physical and technical authentication protocol before shipping.":
     "Setiap item melewati protokol autentikasi fisik dan teknis multi-titik yang ketat sebelum dikirim.",
-  // auth-shell, login, register
+
   "Precision Resale Authentication": "Autentikasi Resale Presisi",
   "Forgot?": "Lupa?",
   "Email and password are required.": "Email dan password wajib diisi.",
@@ -176,7 +176,7 @@ export const ID_DICT: Record<string, string> = {
   "Sign In": "Masuk",
   Login: "Masuk",
   Register: "Daftar",
-  // search
+
   "Search The Market": "Cari Pasar",
   "Find sneakers by keyword, silhouette, or a photo of the pair you're after.":
     "Cari sneaker berdasarkan kata kunci, siluet, atau foto pasangan yang Anda cari.",
@@ -206,7 +206,7 @@ export const ID_DICT: Record<string, string> = {
   "Recommended for You": "Rekomendasi Untuk Kamu",
   "No recommendations yet — boost your shopping & wishlist activity.":
     "Belum ada rekomendasi — perbanyak aktivitas belanja & wishlist.",
-  // smart-find
+
   "Find Your Perfect Match": "Temukan Pasangan Sempurna Anda",
   "Dial in your specifications.": "Atur spesifikasi Anda.",
   "Budget Range": "Rentang Budget",
@@ -229,7 +229,7 @@ export const ID_DICT: Record<string, string> = {
   "Set your filters, then press Apply Filters.": "Atur filter lalu tekan Apply Filters.",
   Match: "Cocok",
   Trusted: "Terpercaya",
-  // address-manager
+
   "Recipient name is required": "Nama penerima wajib diisi",
   "Invalid phone number": "Nomor telepon tidak valid",
   "Address is required": "Alamat wajib diisi",
@@ -252,7 +252,7 @@ export const ID_DICT: Record<string, string> = {
   "No addresses yet.": "Belum ada alamat.",
   Edit: "Ubah",
   Delete: "Hapus",
-  // seller dashboard
+
   Pending: "Menunggu",
   Processing: "Diproses",
   Shipped: "Dikirim",
@@ -280,7 +280,7 @@ export const ID_DICT: Record<string, string> = {
   Products: "Produk",
   Manage: "Kelola",
   sold: "terjual",
-  // seller inventory
+
   "Sort: Newest": "Urutkan: Terbaru",
   "Price: Cheapest": "Harga: Termurah",
   "Price: Most Expensive": "Harga: Termahal",
@@ -297,7 +297,7 @@ export const ID_DICT: Record<string, string> = {
   "Previous page": "Halaman sebelumnya",
   "Next page": "Halaman berikutnya",
   Price: "Harga",
-  // seller profile
+
   Store: "Toko",
   "Store Profile": "Profil Toko",
   "TOTAL ORDERS": "TOTAL PESANAN",
@@ -309,7 +309,7 @@ export const ID_DICT: Record<string, string> = {
   "See how buyers rate this store's quality and service.":
     "Lihat bagaimana pembeli menilai kualitas dan layanan toko ini.",
   "(store rating)": "(rating toko)",
-  // seller dialogs
+
   "Product name is required": "Nama produk wajib diisi",
   "Price must be greater than 0": "Harga harus lebih dari 0",
   "Size is required": "Ukuran wajib diisi",
@@ -338,14 +338,14 @@ export const ID_DICT: Record<string, string> = {
   "Product preview": "Pratinjau produk",
   "100% original sneakers (min. 10 characters)": "Sneaker 100% original (min. 10 karakter)",
   "Save Product": "Simpan Produk",
-  // site-sidebar
+
   Analytics: "Analitik",
   Storefront: "Toko",
   Predictor: "Prediktor",
   "SELLER HUB": "PUSAT PENJUAL",
   "PRO STATUS": "STATUS PRO",
   Settings: "Pengaturan",
-  // admin
+
   "Platform oversight": "Pengawasan Platform",
   period: "periode",
   "Moderation Queue": "Antrian Moderasi",
@@ -395,13 +395,13 @@ export const ID_DICT: Record<string, string> = {
   of: "dari",
   users: "pengguna",
   "pagination coming soon": "paginasi segera hadir",
-  // PageMeta
+
   "Admin Dashboard": "Dasbor Admin",
   "Seller Profile": "Profil Toko",
   Categories: "Kategori",
   Logs: "Log",
   "User Management": "Manajemen Pengguna",
-  // Profile
+
   "My Orders": "Pesanan Saya",
   "My Reviews": "Ulasan Saya",
   Preferences: "Preferensi",
@@ -411,7 +411,7 @@ export const ID_DICT: Record<string, string> = {
   "Activating…": "Mengaktifkan…",
   "Become a Seller": "Jadi Seller",
   "Official SneakHub store.": "Toko resmi SneakHub.",
-  // Notifications
+
   "PRICE ALERT": "ALERTA HARGA",
   "BACK IN STOCK": "KEMBALI STOK",
   "ORDER UPDATE": "PEMBARUAN PESANAN",
@@ -424,7 +424,7 @@ export const ID_DICT: Record<string, string> = {
   "No notifications yet": "Belum ada notifikasi",
   "Price drop, back-in-stock, and order status notifications will appear here.":
     "Notifikasi harga turun, stok tersedia, dan status pesanan akan muncul di sini.",
-  // Wishlist
+
   "Enter a target price first.": "Masukkan target harga dulu.",
   "ITEMS TRACKED": "ITEM DILACAK",
   "No wishlist yet": "Belum ada wishlist",
@@ -446,14 +446,14 @@ export const ID_DICT: Record<string, string> = {
   "restock alert": "restock alert",
   "restock alerts": "restock alert",
   "No restock alerts": "Tidak ada restock alert",
-  // Admin sidebar
+
   Users: "Pengguna",
-  // 404
+
   "Page not found": "Halaman tidak ditemukan",
   "The page you are looking for does not exist or has been moved.":
     "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
   "Back to Home": "Kembali ke Beranda",
-  // Process
+
   "How It Works": "Cara Kerja",
   "A fair, secure marketplace for sneaker resale in Indonesia.":
     "Marketplace resale sneaker yang adil dan aman di Indonesia.",
@@ -469,7 +469,7 @@ export const ID_DICT: Record<string, string> = {
     "Bayar dengan aman lewat checkout bergaya escrow. Penjual mengirim, pembeli mengonfirmasi.",
   "Get your sneakers, verified, or get paid once the buyer confirms receipt.":
     "Terima sneaker Anda, terverifikasi, atau terima bayaran setelah pembeli mengonfirmasi.",
-  // Legal
+
   "Last updated": "Terakhir diperbarui",
   Checkout: "Checkout",
   "1. Accounts": "1. Akun",
@@ -522,7 +522,7 @@ export const ID_DICT: Record<string, string> = {
   "Seller application rejected — you may reapply":
     "Pengajuan seller ditolak — Anda boleh mengajukan ulang",
   "Seller verified": "Seller terverifikasi",
-  // audit fixes
+
   "Category is required": "Kategori wajib diisi",
   "Phone number must contain numbers only": "Nomor telepon hanya boleh angka",
   "Name is required": "Nama wajib diisi",

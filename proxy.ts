@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// ponytail: guard UI saja — backend tetap source of truth untuk otorisasi.
-// Literal key — import "@/lib/api" (axios) tidak boleh masuk proxy bundle.
+
+
 const TOKEN_KEY = "sneakhub_token"
 function jwtRole(token: string): string | null {
   try {

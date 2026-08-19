@@ -64,7 +64,7 @@ export default function InventoryPage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
       <PageMeta title="Inventory" />
-      {/* Header */}
+
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase">
@@ -80,7 +80,7 @@ export default function InventoryPage() {
         <TambahProdukButton />
       </div>
 
-      {/* Controls */}
+
       <div className="mb-8 flex items-center justify-between border-b border-outline-variant pb-4">
         <div className="flex gap-2">
           <span className="inline-flex items-center gap-1 border border-primary bg-surface-container-highest px-2 py-1 text-[10px] font-bold tracking-widest text-primary uppercase">
@@ -115,14 +115,14 @@ export default function InventoryPage() {
         </p>
       ) : (
         <>
-          {/* Grid */}
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {pageItems.map((item) => (
               <InventoryCard key={item.product_id} item={item} onDelete={onDelete} />
             ))}
           </div>
 
-          {/* Pagination */}
+
           {pages > 1 ? (
             <div className="mt-12 flex items-center justify-center gap-2">
               <button
@@ -166,7 +166,7 @@ export default function InventoryPage() {
 
 function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: ApiProduct) => void }) {
   const t = useT()
-  // ponytail: list /seller/products cuma id+harga+stok; fetch detail buat edit & tampilan
+
   const { data: detail } = useProduct(item.product_id)
   const p = { ...item, ...(detail ?? {}) } as ApiProduct
   const image = p.images?.[0]?.url || p.image_url || PLACEHOLDER_IMAGE

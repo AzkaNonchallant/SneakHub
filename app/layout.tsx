@@ -23,8 +23,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // ponytail: cookie lang di-set client-side (toggleLang) — SSR baca di sini,
-  // tanpa flash EN->ID di full navigation
+
+
   const lang = (await cookies()).get("sneakhub_lang")?.value === "id" ? "id" : "en"
   return (
     <html

@@ -37,7 +37,7 @@ export default function HomePage() {
   const [bestLimit, setBestLimit] = useState(4)
   const { data: bestSellerData, isLoading: bestSellerLoading } = useBestSellerWeekly(bestLimit)
   const { data: personalizedData, isLoading: personalizedLoading } = useHomePersonalized()
-  // ponytail: catalog 100 — payload trend/best-seller tidak bawa harga, resolve di sini
+
   const { data: productsData } = useProducts({ limit: 100, sort: "terbaru" })
 
   const catalog = new Map((productsData?.items ?? []).map((p) => [p.product_id, p]))
@@ -95,7 +95,7 @@ export default function HomePage() {
       <PageMeta title="Home" />
       <SiteHeader />
 
-      {/* Hero */}
+
       <section className="relative flex min-h-[600px] w-full items-center border-b border-outline-variant bg-surface-container-lowest">
         <div className="absolute inset-0 z-0 flex justify-end">
           <div
@@ -138,7 +138,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trending Shoes */}
+
       <section className="border-b border-outline-variant bg-background py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.div {...fadeUp} className="mb-8 flex items-end justify-between">
@@ -176,7 +176,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Bento: Technical Advantage */}
+
       <section className="border-b border-outline-variant bg-surface-container-lowest py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.h2
@@ -186,7 +186,7 @@ export default function HomePage() {
             {t("Technical Advantage")}
           </motion.h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-12 md:grid-rows-[400px_200px]">
-            {/* AI Price Predictor */}
+
             <motion.div
               {...fadeUp}
               className="group relative overflow-hidden border border-primary bg-surface-container-low p-8 md:col-span-8"
@@ -226,7 +226,7 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Rigorous Authentication */}
+
             <motion.div
               {...fadeUp}
               className="group relative flex flex-col justify-between overflow-hidden bg-primary p-8 text-white md:col-span-4"
@@ -259,7 +259,7 @@ export default function HomePage() {
               </Link>
             </motion.div>
 
-            {/* Visual Search */}
+
             <motion.div
               {...fadeUp}
               className="group flex items-center justify-between border border-primary bg-surface-container p-6 md:col-span-6"
@@ -284,7 +284,7 @@ export default function HomePage() {
               </Button>
             </motion.div>
 
-            {/* Weekly Digest */}
+
             <motion.div
               {...fadeUp}
               className="group flex items-center justify-between border border-primary bg-surface-container-highest p-6 md:col-span-6"
@@ -312,7 +312,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Weekly Best Sellers */}
+
       <section className="border-b border-outline-variant bg-background py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.h2
@@ -359,7 +359,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Personalized */}
+
       <section className="border-b border-outline-variant bg-surface-container-lowest py-16">
         <div className="mx-auto max-w-[1280px] px-5 md:px-10">
           <motion.div {...fadeUp} className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2">

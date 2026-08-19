@@ -63,8 +63,8 @@ export default function ProductDetailPage() {
     }
   }
 
-  // ponytail: sebelumnya pakai addToCart.mutate() tanpa try/catch, jadi
-  // error dari backend (misal stok kosong) ketelen dan gak ada toast
+
+
   const handleAddToCart = async () => {
     if (!product) return
     try {
@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
       toast.success(t("Added to cart"))
     } catch (err) {
       const msg = errMessage(err)
-      // pesan backend nampilin UUID product mentah, sembunyiin di sini
+
       toast.error(msg.toLowerCase().includes("stok") ? t("Sorry, this item is out of stock") : msg)
     }
   }

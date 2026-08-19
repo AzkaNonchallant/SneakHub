@@ -164,7 +164,7 @@ export function SiteHeader() {
               <Camera />
             </Button>
 
-            {/* Camera options */}
+
             {menuOpen ? (
               <div
                 onMouseDown={(e) => e.preventDefault()}
@@ -192,7 +192,7 @@ export function SiteHeader() {
               </div>
             ) : null}
 
-            {/* Autocomplete dropdown */}
+
             {open && query.trim() ? (
               <div
                 onMouseDown={(e) => e.preventDefault()}
@@ -304,7 +304,7 @@ export function SiteHeader() {
               </Button>
               {accountOpen ? (
                 <>
-                  {/* ponytail: invisible backdrop closes on any outside click */}
+
                   <button
                     type="button"
                     aria-label="Close account menu"
@@ -358,7 +358,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile: full-screen black takeover menu */}
+
       <AnimatePresence>
         {mobileOpen ? (
           <motion.div
@@ -519,7 +519,7 @@ export function SiteHeader() {
         ) : null}
       </AnimatePresence>
 
-      {/* ponytail: hidden until picked by the camera menu; button-triggered so no clickjacking */}
+
       <input
         ref={cameraRef}
         type="file"

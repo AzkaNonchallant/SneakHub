@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 
-// ponytail: skeleton komponen UI — satu basis blok pulse + turunan layout umum
+
 export function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div

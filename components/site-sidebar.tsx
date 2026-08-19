@@ -41,7 +41,7 @@ export function SiteSidebar() {
 
   return (
     <>
-      {/* Mobile top bar: brand + storefront, nav lives in the bottom tab bar */}
+
       <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-outline-variant bg-background px-4 md:hidden">
         <div className="font-heading text-xl leading-6 font-black tracking-tighter text-primary uppercase">
           {t("SELLER HUB")}
@@ -76,7 +76,7 @@ export function SiteSidebar() {
         </div>
       </div>
 
-      {/* Mobile bottom tab bar */}
+
       <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-surface-container-lowest md:hidden">
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link
@@ -97,7 +97,7 @@ export function SiteSidebar() {
       </nav>
 
       <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-outline-variant bg-surface-container-lowest px-4 py-6 md:flex">
-        {/* Brand */}
+
         <div className="mb-6 px-2">
           <div className="font-heading text-lg leading-6 font-black tracking-tighter text-primary uppercase">
             {t("SELLER HUB")}

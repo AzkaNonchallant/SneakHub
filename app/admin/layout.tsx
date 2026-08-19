@@ -16,7 +16,7 @@ export default function AdminLayout({
   const router = useRouter()
   const { data: me, isLoading } = useMe()
 
-  // ponytail: guard client-side, pola sama dengan layout (dashboard) seller
+
   useEffect(() => {
     if (!isLoading && !isAdminRole(me?.peran)) router.replace("/home")
   }, [isLoading, me?.peran, router])

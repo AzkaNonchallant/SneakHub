@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// ponytail: satu file client API — nggak perlu layer tambahan buat app sebesar ini
+
 
 export const TOKEN_KEY = "sneakhub_token";
 
@@ -13,8 +13,8 @@ export function setToken(token: string | null) {
   if (typeof window === "undefined") return;
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
-    // ponytail: mirror ke cookie untuk proxy.ts guard /admin (JWT >4KB akan gagal —
-    // backend harus cookie HttpOnly untuk solusi penuh)
+
+
     document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=604800; samesite=lax`;
   } else {
     localStorage.removeItem(TOKEN_KEY);
@@ -30,7 +30,7 @@ export function formatRp(n: number): string {
   }).format(n);
 }
 
-// ponytail: admin sengaja tidak di sini — admin punya dashboard terpisah tersendiri
+
 export function isSellerRole(peran?: string): boolean {
   return peran === "seller" || peran === "penjual";
 }
@@ -39,8 +39,8 @@ export function isAdminRole(peran?: string): boolean {
   return peran === "admin";
 }
 
-// ponytail: backend wajib isi brand_id tapi TIDAK punya endpoint list brand;
-// pakai brand Nike yang sudah ada di seed (dari product detail AF1)
+
+
 export const DEFAULT_BRAND_ID = "2d72d218-2e0b-449d-a3b2-1521cd21ff20";
 
 export const api = axios.create({ baseURL: "/api", timeout: 15000 });
@@ -56,7 +56,7 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       setToken(null);
-      // ponytail: reload ke login — SPA tanpa router store
+
       if (typeof window !== "undefined" && !location.pathname.startsWith("/login"))
         location.href = "/login";
     }
@@ -67,9 +67,9 @@ api.interceptors.response.use(
 export function errMessage(e: unknown): string {
   if (axios.isAxiosError(e)) {
     const d = e.response?.data as Record<string, unknown> | undefined;
-    // ponytail: backend kadang ngirim `errors` spesifik ("kesalahan password") DAN
-    // `message` generik ("terjadi kesalahan server") sekaligus di response yang sama.
-    // Prioritaskan errors/error yang lebih spesifik dulu, baru fallback ke message.
+
+
+
     const err = d?.error ?? d?.errors;
     if (typeof err === "string") return err;
     if (Array.isArray(err) && err[0] && typeof err[0] === "string") return err[0];
@@ -82,11 +82,11 @@ export function errMessage(e: unknown): string {
   return "Terjadi kesalahan, coba lagi.";
 }
 
-// ponytail: ini data dummy yang dipakai page wishlist (nggak ada endpoint di postman)
+
 export const PLACEHOLDER_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuBxPMOvyNzilLTPzxyNkFxzjqnuO0BI4PzH6RFS99H1H-g5ttiOyASk0hNpWZk9IYthePNWXwt58oMCS7I9WF22K2IJnVa4a4_5HFYxmzNUSNXuBzZdu7nWeL5_PpBu30PHbVHHhzhl7kq18l4thUBzndw3hTMGvKfvu1tuKdgSW0a2qx0c7mRbh3J7WoEcdNneDuinBdDGt41EKtW7tDx5roAQIyqwh_l0sBNQZlxtVa-zLg3gYw67";
 
-/* ---------- Types (shape hasil probe API live) ---------- */
+
 
 export type User = {
   user_id: string;
@@ -122,7 +122,7 @@ export type ApiProduct = {
 };
 
 export type ApiCategory = {
-  // ponytail: backend typo `cateogry_id` di respons list — dipakai apa adanya
+
   cateogry_id: string;
   nama_kategori: string;
 };
@@ -138,7 +138,7 @@ export type ApiAddress = {
   is_default: boolean;
 };
 
-// ponytail: shape cart hasil probe live — field flat, bukan nested product
+
 export type ApiCartItem = {
   cart_item_id: string;
   product_id: string;
@@ -156,7 +156,7 @@ export type ApiCart = {
   total: number;
 };
 
-// ponytail: shape verified live via GET /orders/:id
+
 export type ApiOrder = {
   order_id: string;
   status_order?: string;
@@ -418,7 +418,7 @@ export const SELLER_REQ_KEY = "sneakhub_seller_req";
 
 export type ApiList<T> = { items: T[]; pagination: Pagination };
 
-/* ---------- Mapping API -> UI ---------- */
+
 
 export type ProductCardData = {
   id: string;

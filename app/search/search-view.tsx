@@ -26,7 +26,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   const t = useT()
   const [query, setQuery] = useState(initialQuery)
   const [match, setMatch] = useState<Match | null>(() => {
-    // ponytail: photo handed over from the header camera menu
+
     const photo = useVisualSearchStore.getState().file
     if (!photo || !photo.type.startsWith("image/")) return null
     useVisualSearchStore.getState().clear()
@@ -39,7 +39,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   const [matchResults, setMatchResults] = useState<ProductCardData[]>([])
   const [visualError, setVisualError] = useState("")
 
-  // ponytail: skor_kemiripan 0-1 dari backend -> persen; badge ganti kondisi
+
   const matchCard = useCallback(
     (p: ApiProduct & { skor_kemiripan?: number }): ProductCardData => ({
       ...toCard(p),
@@ -173,7 +173,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
         </div>
       </section>
 
-      {/* Visual Match */}
+
       <section className="border-b border-outline-variant bg-background py-14">
         <div className="mx-auto w-full max-w-[1280px] px-5 md:px-10">
           <div className="mb-6 flex items-end justify-between">
@@ -273,7 +273,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                         {t("Match Found")}
                       </span>
                       <p className="mt-4 max-w-md text-base leading-6 text-muted-foreground">
-                        {/* ponytail: static "matches" until a real image-recognition API exists */}
+
                         {t("Top matches ranked by silhouette and colorway confidence.")}
                       </p>
                     </>
@@ -307,7 +307,7 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
         </div>
       </section>
 
-      {/* Results */}
+
       <section className="border-b border-outline-variant bg-surface-container-lowest py-14">
         <div className="mx-auto w-full max-w-[1280px] px-5 md:px-10">
           {hasQuery ? (

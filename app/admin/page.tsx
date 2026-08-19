@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Stat cards */}
+
       <div className="mb-6 grid grid-cols-2 gap-5 lg:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="border border-outline-variant bg-surface-container-lowest p-5">
@@ -77,9 +77,9 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Queue + Orders */}
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Pending moderation */}
+
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-black tracking-wide text-primary uppercase">
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* Recent orders */}
+
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-black tracking-wide text-primary uppercase">{t("Recent Orders")}</h2>
@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* User activity */}
+
       <div className="mt-6 border border-outline-variant bg-surface-container-lowest p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-black tracking-wide text-primary uppercase">{t("User Activity")}</h2>

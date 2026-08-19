@@ -28,7 +28,7 @@ export function AdminUsersTable({ limit = 20 }: { limit?: number }) {
 
   const changeRole = async (u: AdminUser, peran: string) => {
     if (peran === u.peran) return
-    // ponytail: turunkan seller = seluruh produk INACTIVE — konfirmasi dulu
+
     if (!window.confirm(`${t("Change role of")} ${u.email} ${t("to")} ${peran}?`)) return
     try {
       await updateRole.mutateAsync({ userId: u.user_id, body: { peran } })

@@ -23,7 +23,7 @@ export function AdminSellersTable({ limit = 20 }: { limit?: number }) {
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const save = async (s: AdminSeller) => {
-    // ponytail: backend live campur case ("verified"/"VERIFIED") — normalisasi pembanding
+
     const next = (drafts[s.seller_id] ?? s.status_verifikasi).toUpperCase()
     if (next === s.status_verifikasi.toUpperCase()) return
     try {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-// ponytail: page client-only; metadata di-layout-kirim dari server biar SEO hidup
+
 export async function generateMetadata({
   params,
 }: {

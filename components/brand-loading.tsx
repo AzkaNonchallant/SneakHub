@@ -1,6 +1,6 @@
 import { SkeletonBlock } from "@/components/skeleton"
 
-// ponytail: layar loading branding — dipakai route loading + layout guard
+
 export function BrandLoading() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-8">

@@ -112,7 +112,7 @@ export function PasswordField({
   const toggleShow = () => {
     setShow((s) => {
       const el = inputRef.current
-      // ponytail: Chrome tetap menutup password autofill walau type=text; webkitTextSecurity memaksanya tampil
+
       if (el) el.style.setProperty("-webkit-text-security", s ? "disc" : "none")
       return !s
     })

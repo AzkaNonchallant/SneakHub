@@ -30,7 +30,7 @@ export default function SellerProfilePage() {
 
   const storeName = seller?.nama_toko ?? `${user?.nama ?? t("Store")} ${t("Store")}`
   const totalOrders = ordersData?.pagination.total ?? 0
-  // ponytail: backend isi skor_akhir=0 utk seller baru walau completion >0 — fallback ke completion
+
   const rawScore = trust?.skor_akhir ?? dash?.seller_trust_score
   const trustScore = rawScore && rawScore > 0 ? rawScore : (trust?.order_completion_rate ?? 0)
 
@@ -48,7 +48,7 @@ export default function SellerProfilePage() {
         </div>
       </div>
 
-      {/* 01 Profil */}
+
       <section className="mb-6 border border-outline-variant bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">
         <SectionHeader number="01" title={t("Store Profile")} />
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -74,7 +74,7 @@ export default function SellerProfilePage() {
           </div>
         </div>
 
-        {/* Statistik */}
+
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[
             { label: t("TOTAL ORDERS"), value: String(totalOrders) },
@@ -97,7 +97,7 @@ export default function SellerProfilePage() {
         </div>
       </section>
 
-      {/* 02 Trust Score + 03 Produk Aktif */}
+
       <section className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <SectionHeader number="02" title={t("Trust Score")} />
@@ -152,7 +152,7 @@ export default function SellerProfilePage() {
         </div>
       </section>
 
-      {/* 04 Ulasan Pelanggan */}
+
       <section className="border border-outline-variant bg-surface-container-lowest p-6">
         <SectionHeader number="04" title={t("Customer Reviews")} />
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -205,7 +205,7 @@ export default function SellerProfilePage() {
   )
 }
 
-// Lingkaran progress trust score, dibuat dengan SVG (tidak butuh library tambahan)
+
 function TrustGauge({ score }: { score: number }) {
   const size = 88
   const stroke = 8

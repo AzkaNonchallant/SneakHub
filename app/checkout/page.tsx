@@ -49,7 +49,7 @@ export default function CheckoutPage() {
 
   const { data: rates, isLoading: ratesLoading } = useShippingRates(chosenAddress?.address_id)
 
-  // ponytail: default = kurir termurah; state hanya menimpa kalau user pilih manual
+
   const chosen = (r: ShippingRate) => kurir[r.seller_id] ?? cheapest(r)?.kurir ?? ""
 
   const shippingCost = (rates ?? []).reduce((sum, r) => {
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
         metode_pembayaran: method,
         pengiriman,
       })
-      // ponytail: backend kirim ARRAY (satu entry per seller) — pakai entry pertama
+
       const first = data[0]
       if (first?.payment_url) {
         window.location.href = first.payment_url
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
 
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
           <div className="w-full space-y-6 lg:w-2/3">
-            {/* Step 1: Alamat */}
+
             <div className="relative border border-primary bg-surface-container-lowest p-6">
               <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
               <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -179,7 +179,7 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Step 2: Metode pembayaran */}
+
             <div className="relative border border-primary bg-surface-container-lowest p-6">
               <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
               <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -212,7 +212,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Step 3: Pengiriman (smart ongkir) */}
+
             <div className="relative border border-primary bg-surface-container-lowest p-6">
               <div className="absolute top-0 bottom-0 left-0 w-1 bg-primary" />
               <h2 className="mb-6 flex items-center gap-3 font-heading text-2xl leading-7 font-semibold text-primary uppercase">

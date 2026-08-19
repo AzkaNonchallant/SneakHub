@@ -33,10 +33,10 @@ export default function LoginPage() {
         password: String(fd.get("password")),
       })
       setToken(data.access_token)
-      // ponytail: buang cache user akun sebelumnya biar guard layout gak salah
-      // baca peran lama (replace /home padahal seller)
+
+
       qc.clear()
-      // ponytail: role-aware redirect — admin lgsung ke admin panel, seller ke dashboard
+
       const peran = data.user?.peran
       if (peran === "admin") router.push("/admin")
       else if (peran === "seller" || peran === "penjual") router.push("/dashboard")

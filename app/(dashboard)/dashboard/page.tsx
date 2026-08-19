@@ -60,7 +60,7 @@ export default function DashboardPage() {
   const updateStatus = useUpdateOrderStatus()
   const ship = useShipOrder()
   const orders = ordersData?.items ?? []
-  // ponytail: backend isi skor_akhir=0 utk seller baru walau completion >0 — fallback ke completion
+
   const rawScore = trust?.skor_akhir ?? dash?.seller_trust_score
   const trustScore = rawScore && rawScore > 0 ? rawScore : (trust?.order_completion_rate ?? 0)
 
@@ -81,7 +81,7 @@ export default function DashboardPage() {
       toast.success(t("Order shipped"))
     }
     try {
-      // ponytail: body kosong = Biteship booking resi otomatis; gagal → fallback resi manual
+
       await send()
     } catch {
       const resi = window.prompt(t("Biteship unavailable — enter tracking number manually:"))
@@ -125,7 +125,7 @@ export default function DashboardPage() {
   ]
 
   const monthlySales = useMemo(
-    // ponytail: agregasi order per bulan, kosong kalau belum ada data
+
     () => {
       const byMonth = new Map<string, number>()
       for (const o of orders) {
@@ -148,7 +148,7 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-8 sm:py-10 md:px-12">
       <PageMeta title="Dashboard" />
-      {/* Header */}
+
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-xs font-bold tracking-[0.05em] text-muted-foreground uppercase">
@@ -181,7 +181,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stat cards */}
+
       <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
         {dashLoading
           ? Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} className="h-full" />)
@@ -213,7 +213,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Chart */}
+
       <div className="mb-8 grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <SectionTitle eyebrow={t("Sales Analytics")} title={t("Monthly Sales")} />
@@ -255,7 +255,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Pesanan Terbaru + Produk */}
+
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="border border-outline-variant bg-surface-container-lowest p-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-2">

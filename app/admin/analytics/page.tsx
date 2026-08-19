@@ -15,7 +15,7 @@ export default function AdminAnalyticsPage() {
   const qc = useQueryClient()
   const { data, isLoading, isError } = useAdminReports({ period: "monthly" })
 
-  // ponytail: bar chart cuma metrik count — revenue beda unit (rupiah), card sendiri
+
   const rows = data
     ? [
         { label: t("Users"), value: data.total_users ?? 0 },

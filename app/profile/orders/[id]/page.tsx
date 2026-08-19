@@ -17,7 +17,7 @@ import { useConfirmOrder, useCreateReview, useOrder, useUpdateOrderStatus } from
 
 const norm = (s?: string) => (s ?? "").toLowerCase()
 
-// ponytail: backend live campur ID + EN ("dikirim"/"shipped") — norm() + kedua key
+
 const statusLabel: Record<string, string> = {
   pending: "Pending",
   diproses: "Diproses",
@@ -69,7 +69,7 @@ export default function OrderDetailPage() {
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
   const [error, setError] = useState("")
-  // ponytail: product reviewable dari response confirm (tanpa refetch); fallback order.items
+
   const [confirmItems, setConfirmItems] = useState<{ product_id: string; nama_produk: string }[] | null>(null)
   const reviewProduct = (confirmItems ?? order?.items)?.[0]
 
@@ -199,7 +199,7 @@ export default function OrderDetailPage() {
 
             <div className="w-full lg:w-80">
               <div className="sticky top-8 flex flex-col gap-4">
-                {/* Pembayaran */}
+
                 {order.payment ? (
                   <div
                     className={`border bg-surface-container-lowest p-6 ${
@@ -249,7 +249,7 @@ export default function OrderDetailPage() {
                   </div>
                 ) : null}
 
-                {/* Konfirmasi terima */}
+
                 {isShipped ? (
                   <div className="border border-primary bg-surface-container-lowest p-6">
                     <h3 className="mb-4 flex items-center gap-2 border-b border-primary pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -269,7 +269,7 @@ export default function OrderDetailPage() {
                   </div>
                 ) : null}
 
-                {/* Pengiriman */}
+
                 {order.shipment ? (
                   <div className="border border-outline bg-surface-container-lowest p-6">
                     <h3 className="mb-4 flex items-center gap-2 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
@@ -326,7 +326,7 @@ export default function OrderDetailPage() {
                   </div>
                 ) : null}
 
-                {/* Alamat pengiriman */}
+
                 {order.alamat_pengiriman ? (
                   <div className="border border-outline bg-surface-container-lowest p-6">
                     <h3 className="mb-4 flex items-center gap-2 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">

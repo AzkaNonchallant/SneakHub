@@ -31,7 +31,7 @@ export default function ProfilePage() {
   const activate = useSellerActivation()
   const [sellerError, setSellerError] = useState("")
   const [sellerReq, setSellerReq] = useState<SellerActivationResult | null>(() => {
-    // ponytail: status pengajuan seller disimpan lokal — backend tidak expose endpoint status user
+
     if (typeof window === "undefined") return null
     try {
       const raw = localStorage.getItem(SELLER_REQ_KEY)
@@ -41,8 +41,8 @@ export default function ProfilePage() {
     }
   })
 
-  // ponytail: status server override localStorage — kalau admin REJECTED,
-  // localStorage usang bikin user tak bisa apply ulang; /seller/me tetap ada walau ditolak
+
+
   const { data: sellerMe } = useSellerMe({ enabled: sellerReq?.status_verifikasi === "PENDING" })
   const sellerReqView: SellerActivationResult | null = sellerMe?.status_verifikasi
     ? { seller_id: sellerMe.seller_id, status_verifikasi: sellerMe.status_verifikasi }

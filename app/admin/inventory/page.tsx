@@ -21,7 +21,7 @@ const statusTone: Record<string, string> = {
 export default function AdminInventoryPage() {
   const t = useT()
   const [statusFilter, setStatusFilter] = useState<string>(() => {
-    // ponytail: useSearchParams butuh Suspense boundary — baca langsung aja
+
     if (typeof window === "undefined") return ""
     return new URLSearchParams(window.location.search).get("status") ?? ""
   })

@@ -29,8 +29,8 @@ import {
   type User,
 } from "@/lib/api";
 
-// ponytail: semua react-query hooks API di satu file — per-domain splitting overkill
-// untuk 30 endpoint sederhana
+
+
 
 function pageUrl(path: string, params: Record<string, string | number | undefined>) {
   const q = new URLSearchParams();
@@ -41,7 +41,7 @@ function pageUrl(path: string, params: Record<string, string | number | undefine
   return s ? `${path}?${s}` : path;
 }
 
-/* ---------- Auth ---------- */
+
 
 export function useLogin() {
   return useMutation({
@@ -97,7 +97,7 @@ export function useSellerMe(options: { enabled?: boolean } = {}) {
 export function useUpdateSellerMe() {
   const qc = useQueryClient();
   return useMutation({
-    // ponytail: partial update — field kosong ("") dihapus backend, jadi jangan kirim field kosong
+
     mutationFn: (body: Record<string, unknown>) =>
       api.put<{ data: import("@/lib/api").SellerProfile }>("/seller/me", body).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["seller-me"] }),
@@ -195,7 +195,7 @@ export function useProductReviews(productId: string, limit = 20) {
   });
 }
 
-// ponytail: invalidate lintas key — seller UI pakai seller-products, detail pakai product
+
 const PRODUCT_KEYS: string[][] = [["products"], ["seller-products"], ["product"]];
 
 export function useCreateProduct() {
@@ -244,7 +244,7 @@ export function useUploadProductImage() {
 
 export function useSearchByImage() {
   return useMutation({
-    // ponytail: backend kirim skor_kemiripan 0-1 bareng item produk — intersect type
+
     mutationFn: (fd: FormData) =>
       api
         .post<{ data: ApiList<ApiProduct & { skor_kemiripan?: number }> }>("/products/search-by-image", fd)
@@ -252,7 +252,7 @@ export function useSearchByImage() {
   });
 }
 
-/* ---------- Cart ---------- */
+
 
 export function useCart() {
   return useQuery({
@@ -287,7 +287,7 @@ export function useDeleteCartItem() {
   });
 }
 
-/* ---------- Addresses ---------- */
+
 
 export function useAddresses() {
   return useQuery({
@@ -321,7 +321,7 @@ export function useDeleteAddress() {
   });
 }
 
-/* ---------- Orders ---------- */
+
 
 export function useOrders(params: { page?: number; limit?: number; status?: string } = {}) {
   return useQuery({
@@ -381,7 +381,7 @@ export function useCheckout() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: { address_id: string; metode_pembayaran: string; pengiriman?: { seller_id: string; kurir: string }[] }) =>
-      // ponytail: backend kirim ARRAY (satu entry per seller); frontend pakai entry pertama
+
       api.post<{ data: CheckoutResult[] }>("/checkout", body).then((r) => r.data.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart"] });
@@ -401,7 +401,7 @@ export function useShippingRates(addressId?: string) {
   });
 }
 
-/* ---------- Wishlist & Alerts ---------- */
+
 
 export type WishlistItem = ApiWishlistItem & { image_url?: string };
 
@@ -445,7 +445,7 @@ export function useRestockAlert() {
   return useAlertMutation((id) => `/wishlist/${id}/restock-alert`, [["wishlist"]]);
 }
 
-/* ---------- Notifications ---------- */
+
 
 export function useNotifications(params: { page?: number; limit?: number; type?: string } = {}) {
   return useQuery({
@@ -467,7 +467,7 @@ export function useMarkNotificationRead() {
   });
 }
 
-/* ---------- Discovery & AI ---------- */
+
 
 export type SmartFilterParams = {
   budget_min?: number;
@@ -524,7 +524,7 @@ export function useBestSellerWeekly(limit = 4) {
   });
 }
 
-/* ---------- Seller ---------- */
+
 
 export function useSellerDashboard() {
   return useQuery({
@@ -559,7 +559,7 @@ export function useSellerProducts(params: { page?: number; limit?: number } = {}
 export function useShipOrder() {
   const qc = useQueryClient();
   return useMutation({
-    // ponytail: body kosong = booking Biteship otomatis; { nomor_resi } = kirim manual
+
     mutationFn: ({ orderId, body }: { orderId: string; body?: Record<string, unknown> }) =>
       api.post<{ data: { order_id: string; status_order?: string } }>(
         `/seller/orders/${orderId}/ship`,
@@ -598,8 +598,8 @@ export function useTrustScore(sellerId?: string) {
   return useQuery({
     queryKey: ["trust-score", sellerId],
     enabled: Boolean(sellerId),
-    // ponytail: seller baru belum punya trust score — 404 dianggap kosong,
-    // bukan error, biar UI tidak nampilin error
+
+
     queryFn: () =>
       api.get<{ data: SellerTrustScore }>(`/sellers/${sellerId}/trust-score`).then((r) => r.data.data)
         .catch((err) => {
@@ -616,7 +616,7 @@ export function usePricePrediction() {
   });
 }
 
-/* ---------- Product extras ---------- */
+
 
 export function usePriceInsight(productId: string) {
   return useQuery({
@@ -631,7 +631,7 @@ export function useConditionScores(productId: string) {
   return useQuery({
     queryKey: ["condition-score", productId],
     enabled: Boolean(productId),
-    // ponytail: backend balikin 404 kalau produk belum pernah dinilai — anggap kosong
+
     queryFn: () =>
       api
         .get<{ data: ConditionScore }>(`/products/${productId}/condition-score`)
@@ -652,7 +652,7 @@ export function useSubmitConditionScore() {
   });
 }
 
-/* ---------- Admin ---------- */
+
 
 export function useAdminUsers(params: { page?: number; limit?: number } = {}) {
   return useQuery({

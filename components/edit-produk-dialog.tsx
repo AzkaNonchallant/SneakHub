@@ -54,8 +54,8 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
   })
 
   const images = product.images ?? []
-  // ponytail: backend kadang tidak mengirim field ini (produk lama / belum ada ukuran),
-  // fallback ke array kosong biar .join() tidak meledak
+
+
   const sizes = product.ukuran_tersedia ?? []
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -91,10 +91,10 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
           deskripsi: v.description ?? "",
           harga: v.price,
           stok: v.stock,
-          // ponytail: backend tolak status_publikasi ACTIVE; tanpa field status tidak berubah
+
           ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-          // ponytail: score hanya dikirim kalau kondisi diubah — pakai
-          // mapping eksplisit, enum tidak mengandung "/"
+
+
           condition_score:
             v.condition !== product.kondisi
               ? v.condition === "new"
@@ -114,8 +114,8 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
         const img = new FormData()
         img.append("gambar", file)
         img.append("urutan_tampil", "1")
-        // ponytail: jangan block dialog — produk sudah ter-update; gambar gagal
-        // = toast, user bisa coba lagi
+
+
         upload.mutateAsync({ productId: product.product_id, fd: img }).catch(() => {
           toast.error(t("Product updated, image upload failed"))
         })

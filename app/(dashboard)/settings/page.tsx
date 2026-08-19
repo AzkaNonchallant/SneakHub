@@ -120,13 +120,13 @@ export default function SettingsPage() {
               </div>
             ))}
           </dl>
-          {/* ponytail: ganti password tak ada — backend tak expose endpoint-nya */}
+
           <p className="mt-6 text-xs leading-5 text-muted-foreground">
             {t("Password changes are handled by account recovery.")}
           </p>
         </div>
 
-        {/* 03 Profil Toko */}
+
         <StoreProfileForm />
       </div>
     </div>
@@ -138,7 +138,7 @@ function StoreProfileForm() {
   const { data: seller, isLoading } = useSellerMe()
   const update = useUpdateSellerMe()
 
-  // ponytail: mirror aturan BE — validasi hanya field yang dikirim
+
   const rules: Record<string, (v: string) => string | null> = {
     nama_toko: (v) => (v.length >= 3 ? null : "Nama toko minimal 3 karakter"),
     deskripsi_toko: (v) => (v.length >= 3 ? null : "Deskripsi toko minimal 3 karakter"),
@@ -150,7 +150,7 @@ function StoreProfileForm() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    // ponytail: diff vs nilai awal — hanya field berubah yang dikirim; dikosongkan = kirim "" (hapus/NULL)
+
     const body: Record<string, string> = {}
     for (const name of Object.keys(rules)) {
       const current = String(fd.get(name) ?? "").trim()

@@ -36,7 +36,7 @@ export default function RegisterPage() {
         nomor_telepon: String(fd.get("nomor_telepon")),
       })
       setToken(data.access_token)
-      // ponytail: buang cache user akun sebelumnya (sama kayak login)
+
       qc.clear()
       router.push("/home")
     } catch (err) {

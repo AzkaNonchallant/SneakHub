@@ -132,7 +132,7 @@ export default function CartPage() {
   const updateItem = useUpdateCartItem()
   const deleteItem = useDeleteCartItem()
   const { data: productsData } = useProducts({ limit: 100 })
-  // ponytail: stok per produk dari endpoint publik (cart item tidak bawa stok)
+
   const stockById = new Map((productsData?.items ?? []).map((p) => [p.product_id, p.stok]))
 
   const items = cart?.items ?? []
@@ -141,7 +141,7 @@ export default function CartPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
       <PageMeta title="Cart" />
-      {/* ponytail: transactional header — nav suppressed per mockup */}
+
       <header className="sticky top-0 z-50 w-full border-b border-outline bg-background">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-4 md:px-10">
           <Link
@@ -202,7 +202,7 @@ export default function CartPage() {
                 />
               ))}
             </div>
-            {/* ponytail: satu tombol disabled selama mutate — race qty impossible */}
+
 
             <div className="lg:sticky lg:top-[100px] lg:col-span-4">
               <div className="relative flex flex-col gap-6 border border-outline bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">

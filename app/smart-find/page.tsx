@@ -31,7 +31,7 @@ export default function SmartFindPage() {
   )
 
   const [budget, setBudget] = useState<[number, number]>([0, maxPrice || 1])
-  // ponytail: produk fetch async, maxPrice 0 di render pertama — sinkronkan setelah data masuk
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (maxPrice > 0) setBudget((b) => [b[0], maxPrice])
@@ -53,7 +53,7 @@ export default function SmartFindPage() {
     filter.mutate(params)
   }
 
-  // ponytail: smart-filter nggak balikin harga per sort — sorting client-side via hook state di batch respons
+
   const results = useMemo(() => {
     const list = filter.data?.items ?? []
     if (sort === "Price: Low to High") return [...list].sort((a, b) => a.harga - b.harga)
@@ -67,7 +67,7 @@ export default function SmartFindPage() {
       <SiteHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-5 px-5 py-8 md:flex-row md:px-10">
-        {/* Filter Panel */}
+
         <aside className="flex w-full shrink-0 flex-col gap-6 md:w-64">
           <div>
             <h1 className="font-heading text-2xl leading-7 font-bold text-primary">
@@ -202,7 +202,7 @@ export default function SmartFindPage() {
           </button>
         </aside>
 
-        {/* Results */}
+
         <section className="flex flex-1 flex-col gap-6">
           <div className="flex flex-wrap items-end justify-between gap-2 border-b border-outline-variant pb-2">
             <span className="text-base leading-6 text-muted-foreground">

@@ -69,7 +69,7 @@ export function TambahProdukButton() {
       const next: Record<string, string> = {}
       for (const issue of parsed.error.issues) {
         const key = String(issue.path[0] ?? "form")
-        // ponytail: keep first message per field
+
         if (!(key in next)) next[key] = issue.message
       }
       setErrors(next)
@@ -84,8 +84,8 @@ export function TambahProdukButton() {
         deskripsi: v.description ?? "",
         harga: v.price,
         stok: v.stock,
-        // ponytail: backend v2 tolak status_publikasi ACTIVE/aktif (400);
-        // tanpa field -> default "draft", moderasi admin yang naikin
+
+
         ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
         condition_score:
           v.condition === "new" ? 10.0 : v.condition === "refurbished" ? 8.0 : 7.0,
@@ -100,8 +100,8 @@ export function TambahProdukButton() {
         const img = new FormData()
         img.append("gambar", file)
         img.append("urutan_tampil", "1")
-        // ponytail: jangan block dialog — produk sudah tersimpan; gambar gagal
-        // = toast, user bisa retry via edit
+
+
         upload.mutateAsync({ productId: product.product_id, fd: img }).catch(() => {
           toast.error(t("Product saved, image upload failed"))
         })
@@ -133,7 +133,7 @@ export function TambahProdukButton() {
           </div>
 
           <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-5">
-            {/* Image upload */}
+
             <div className="mb-5">
               <label className="mb-1.5 block text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
                 {t("Product Image")}

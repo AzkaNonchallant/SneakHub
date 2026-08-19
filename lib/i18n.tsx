@@ -24,14 +24,19 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
     if (saved === "en" || saved === "id") setLang(saved)
   }, [])
 
-  // ponytail: hanya persist saat bukan default ("en") — kalau tidak, persist mount-1
-  // akan menimpa nilai tersimpan sebelum restore mount-2 (StrictMode dev double-mount)
+  // ponytail: html lang sync seterusnya; persist hanya di toggle (bukan effect,
+  // supaya StrictMode double-mount tidak menimpa nilai tersimpan)
   useEffect(() => {
-    if (lang !== "en") localStorage.setItem(STORAGE_KEY, lang)
     document.documentElement.lang = lang
   }, [lang])
 
-  const toggleLang = () => setLang((prev) => (prev === "en" ? "id" : "en"))
+  const toggleLang = () => {
+    const next = lang === "en" ? "id" : "en"
+    setLang(next)
+    localStorage.setItem(STORAGE_KEY, next)
+    // ponytail: mirror ke cookie — root layout SSR baca ini untuk <html lang>
+    document.cookie = `${STORAGE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`
+  }
 
   return <LangContext.Provider value={{ lang, toggleLang }}>{children}</LangContext.Provider>
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Image from "next/image"
 import { ChevronLeft, ChevronRight, Trash2, TrendingUp } from "lucide-react"
 import { toast } from "sonner"
 
@@ -168,12 +169,13 @@ function InventoryCard({ item, onDelete }: { item: ApiProduct; onDelete: (item: 
         {p.kondisi ?? "-"}
       </span>
 
-      <div className="flex aspect-square items-center justify-center overflow-hidden border-b border-primary bg-surface-container-low p-4">
-        <img
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden border-b border-primary bg-surface-container-low p-4">
+        <Image
           src={image}
           alt={p.nama_produk}
-          loading="lazy"
-          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+          fill
+          sizes="(max-width:768px) 50vw, 300px"
+          className="object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
         />
       </div>
 

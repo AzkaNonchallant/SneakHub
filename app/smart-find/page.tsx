@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { BadgeCheck } from "lucide-react"
 
@@ -271,11 +272,12 @@ function SmartFindCard({ item }: { item: SmartFilterItem }) {
           >
             {item.match_score}% {t("Match")}
           </div>
-          <img
+          <Image
             src={item.image_url || PLACEHOLDER_IMAGE}
             alt={item.nama_produk}
-            loading="lazy"
-            className="h-full w-full object-cover p-8 transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width:768px) 50vw, 300px"
+            className="object-cover p-8 transition-transform duration-300 group-hover:scale-105"
           />
         </div>
 

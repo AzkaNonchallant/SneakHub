@@ -25,12 +25,13 @@ export default function SellerProfilePage() {
   const { data: seller } = useSellerMe()
   const { data: dash } = useSellerDashboard()
   const { data: ordersData } = useSellerOrders({ limit: 100 })
-  const { data: trust } = useTrustScore(seller?.seller_id)
+  const { data: trust, isPending: trustPending, isError: trustError } = useTrustScore(seller?.seller_id)
   const { data: reviewsData } = useSellerReviews(seller?.seller_id)
 
   const storeName = seller?.nama_toko ?? `${user?.nama ?? t("Store")} ${t("Store")}`
   const totalOrders = ordersData?.pagination.total ?? 0
-  const trustScore = dash?.seller_trust_score ?? trust?.skor_akhir ?? 0
+  // ponytail: trust-score endpoint dedicated lebih akurat — dashboard jadi fallback
+  const trustScore = trust?.skor_akhir ?? dash?.seller_trust_score ?? 0
 
   return (
     <div className="mx-auto w-full max-w-[1280px] bg-background px-4 py-8 sm:px-8 sm:py-10 md:px-12">
@@ -103,7 +104,7 @@ export default function SellerProfilePage() {
             <TrustGauge score={trustScore} />
             <div>
               <div className="font-heading text-3xl leading-9 font-black text-primary">
-                {trustScore || "-"}/100
+                {trust ? `${trust.skor_akhir}/100` : trustScore || "-"}
               </div>
               {trust ? (
                 <div className="mt-1 flex flex-col gap-1 text-sm font-bold text-muted-foreground">
@@ -112,6 +113,10 @@ export default function SellerProfilePage() {
                   </span>
                   <span>{t("Cancelled")} {trust.cancellation_rate}% • {t("Response")} {trust.response_rate}%</span>
                 </div>
+              ) : trustPending ? (
+                <div className="mt-1 text-base font-bold text-muted-foreground">{t("Loading…")}</div>
+              ) : trustError ? (
+                <div className="mt-1 text-sm font-bold text-error">{t("Failed to load trust score")}</div>
               ) : (
                 <div className="mt-1 flex items-center gap-1.5 text-base font-bold text-muted-foreground">
                   <CheckCircle2 className="size-4" /> {t("No ratings yet")}

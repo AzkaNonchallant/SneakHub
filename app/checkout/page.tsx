@@ -1,8 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { AlertCircle, Lock, Plus, ShieldCheck } from "lucide-react"
+import { toast } from "sonner"
 
 import { AddressDialog } from "@/components/address-manager"
 import { PageMeta } from "@/components/page-meta"
@@ -21,10 +24,13 @@ const kurirLabel: Record<string, string> = {
 }
 
 function cheapest(rate: ShippingRate) {
-  return rate.options.reduce((a, b) => (b.biaya < a.biaya ? b : a), rate.options[0])
+  return rate.options.length > 0
+    ? rate.options.reduce((a, b) => (b.biaya < a.biaya ? b : a), rate.options[0])
+    : undefined
 }
 
 export default function CheckoutPage() {
+  const router = useRouter()
   const t = useT()
   const { data: cart } = useCart()
   const { data: addresses } = useAddresses()
@@ -43,7 +49,7 @@ export default function CheckoutPage() {
   const { data: rates, isLoading: ratesLoading } = useShippingRates(chosenAddress?.address_id)
 
   // ponytail: default = kurir termurah; state hanya menimpa kalau user pilih manual
-  const chosen = (r: ShippingRate) => kurir[r.seller_id] ?? cheapest(r).kurir
+  const chosen = (r: ShippingRate) => kurir[r.seller_id] ?? cheapest(r)?.kurir ?? ""
 
   const shippingCost = (rates ?? []).reduce((sum, r) => {
     const opt = r.options.find((o) => o.kurir === chosen(r)) ?? cheapest(r)
@@ -77,7 +83,13 @@ export default function CheckoutPage() {
         pengiriman,
       })
       // ponytail: backend kirim ARRAY (satu entry per seller) — pakai entry pertama
-      if (data[0]?.payment_url) window.location.href = data[0].payment_url
+      const first = data[0]
+      if (first?.payment_url) {
+        window.location.href = first.payment_url
+        return
+      }
+      toast.success(t("Order created"), { description: `#${first?.order_id ?? "-"}` })
+      router.push(`/profile/orders/${first?.order_id}`)
     } catch (e) {
       setError(errMessage(e))
     }
@@ -291,7 +303,9 @@ export default function CheckoutPage() {
               <h3 className="mb-4 border-b border-outline pb-4 font-heading text-2xl leading-7 font-semibold text-primary uppercase">
                 {t("Order Summary")}
               </h3>
-              {items.length === 0 ? (
+              {!cart ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">{t("Calculating…")}</p>
+              ) : items.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="font-heading text-xl leading-7 font-semibold text-primary uppercase">
                     {t("Your cart is empty")}
@@ -309,10 +323,12 @@ export default function CheckoutPage() {
                     {items.map((item) => (
                       <div key={item.cart_item_id} className="flex gap-4">
                         <div className="relative size-20 shrink-0 border border-outline bg-surface-container">
-                          <img
+                          <Image
                             src={item.image_url || PLACEHOLDER_IMAGE}
                             alt={item.nama_produk ?? t("Product")}
-                            className="h-full w-full object-cover"
+                            fill
+                            sizes="80px"
+                            className="object-cover"
                           />
                           <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                             {item.jumlah}
@@ -349,7 +365,7 @@ export default function CheckoutPage() {
                       Total
                     </span>
                     <span className="font-heading text-[36px] leading-9 font-bold text-primary">
-                      {formatRp(ratesLoading ? subtotal : rates && rates.length > 0 ? total : subtotal + 15000)}
+                      {ratesLoading ? t("…") : formatRp(rates && rates.length > 0 ? total : subtotal + 15000)}
                     </span>
                   </div>
                   <div className="flex items-start gap-3 border border-outline bg-surface p-4">

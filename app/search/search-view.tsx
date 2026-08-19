@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Camera, LoaderCircle, ScanSearch, Search, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
@@ -94,7 +95,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
   })
 
   const hasQuery = query.trim().length > 0
-  const { data: searchData } = useProducts({ search: hasQuery ? query : undefined, limit: 20 })
+  const { data: searchData, isLoading: searchLoading } = useProducts({
+    search: hasQuery ? query : undefined,
+    limit: 20,
+    enabled: hasQuery,
+  })
   const results = searchData?.items.map(toCard) ?? []
 
   return (
@@ -134,7 +139,6 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("Search brands, models, colorways...")}
-              autoFocus
               className="w-full border border-primary bg-white py-4 pr-24 pl-14 text-lg text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-on-tertiary-container focus:ring-2 focus:ring-on-tertiary-container md:pr-32"
             />
             <div className="absolute top-1/2 right-2 flex -translate-y-1/2 gap-2">
@@ -233,11 +237,15 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
           ) : (
             <div className="border border-primary bg-white p-6">
               <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
-                <img
+                <div className="relative h-56 w-full max-w-xs border border-primary bg-surface-container-low md:w-96">
+                <Image
                   src={match.preview}
                   alt="Selected sneaker for visual match"
-                  className="h-56 w-full max-w-xs border border-primary bg-surface-container-low object-contain mix-blend-multiply"
+                  fill
+                  sizes="(max-width:768px) 100vw, 384px"
+                  className="object-contain mix-blend-multiply"
                 />
+              </div>
                 <div className="flex-1">
                   {match.phase === "analyzing" ? (
                     <>
@@ -295,7 +303,11 @@ export function SearchView({ initialQuery }: { initialQuery: string }) {
                   {results.length} {results.length === 1 ? t("Result") : t("Results")} {t("For")} &quot;{query}&quot;
                 </h2>
               </div>
-              {results.length > 0 ? (
+              {searchLoading ? (
+                <p className="border border-primary bg-surface-container-low p-10 text-center text-sm text-muted-foreground">
+                  {t("Searching…")}
+                </p>
+              ) : results.length > 0 ? (
                 <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
                   {results.map((product, i) => (
                     <ProductCard
@@ -360,12 +372,15 @@ function MatchRow({ product, rank }: { product: ProductCardData; rank: number })
       <span className="font-heading w-10 text-2xl leading-7 font-black text-outline opacity-40">
         {String(rank).padStart(2, "0")}
       </span>
-      <img
+      <span className="relative h-20 w-20 shrink-0 border border-outline-variant bg-surface-container-low">
+      <Image
         src={product.image}
         alt={product.alt}
-        loading="lazy"
-        className="h-20 w-20 border border-outline-variant bg-surface-container-low object-contain p-1 mix-blend-multiply"
+        fill
+        sizes="80px"
+        className="object-contain p-1 mix-blend-multiply"
       />
+    </span>
       <div className="flex-1">
         <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
           {product.brand}

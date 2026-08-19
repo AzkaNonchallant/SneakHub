@@ -2,8 +2,7 @@
 
 import { useMemo } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ArrowUpRight, LogOut, Minus, Package, ShieldCheck, ShoppingBag, Star, Wallet } from "lucide-react"
+import { ArrowUpRight, Minus, Package, ShieldCheck, ShoppingBag, Star, Store, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
 import { PageMeta } from "@/components/page-meta"
@@ -42,7 +41,6 @@ function SectionTitle({
 
 export default function DashboardPage() {
   const t = useT()
-  const router = useRouter()
   const statusLabel: Record<string, string> = {
     pending: t("Pending"),
     diproses: t("Processing"),
@@ -158,12 +156,20 @@ export default function DashboardPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/home")}
-            className="gap-2 rounded-none"
-          >
-            <LogOut className="size-4" />
-            {t("Sign Out")}
-          </Button>
+            className="rounded-none"
+            nativeButton={false}
+            render={
+              <Link
+                href="/home"
+                className="flex items-center gap-2"
+                aria-label={t("Storefront")}
+                title={t("Storefront")}
+              >
+                <Store className="size-4" />
+                {t("Storefront")}
+              </Link>
+            }
+          />
           <PricePredictionButton />
           <TambahProdukButton />
         </div>

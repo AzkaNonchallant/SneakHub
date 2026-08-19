@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ChevronRight, Heart, Info, LineChart, Plus } from "lucide-react"
@@ -25,7 +26,7 @@ import {
   useSubmitConditionScore,
   useWishlist,
 } from "@/lib/hooks"
-import { useT } from "@/lib/i18n"
+import { useLang, useT } from "@/lib/i18n"
 
 const kondisiBadge: Record<string, string> = {
   NEW: "bg-[#10B981] text-white",
@@ -106,10 +107,12 @@ export default function ProductDetailPage() {
               <span className={`absolute top-4 left-4 border border-primary px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] uppercase ${kondisiBadge[product.kondisi] ?? "bg-surface-container-highest text-primary"}`}>
                 {t("Condition")}: {product.kondisi}
               </span>
-              <img
+              <Image
                 src={gallery[activeImage]}
                 alt={product.nama_produk}
-                className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                fill
+                sizes="(max-width:1024px) 100vw, 60vw"
+                className="object-contain transition-transform duration-500 group-hover:scale-105"
               />
             </div>
             <div className="grid grid-cols-4 gap-4">
@@ -125,7 +128,7 @@ export default function ProductDetailPage() {
                       : "flex aspect-square cursor-pointer items-center justify-center border border-outline-variant bg-surface-container-low transition-colors hover:border-primary"
                   }
                 >
-                  <img src={img} alt="" className="h-full w-full object-contain p-2" />
+                  <Image src={img} alt="" fill sizes="25vw" className="object-contain p-2" />
                 </button>
               ))}
             </div>
@@ -380,6 +383,7 @@ function ConditionScoreDialog({
 
 function ReviewsBox({ productId }: { productId: string }) {
   const t = useT()
+  const { lang } = useLang()
   const { data: reviews } = useProductReviews(productId)
 
   return (
@@ -417,7 +421,10 @@ function ReviewsBox({ productId }: { productId: string }) {
               {r.komentar ? <p className="text-sm leading-6 text-muted-foreground">{r.komentar}</p> : null}
               {r.created_at ? (
                 <span className="font-mono text-[10px] text-muted-foreground">
-                  {new Date(r.created_at).toLocaleString("id-ID")}
+                  {(() => {
+                    const d = new Date(r.created_at)
+                    return isNaN(d.getTime()) ? "" : d.toLocaleString(lang === "id" ? "id-ID" : "en-US")
+                  })()}
                 </span>
               ) : null}
             </div>

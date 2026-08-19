@@ -6,7 +6,8 @@ import { LangProvider } from "@/lib/i18n"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } }),
+    // ponytail: market data lambat berubah — 5m; mutation invalidate yang jaga freshness
+    () => new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 5 * 60_000 } } }),
   )
   return (
     <QueryClientProvider client={client}>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Bell, BellOff, Heart, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
@@ -88,10 +89,12 @@ export default function WishlistPage() {
                     >
                       {item.price_alert?.enabled ? t("PRICE ALERT ON") : t("TRACKED")}
                     </span>
-                    <div className="flex aspect-square items-center justify-center border-b border-primary bg-surface-container p-6">
-                      <img
+                    <div className="relative flex aspect-square items-center justify-center border-b border-primary bg-surface-container p-6">
+                      <Image
                         src={item.image_url || PLACEHOLDER_IMAGE}
                         alt={item.nama_produk}
+                        fill
+                        sizes="(max-width:768px) 100vw, 300px"
                         className="max-h-[80%] w-auto object-contain mix-blend-multiply"
                       />
                     </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useState } from "react"
+import Image from "next/image"
 import { Dialog } from "@base-ui/react/dialog"
 import { ImagePlus, Pencil, Trash2, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
@@ -31,7 +32,7 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
         }),
     stock: z.coerce.number().int().nonnegative(t("Stock cannot be negative")),
     description: z.string().trim().min(10, t("Description must be at least 10 characters")),
-    category_id: z.string().optional(),
+    category_id: z.string().min(1, t("Category is required")),
   })
   const update = useUpdateProduct()
   const upload = useUploadProductImage()
@@ -92,27 +93,33 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
           stok: v.stock,
           // ponytail: backend tolak status_publikasi ACTIVE; tanpa field status tidak berubah
           ukuran_tersedia: v.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-          // ponytail: condition_score cuma dikirim kalau kondisi diubah — kalau tidak,
-          // backend menimpa skor asli dengan nilai paksa di sini
+          // ponytail: score hanya dikirim kalau kondisi diubah — pakai
+          // mapping eksplisit, enum tidak mengandung "/"
           condition_score:
             v.condition !== product.kondisi
-              ? v.condition.includes("/")
-                ? Number(v.condition.split("/")[0])
-                : 9.0
+              ? v.condition === "new"
+                ? 10.0
+                : v.condition === "refurbished"
+                  ? 8.0
+                  : 7.0
               : undefined,
-          category_id: v.category_id || product.category_id || categories?.[0]?.cateogry_id,
+          category_id: v.category_id,
         },
       })
+      setFile(null)
+      setErrors({})
+      setOpen(false)
+      toast.success(t("Product updated"))
       if (file) {
         const img = new FormData()
         img.append("gambar", file)
         img.append("urutan_tampil", "1")
-        await upload.mutateAsync({ productId: product.product_id, fd: img })
+        // ponytail: jangan block dialog — produk sudah ter-update; gambar gagal
+        // = toast, user bisa coba lagi
+        upload.mutateAsync({ productId: product.product_id, fd: img }).catch(() => {
+          toast.error(t("Product updated, image upload failed"))
+        })
       }
-      toast.success(t("Product updated"))
-      setFile(null)
-      setErrors({})
-      setOpen(false)
     } catch (err) {
       setFormError(errMessage(err))
     }
@@ -157,10 +164,12 @@ export function EditProdukButton({ product }: { product: ApiProduct }) {
                 <div className="flex flex-wrap gap-3">
                   {images.map((img) => (
                     <div key={img.image_id} className="relative size-20 border border-outline bg-surface-container-low">
-                      <img
+                      <Image
                         src={img.url}
                         alt={product.nama_produk}
-                        className="h-full w-full object-contain mix-blend-multiply"
+                        fill
+                        sizes="80px"
+                        className="object-contain mix-blend-multiply"
                       />
                       <button
                         type="button"

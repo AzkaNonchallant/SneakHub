@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "motion/react"
 import Link from "next/link"
 import {
@@ -31,11 +32,12 @@ const fadeUp = {
 
 export default function HomePage() {
   const t = useT()
-  const { data: trendingData } = useTrending({ period: "weekly", limit: 8 })
+  const { data: trendingData, isLoading: trendingLoading } = useTrending({ period: "weekly", limit: 8 })
   const [bestLimit, setBestLimit] = useState(4)
-  const { data: bestSellerData } = useBestSellerWeekly(bestLimit)
-  const { data: personalizedData } = useHomePersonalized()
-  const { data: productsData } = useProducts({ limit: 50, sort: "terbaru" })
+  const { data: bestSellerData, isLoading: bestSellerLoading } = useBestSellerWeekly(bestLimit)
+  const { data: personalizedData, isLoading: personalizedLoading } = useHomePersonalized()
+  // ponytail: catalog 100 — payload trend/best-seller tidak bawa harga, resolve di sini
+  const { data: productsData } = useProducts({ limit: 100, sort: "terbaru" })
 
   const catalog = new Map((productsData?.items ?? []).map((p) => [p.product_id, p]))
 
@@ -153,7 +155,11 @@ export default function HomePage() {
               <TrendingUp className="size-4" />
             </Link>
           </motion.div>
-          {trending.length > 0 ? (
+          {trendingLoading ? (
+            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
+              {t("Calculating…")}
+            </div>
+          ) : trending.length > 0 ? (
             <div className="hide-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-8 snap-x snap-mandatory [mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)] md:-mx-10 md:px-10">
               {trending.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
@@ -313,7 +319,11 @@ export default function HomePage() {
             {t("Weekly Best Sellers")}
           </motion.h2>
           <div className="grid grid-cols-1 gap-0 border-t border-l border-primary sm:grid-cols-2 lg:grid-cols-4">
-            {bestSellers.length > 0 ? (
+            {bestSellerLoading ? (
+            <div className="border-b border-r border-primary p-10 text-center text-sm text-muted-foreground">
+              {t("Calculating…")}
+            </div>
+          ) : bestSellers.length > 0 ? (
               bestSellers.map((product, i) => (
                 <ProductCard
                   key={product.id}
@@ -356,21 +366,26 @@ export default function HomePage() {
             </span>
           </motion.div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {personalized.length > 0 ? (
-              personalized.map((product, i) => (
-                <motion.div
-                  key={product.id}
-                  {...fadeUp}
-                  transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                  className="group flex cursor-pointer border border-outline-variant bg-white p-4 transition-colors hover:border-primary"
-                  onClick={() => (window.location.href = `/product/${product.id}`)}
-                >
-                <div className="mr-4 flex w-1/3 items-center justify-center border border-outline-variant bg-surface-container-low p-2">
-                  <img
+{personalizedLoading ? (
+            <div className="border border-dashed border-outline-variant py-10 text-center text-sm text-muted-foreground">
+              {t("Calculating…")}
+            </div>
+          ) : personalized.length > 0 ? (
+            personalized.map((product, i) => (
+              <motion.div
+                key={product.id}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.08 }}
+                className="group border border-outline-variant bg-white p-4 transition-colors hover:border-primary"
+              >
+                <Link href={`/product/${product.id}`} className="flex h-full">
+                <div className="relative mr-4 flex w-1/3 items-center justify-center border border-outline-variant bg-surface-container-low p-2">
+                  <Image
                     src={product.image}
                     alt={product.alt}
-                    loading="lazy"
-                    className="h-auto w-full mix-blend-multiply transition-transform duration-300 group-hover:scale-110"
+                    fill
+                    sizes="(max-width:768px) 30vw, 200px"
+                    className="object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
                 <div className="flex flex-1 flex-col justify-center">
@@ -389,6 +404,7 @@ export default function HomePage() {
                     {product.price}
                   </span>
                 </div>
+                </Link>
               </motion.div>
             ))
           ) : (

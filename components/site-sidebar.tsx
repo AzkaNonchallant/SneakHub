@@ -1,11 +1,11 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutGrid,
   Package,
-  LineChart,
   BarChart3,
   Settings,
   Store,
@@ -24,6 +24,7 @@ export function SiteSidebar() {
   const t = useT();
   const { lang, toggleLang } = useLang();
   const router = useRouter();
+  const qc = useQueryClient();
   const navItems = [
     { label: t("Dashboard"), href: "/dashboard", icon: LayoutGrid },
     { label: t("Store Profile"), href: "/seller-profile", icon: Store },
@@ -33,6 +34,7 @@ export function SiteSidebar() {
   ];
 
   const signOut = () => {
+    qc.clear();
     setToken(null);
     router.push("/login");
   };

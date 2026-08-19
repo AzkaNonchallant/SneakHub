@@ -1,10 +1,13 @@
 "use client"
 
 import { useEffect, useDeferredValue, useRef, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "motion/react"
-import { Bell, Camera, CircleUser, Heart, Image, Languages, LogOut, Menu, Package,  Search, ShoppingCart, X } from "lucide-react"
+import { Bell, Camera, CircleUser, Heart, Image as ImageIcon, Languages, LogOut, Menu, Package,  Search, ShoppingCart, X } from "lucide-react"
+
+import { useQueryClient } from "@tanstack/react-query"
 
 import { Button } from "@/components/ui/button"
 import { isSellerRole, setToken, toCard } from "@/lib/api"
@@ -48,6 +51,7 @@ const mobileActions: { label: string; href: string; icon: typeof CircleUser }[] 
 export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
+  const qc = useQueryClient()
   const t = useT()
   const { lang, toggleLang } = useLang()
   const [query, setQuery] = useState("")
@@ -61,7 +65,7 @@ export function SiteHeader() {
 
   const deferredQuery = useDeferredValue(query)
   const trimmed = deferredQuery.trim()
-  const { data: resultsData } = useProducts({ search: trimmed, limit: 8 })
+  const { data: resultsData } = useProducts({ search: trimmed, limit: 8, enabled: trimmed.length > 0 })
   const results = trimmed ? (resultsData?.items.map(toCard) ?? []) : []
   const { data: me } = useMe()
   const isSeller = isSellerRole(me?.peran)
@@ -182,7 +186,7 @@ export function SiteHeader() {
                   onClick={() => galleryRef.current?.click()}
                   className="flex w-full items-center gap-3 px-3 py-3 text-sm leading-5 transition-colors hover:bg-surface-container"
                 >
-                  <Image className="size-4 text-on-tertiary-container" />
+                  <ImageIcon className="size-4 text-on-tertiary-container" />
                   {t("From Gallery")}
                 </button>
               </div>
@@ -204,12 +208,15 @@ export function SiteHeader() {
                         i === active ? "bg-surface-container" : ""
                       }`}
                     >
-                      <img
+                      <span className="relative size-10 shrink-0 border border-outline-variant bg-surface-container-low">
+                      <Image
                         src={p.image}
                         alt={p.alt}
-                        loading="lazy"
-                        className="size-10 border border-outline-variant bg-surface-container-low object-contain p-0.5 mix-blend-multiply"
+                        fill
+                        sizes="40px"
+                        className="object-contain p-0.5 mix-blend-multiply"
                       />
+                    </span>
                       <span className="flex-1">
                         <span className="block text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
                           {p.brand}
@@ -325,6 +332,7 @@ export function SiteHeader() {
                       onClick={() => {
                         setAccountOpen(false)
                         setToken(null)
+                        qc.clear()
                       }}
                       className="flex w-full items-center gap-3 border-t border-outline-variant px-3 py-3 text-sm leading-5 text-error transition-colors hover:bg-surface-container"
                     >
@@ -465,7 +473,7 @@ export function SiteHeader() {
                     onClick={() => galleryRef.current?.click()}
                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 border border-white py-3 text-xs leading-4 font-bold tracking-[0.05em] uppercase transition-colors hover:bg-white hover:text-primary"
                   >
-                    <Image className="size-4 text-on-tertiary-container" />
+                    <ImageIcon className="size-4 text-on-tertiary-container" />
                     {t("Gallery")}
                   </button>
                 </div>
@@ -478,17 +486,34 @@ export function SiteHeader() {
               transition={{ delay: 0.42, duration: 0.3, ease: "easeOut" }}
               className="grid shrink-0 grid-cols-3 gap-px border-t border-white/20 bg-white/20"
             >
-              {mobileActions.map(({ label, href, icon: Icon }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex flex-col items-center gap-1.5 bg-primary py-4 text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-white/10"
-                >
-                  <Icon className="size-5" />
-                  {t(label)}
-                </Link>
-              ))}
+              {mobileActions.map(({ label, href, icon: Icon }) =>
+                label === "Sign Out" ? (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setMobileOpen(false)
+                      setToken(null)
+                      qc.clear()
+                      router.push("/login")
+                    }}
+                    className="flex flex-col items-center gap-1.5 bg-primary py-4 text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-white/10"
+                  >
+                    <Icon className="size-5" />
+                    {t(label)}
+                  </button>
+                ) : (
+                  <Link
+                    key={label}
+                    href={href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex flex-col items-center gap-1.5 bg-primary py-4 text-[10px] font-bold tracking-widest uppercase transition-colors hover:bg-white/10"
+                  >
+                    <Icon className="size-5" />
+                    {t(label)}
+                  </Link>
+                ),
+              )}
             </motion.div>
           </motion.div>
         ) : null}

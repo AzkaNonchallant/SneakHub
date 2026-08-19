@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, CreditCard, MapPin, Star, Truck } from "lucide-react"
@@ -168,11 +169,13 @@ export default function OrderDetailPage() {
                     key={i}
                     className="flex items-center gap-4 border border-outline bg-surface-container-lowest p-4"
                   >
-                    <div className="size-16 shrink-0 border border-outline bg-surface-container-low">
-                      <img
+                    <div className="relative size-16 shrink-0 border border-outline bg-surface-container-low">
+                      <Image
                         src={PLACEHOLDER_IMAGE}
                         alt={item.nama_produk ?? "Produk"}
-                        className="h-full w-full object-contain p-1 mix-blend-multiply"
+                        fill
+                        sizes="64px"
+                        className="object-contain p-1 mix-blend-multiply"
                       />
                     </div>
                     <div className="flex grow flex-col gap-1">

@@ -1,9 +1,11 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { ArrowUpRight, Plus, TrendingUp } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import type { ProductCardData } from "@/lib/api"
@@ -34,7 +36,12 @@ export function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.4, delay: index * 0.06 }}
+      role="link"
+      tabIndex={0}
       onClick={() => router.push(`/product/${product.id}`)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") router.push(`/product/${product.id}`)
+      }}
       className={cn(
         "group flex cursor-pointer flex-col border border-primary bg-surface-container-lowest transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#000] active:translate-y-0",
         number === undefined ? "w-72 shrink-0 snap-start" : "h-full w-auto",
@@ -60,11 +67,12 @@ export function ProductCard({
             </span>
           ) : null}
         </div>
-        <img
+        <Image
           src={product.image}
           alt={product.alt}
-          loading="lazy"
-          className="h-auto w-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+          fill
+          sizes="(max-width:768px) 50vw, 300px"
+          className="object-contain mix-blend-multiply transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
         />
       </div>
       <div className="flex grow flex-col p-4">
@@ -99,6 +107,8 @@ export function ProductCard({
                 setAdding(true)
                 try {
                   await addToCart.mutateAsync([{ product_id: product.id, jumlah: 1 }])
+                } catch {
+                  toast.error(t("Insufficient stock"))
                 } finally {
                   setAdding(false)
                 }

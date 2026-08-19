@@ -62,7 +62,7 @@ export function useRegister() {
 export function useMe() {
   return useQuery({
     queryKey: ["me"],
-    queryFn: () => api.get<{ data: User }>("/users/me").then((r) => r.data.data),
+    queryFn: ({ signal }) => api.get<{ data: User }>("/users/me", { signal }).then((r) => r.data.data),
   });
 }
 
@@ -86,9 +86,10 @@ export function useSellerActivation() {
   });
 }
 
-export function useSellerMe() {
+export function useSellerMe(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ["seller-me"],
+    enabled: options.enabled,
     queryFn: () => api.get<{ data: import("@/lib/api").SellerProfile }>("/seller/me").then((r) => r.data.data),
   });
 }
@@ -162,13 +163,16 @@ export type ProductParams = {
   max_price?: number;
   size?: string;
   sort?: string;
+  enabled?: boolean;
 };
 
 export function useProducts(params: ProductParams = {}) {
+  const { enabled = true, ...rest } = params;
   return useQuery({
-    queryKey: ["products", params],
-    queryFn: () =>
-      api.get<{ data: ApiList<ApiProduct> }>(pageUrl("/products", params)).then((r) => r.data.data),
+    queryKey: ["products", rest],
+    enabled,
+    queryFn: ({ signal }) =>
+      api.get<{ data: ApiList<ApiProduct> }>(pageUrl("/products", rest), { signal }).then((r) => r.data.data),
   });
 }
 
@@ -176,13 +180,13 @@ export function useProduct(id: string) {
   return useQuery({
     queryKey: ["product", id],
     enabled: Boolean(id),
-    queryFn: () => api.get<{ data: ApiProduct }>(`/products/${id}`).then((r) => r.data.data),
+    queryFn: ({ signal }) => api.get<{ data: ApiProduct }>(`/products/${id}`, { signal }).then((r) => r.data.data),
   });
 }
 
 export function useProductReviews(productId: string, limit = 20) {
   return useQuery({
-    queryKey: ["product-reviews", productId],
+    queryKey: ["product-reviews", productId, limit],
     enabled: Boolean(productId),
     queryFn: () =>
       api
@@ -191,12 +195,15 @@ export function useProductReviews(productId: string, limit = 20) {
   });
 }
 
+// ponytail: invalidate lintas key — seller UI pakai seller-products, detail pakai product
+const PRODUCT_KEYS: string[][] = [["products"], ["seller-products"], ["product"]];
+
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: Record<string, unknown>) =>
       api.post<{ data: ApiProduct }>("/products", body).then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+    onSuccess: () => PRODUCT_KEYS.forEach((k) => qc.invalidateQueries({ queryKey: k })),
   });
 }
 
@@ -205,7 +212,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) =>
       api.put<{ data: ApiProduct }>(`/products/${id}`, body).then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+    onSuccess: () => PRODUCT_KEYS.forEach((k) => qc.invalidateQueries({ queryKey: k })),
   });
 }
 
@@ -213,7 +220,7 @@ export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/products/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+    onSuccess: () => PRODUCT_KEYS.forEach((k) => qc.invalidateQueries({ queryKey: k })),
   });
 }
 
@@ -222,14 +229,16 @@ export function useDeleteProductImage() {
   return useMutation({
     mutationFn: ({ productId, imageId }: { productId: string; imageId: string }) =>
       api.delete(`/products/${productId}/images/${imageId}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+    onSuccess: () => PRODUCT_KEYS.forEach((k) => qc.invalidateQueries({ queryKey: k })),
   });
 }
 
 export function useUploadProductImage() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ productId, fd }: { productId: string; fd: FormData }) =>
       api.post(`/products/${productId}/images`, fd),
+    onSuccess: () => PRODUCT_KEYS.forEach((k) => qc.invalidateQueries({ queryKey: k })),
   });
 }
 
@@ -245,7 +254,7 @@ export function useSearchByImage() {
 export function useCart() {
   return useQuery({
     queryKey: ["cart"],
-    queryFn: () => api.get<{ data: ApiCart }>("/carts").then((r) => r.data.data),
+    queryFn: ({ signal }) => api.get<{ data: ApiCart }>("/carts", { signal }).then((r) => r.data.data),
   });
 }
 
@@ -314,8 +323,8 @@ export function useDeleteAddress() {
 export function useOrders(params: { page?: number; limit?: number; status?: string } = {}) {
   return useQuery({
     queryKey: ["orders", params],
-    queryFn: () =>
-      api.get<{ data: ApiList<ApiOrder> }>(pageUrl("/orders", params)).then((r) => r.data.data),
+    queryFn: ({ signal }) =>
+      api.get<{ data: ApiList<ApiOrder> }>(pageUrl("/orders", params), { signal }).then((r) => r.data.data),
   });
 }
 
@@ -335,6 +344,8 @@ export function useUpdateOrderStatus() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["order"] });
+      qc.invalidateQueries({ queryKey: ["seller-orders"] });
+      qc.invalidateQueries({ queryKey: ["seller-dashboard"] });
     },
   });
 }
@@ -555,6 +566,7 @@ export function useShipOrder() {
       qc.invalidateQueries({ queryKey: ["seller-orders"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["order"] });
+      qc.invalidateQueries({ queryKey: ["seller-dashboard"] });
     },
   });
 }
@@ -583,8 +595,14 @@ export function useTrustScore(sellerId?: string) {
   return useQuery({
     queryKey: ["trust-score", sellerId],
     enabled: Boolean(sellerId),
+    // ponytail: seller baru belum punya trust score — 404 dianggap kosong,
+    // bukan error, biar UI tidak nampilin error
     queryFn: () =>
-      api.get<{ data: SellerTrustScore }>(`/sellers/${sellerId}/trust-score`).then((r) => r.data.data),
+      api.get<{ data: SellerTrustScore }>(`/sellers/${sellerId}/trust-score`).then((r) => r.data.data)
+        .catch((err) => {
+          if (err.response?.status === 404) return null;
+          throw err;
+        }),
   });
 }
 

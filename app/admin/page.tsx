@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
               {t("Moderation Queue")} (PENDING)
             </h2>
             <Link
-              href="/admin/inventory"
+              href="/admin/inventory?status=PENDING"
               className="flex items-center gap-1 text-xs font-bold tracking-[0.05em] text-on-tertiary-container uppercase hover:text-primary"
             >
               {t("View all")} <ArrowUpRight className="size-3.5 rotate-45" />

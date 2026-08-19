@@ -11,8 +11,15 @@ export function getToken(): string | null {
 
 export function setToken(token: string | null) {
   if (typeof window === "undefined") return;
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+    // ponytail: mirror ke cookie untuk proxy.ts guard /admin (JWT >4KB akan gagal —
+    // backend harus cookie HttpOnly untuk solusi penuh)
+    document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=604800; samesite=lax`;
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`;
+  }
 }
 
 export function formatRp(n: number): string {
@@ -36,7 +43,7 @@ export function isAdminRole(peran?: string): boolean {
 // pakai brand Nike yang sudah ada di seed (dari product detail AF1)
 export const DEFAULT_BRAND_ID = "2d72d218-2e0b-449d-a3b2-1521cd21ff20";
 
-export const api = axios.create({ baseURL: "/api" });
+export const api = axios.create({ baseURL: "/api", timeout: 15000 });
 
 api.interceptors.request.use((config) => {
   const token = getToken();

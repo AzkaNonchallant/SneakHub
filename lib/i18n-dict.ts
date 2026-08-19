@@ -89,6 +89,10 @@ export const ID_DICT: Record<string, string> = {
   "Current Ask": "Harga Sekarang",
   // product/[id]
   "Loading…": "Memuat…",
+  "Failed to load trust score": "Gagal memuat skor kepercayaan",
+  "Product saved": "Produk disimpan",
+  "Product saved, image upload failed": "Produk disimpan, tetapi gambar gagal diunggah",
+  "Product updated, image upload failed": "Produk diperbarui, tetapi gambar gagal diunggah",
   Stock: "Stok",
   sizes: "ukuran",
   "Add to Cart": "Tambah ke Keranjang",
@@ -516,4 +520,27 @@ export const ID_DICT: Record<string, string> = {
   "Seller application rejected — you may reapply":
     "Pengajuan seller ditolak — Anda boleh mengajukan ulang",
   "Seller verified": "Seller terverifikasi",
+  // audit fixes
+  "Category is required": "Kategori wajib diisi",
+  "Phone number must contain numbers only": "Nomor telepon hanya boleh angka",
+  "Name is required": "Nama wajib diisi",
+  "Order shipped": "Pesanan dikirim",
+  "Biteship unavailable — enter tracking number manually:":
+    "Biteship tidak tersedia — masukkan nomor resi manual:",
+  "Price Alert On": "Alert Harga Aktif",
+  "Notify on Price Drop": "Notifikasi saat Harga Turun",
+  "Role updated": "Peran diperbarui",
+  "Seller status updated": "Status penjual diperbarui",
+  "No reviews yet.": "Belum ada ulasan.",
+  New: "Baru",
+  Rating: "Rating",
+  Used: "Second",
+  Sold: "Terjual",
+  Refurbished: "Refurbished",
+  "Something went wrong": "Terjadi kesalahan",
+  "An unexpected error occurred. Please try again.":
+    "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+  "Try again": "Coba lagi",
+  "Searching…": "Mencari…",
+  "Order created": "Pesanan dibuat",
 }

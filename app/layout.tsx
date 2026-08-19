@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Toaster } from "sonner";
 import { Archivo_Narrow, Inter } from "next/font/google";
 import { Providers } from "./providers";
@@ -21,10 +22,13 @@ export const metadata: Metadata = {
     "Sneaker resale marketplace with visual search, price prediction, and secure authentication.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // ponytail: cookie lang di-set client-side (toggleLang) — SSR baca di sini,
+  // tanpa flash EN->ID di full navigation
+  const lang = (await cookies()).get("sneakhub_lang")?.value === "id" ? "id" : "en"
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${inter.variable} ${archivoNarrow.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

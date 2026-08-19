@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useState } from "react"
+import Image from "next/image"
 import { Dialog } from "@base-ui/react/dialog"
 import { ImagePlus, X } from "lucide-react"
 import { useDropzone } from "react-dropzone"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -89,16 +91,21 @@ export function TambahProdukButton() {
           v.condition === "new" ? 10.0 : v.condition === "refurbished" ? 8.0 : 7.0,
         category_id: v.category_id,
       })
-      if (file) {
-        const img = new FormData()
-        img.append("gambar", file)
-        img.append("urutan_tampil", "1")
-        await upload.mutateAsync({ productId: product.product_id, fd: img })
-      }
       setImage("")
       setFile(null)
       setErrors({})
       setOpen(false)
+      toast.success(t("Product saved"))
+      if (file) {
+        const img = new FormData()
+        img.append("gambar", file)
+        img.append("urutan_tampil", "1")
+        // ponytail: jangan block dialog — produk sudah tersimpan; gambar gagal
+        // = toast, user bisa retry via edit
+        upload.mutateAsync({ productId: product.product_id, fd: img }).catch(() => {
+          toast.error(t("Product saved, image upload failed"))
+        })
+      }
     } catch (err) {
       setFormError(errMessage(err))
     }
@@ -134,16 +141,18 @@ export function TambahProdukButton() {
               <div
                 {...getRootProps()}
                 className={[
-                  "flex h-40 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-outline-variant bg-surface-container-low p-4 text-center transition-colors",
+                  "relative flex h-40 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-outline-variant bg-surface-container-low p-4 text-center transition-colors",
                   isDragActive ? "border-primary bg-surface-container" : "hover:bg-surface-container",
                 ].join(" ")}
               >
                 <input {...getInputProps()} />
                 {image ? (
-                  <img
+                  <Image
                     src={image}
                     alt={t("Product preview")}
-                    className="h-full w-full object-contain mix-blend-multiply"
+                    fill
+                    sizes="400px"
+                    className="object-contain mix-blend-multiply"
                   />
                 ) : (
                   <>

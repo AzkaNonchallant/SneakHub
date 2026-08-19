@@ -19,17 +19,32 @@ const statusTone: Record<string, string> = {
 
 export default function AdminInventoryPage() {
   const t = useT()
-  const { data, isLoading } = useAdminProducts({ limit: 50 })
+  const [statusFilter, setStatusFilter] = useState<string>(() => {
+    // ponytail: useSearchParams butuh Suspense boundary — baca langsung aja
+    if (typeof window === "undefined") return ""
+    return new URLSearchParams(window.location.search).get("status") ?? ""
+  })
+  const { data, isLoading } = useAdminProducts({ limit: 50, status: statusFilter || undefined })
   const update = useUpdateProductStatus()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [notes, setNotes] = useState<Record<string, string>>({})
 
   const save = async (p: AdminProduct) => {
     const next = drafts[p.product_id] ?? p.status_publikasi
     if (next === p.status_publikasi) return
-    const catatan = window.prompt(`${t("Moderation note for")} "${p.nama_produk}":`, t("Product passed moderation"))
-    if (catatan === null) return
+    const catatan = notes[p.product_id]?.trim() || t("Product passed moderation")
     try {
       await update.mutateAsync({ productId: p.product_id, body: { status_publikasi: next, catatan } })
+      setDrafts((d) => {
+        const rest = { ...d }
+        delete rest[p.product_id]
+        return rest
+      })
+      setNotes((n) => {
+        const rest = { ...n }
+        delete rest[p.product_id]
+        return rest
+      })
       toast.success(t("Product status updated"))
     } catch (err) {
       toast.error(errMessage(err))
@@ -50,6 +65,19 @@ export default function AdminInventoryPage() {
         </p>
       </div>
 
+      <div className="mb-4 flex items-center gap-2">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border border-outline-variant bg-transparent px-2 py-1 text-xs focus:border-on-tertiary-container focus:ring-0"
+        >
+          <option value="">ALL</option>
+          {statuses.map((s) => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="overflow-x-auto border border-outline-variant bg-surface-container-lowest">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
@@ -57,19 +85,20 @@ export default function AdminInventoryPage() {
               <th className="px-4 py-3 font-bold">{t("Product")}</th>
               <th className="px-4 py-3 font-bold">{t("Price")}</th>
               <th className="px-4 py-3 font-bold">{t("Status")}</th>
+              <th className="px-4 py-3 font-bold">{t("Moderation note")}</th>
               <th className="px-4 py-3 font-bold">{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   Loading…
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   {t("No data yet.")}
                 </td>
               </tr>
@@ -84,6 +113,15 @@ export default function AdminInventoryPage() {
                     >
                       {p.status_publikasi}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="text"
+                      value={notes[p.product_id] ?? ""}
+                      onChange={(e) => setNotes((n) => ({ ...n, [p.product_id]: e.target.value }))}
+                      placeholder={t("Product passed moderation")}
+                      className="w-56 border border-outline-variant bg-transparent px-2 py-1 text-xs focus:border-on-tertiary-container focus:ring-0"
+                    />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">

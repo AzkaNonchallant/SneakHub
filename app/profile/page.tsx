@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { BadgeCheck, Bell, Heart, Lock, MapPin, Package, Settings, Star } from "lucide-react"
+import { useEffect, useState } from "react"
+import { BadgeCheck, Bell, Heart, Lock, Package, Settings, Star } from "lucide-react"
 import Link from "next/link"
 
 import { AddressSection } from "@/components/address-manager"
@@ -11,7 +11,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { errMessage, formatRp, isSellerRole, SELLER_REQ_KEY, type SellerActivationResult } from "@/lib/api"
-import { useMe, useOrders, useSellerActivation } from "@/lib/hooks"
+import { useMe, useOrders, useSellerActivation, useSellerMe } from "@/lib/hooks"
 import { useT } from "@/lib/i18n"
 
 const menuItems = [
@@ -40,6 +40,24 @@ export default function ProfilePage() {
       return null
     }
   })
+
+  // ponytail: status server override localStorage — kalau admin REJECTED,
+  // localStorage usang bikin user tak bisa apply ulang; /seller/me tetap ada walau ditolak
+  const { data: sellerMe } = useSellerMe({ enabled: sellerReq?.status_verifikasi === "PENDING" })
+  const sellerReqView: SellerActivationResult | null = sellerMe?.status_verifikasi
+    ? { seller_id: sellerMe.seller_id, status_verifikasi: sellerMe.status_verifikasi }
+    : sellerReq
+  useEffect(() => {
+    if (sellerMe?.status_verifikasi && sellerMe.status_verifikasi !== sellerReq?.status_verifikasi) {
+      localStorage.setItem(
+        SELLER_REQ_KEY,
+        JSON.stringify({
+          seller_id: sellerMe.seller_id,
+          status_verifikasi: sellerMe.status_verifikasi,
+        }),
+      )
+    }
+  }, [sellerMe, sellerReq])
 
   const orders = ordersData?.items ?? []
   const initial = user?.nama?.charAt(0).toUpperCase() ?? "S"
@@ -73,22 +91,22 @@ export default function ProfilePage() {
             </span>
             {!isSeller ? (
               <>
-              {sellerReq?.status_verifikasi?.toUpperCase() === "PENDING" ? (
+              {sellerReqView?.status_verifikasi?.toUpperCase() === "PENDING" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-outline bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-on-tertiary-container uppercase">
                   <BadgeCheck className="size-4" />
                   {t("Seller application pending admin verification")}
                 </span>
-              ) : sellerReq?.status_verifikasi?.toUpperCase() === "REJECTED" ? (
+              ) : sellerReqView?.status_verifikasi?.toUpperCase() === "REJECTED" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-error bg-error/10 px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-error uppercase">
                   {t("Seller application rejected — you may reapply")}
                 </span>
-              ) : sellerReq?.status_verifikasi?.toUpperCase() === "VERIFIED" ? (
+              ) : sellerReqView?.status_verifikasi?.toUpperCase() === "VERIFIED" ? (
                 <span className="mt-4 inline-flex items-center gap-1 border border-primary bg-surface-container-low px-3 py-1 text-xs leading-4 font-bold tracking-[0.05em] text-[#10B981] uppercase">
                   <BadgeCheck className="size-4" />
                   {t("Seller verified")}
                 </span>
               ) : null}
-              {sellerReq?.status_verifikasi?.toUpperCase() !== "PENDING" ? (
+              {sellerReqView?.status_verifikasi?.toUpperCase() !== "PENDING" ? (
               <Button
                 type="button"
                 disabled={activate.isPending}

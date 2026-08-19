@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { Lock, Minus, Plus, ShieldCheck, X } from "lucide-react"
 import { motion } from "motion/react"
@@ -40,10 +41,12 @@ function CartItemRow({
       className="relative flex flex-col border border-outline bg-surface-container-lowest sm:flex-row"
     >
       <div className="relative flex aspect-square w-full items-center justify-center border-b border-outline bg-surface-container-low p-4 sm:aspect-auto sm:w-48 sm:border-r sm:border-b-0">
-        <img
+        <Image
           src={image}
           alt={name}
-          className="h-full w-full object-cover mix-blend-multiply"
+          fill
+          sizes="200px"
+          className="object-cover mix-blend-multiply"
         />
       </div>
       <div className="flex flex-1 flex-col justify-between p-6">
@@ -167,7 +170,11 @@ export default function CartPage() {
           </p>
         </motion.div>
 
-        {items.length === 0 ? (
+        {!cart ? (
+          <p className="border border-outline bg-surface-container-lowest p-16 text-center text-sm text-muted-foreground">
+            {t("Calculating…")}
+          </p>
+        ) : items.length === 0 ? (
           <div className="border border-outline bg-surface-container-lowest p-16 text-center">
             <p className="font-heading text-2xl leading-7 font-semibold text-primary uppercase">
               {t("Your cart is empty")}
@@ -192,6 +199,7 @@ export default function CartPage() {
                 />
               ))}
             </div>
+            {/* ponytail: satu tombol disabled selama mutate — race qty impossible */}
 
             <div className="lg:sticky lg:top-[100px] lg:col-span-4">
               <div className="relative flex flex-col gap-6 border border-outline bg-surface-container-lowest p-6 shadow-[4px_4px_0px_0px_#000]">

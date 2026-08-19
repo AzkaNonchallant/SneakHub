@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -9,7 +10,9 @@ import {
   LineChart,
   LogOut,
   Package,
+  ScrollText,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   Store,
   Users,
@@ -21,11 +24,14 @@ import { useLang, useT } from "@/lib/i18n"
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutGrid },
   { label: "Authentication", href: "/admin/authentication", icon: ShieldCheck },
+  { label: "Moderation", href: "/admin/moderasi", icon: ShieldAlert },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Categories", href: "/admin/categories", icon: FolderOpen },
   { label: "Analytics", href: "/admin/analytics", icon: LineChart },
   { label: "User Management", href: "/admin/users", icon: Users },
   { label: "Sellers", href: "/admin/sellers", icon: Store },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { label: "Logs", href: "/admin/logs", icon: ScrollText },
 ]
 
 const tabItems = navItems.filter(({ href }) => href !== "/admin/authentication")
@@ -38,8 +44,10 @@ export function AdminSidebar() {
   const { lang, toggleLang } = useLang()
   const pathname = usePathname() ?? ""
   const router = useRouter()
+  const qc = useQueryClient()
 
   const signOut = () => {
+    qc.clear()
     setToken(null)
     router.push("/login")
   }

@@ -124,8 +124,8 @@ export default function ProductDetailPage() {
                   onClick={() => setActiveImage(i)}
                   className={
                     i === activeImage
-                      ? "flex aspect-square cursor-pointer items-center justify-center border border-primary bg-surface-container-low"
-                      : "flex aspect-square cursor-pointer items-center justify-center border border-outline-variant bg-surface-container-low transition-colors hover:border-primary"
+                      ? "relative flex aspect-square cursor-pointer items-center justify-center border border-primary bg-surface-container-low"
+                      : "relative flex aspect-square cursor-pointer items-center justify-center border border-outline-variant bg-surface-container-low transition-colors hover:border-primary"
                   }
                 >
                   <Image src={img} alt="" fill sizes="25vw" className="object-contain p-2" />
